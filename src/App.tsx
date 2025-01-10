@@ -7,14 +7,14 @@ import Services from './pages/Services'
 import Appointments from './pages/Appointments'
 import Children from './pages/Children'
 import Dashboard from './pages/Dashboard'
+import Login from './pages/Login'
 
 const App: React.FC = () => {
   return (
     <Router>
       <div>
-        <Header />
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Login />} />
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<Services />} />
           <Route path="/appointments" element={<Appointments />} />
