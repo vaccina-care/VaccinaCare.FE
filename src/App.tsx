@@ -8,13 +8,16 @@ import Appointments from './pages/Appointments'
 import Children from './pages/Children'
 import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
+import Register from './pages/Register'
 
 const App: React.FC = () => {
   return (
     <Router>
       <div>
         <Routes>
+          {/* <Route path="/" element={<Home />} /> */}
           <Route path="/" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<Services />} />
           <Route path="/appointments" element={<Appointments />} />
