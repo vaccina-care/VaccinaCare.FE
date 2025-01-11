@@ -7,6 +7,8 @@ interface AuthLayoutProps {
   isReversed?: boolean
 }
 
+
+// Changing layout UI base on Login & Register
 const AuthLayout: React.FC<AuthLayoutProps> = ({ children, illustration, isReversed = false }) => {
   return (
     <motion.div 

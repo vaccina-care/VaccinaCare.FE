@@ -27,8 +27,9 @@ const Login = () => {
             />
           </motion.div>
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight">
-              VACINNA<span className="text-blue-500">CARE</span>
+            <h1 className="text-3xl font-bold tracking-tight font-yeseva">
+              <span className="tracking-[0.1em]">VACINNA</span>
+              <span className="text-blue-500 tracking-[0.1em]">CARE</span>
             </h1>
             <p className="text-sm text-muted-foreground">
               The safety of your child today brings joy to parents tomorrow.

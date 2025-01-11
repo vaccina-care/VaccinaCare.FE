@@ -7,11 +7,11 @@ import AuthLayout from "@/components/AuthLayout"
 
 // Import images
 import logoImage from "@/assets/images/logo.png"
-import loginIllustration from "@/assets/images/login.png"
+import registerIllustration from "@/assets/images/register.png"
 
 const Register = () => {
   return (
-    <AuthLayout illustration={loginIllustration} isReversed>
+    <AuthLayout illustration={registerIllustration} isReversed>
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-3 items-center text-center">
           <motion.div 
@@ -27,8 +27,9 @@ const Register = () => {
             />
           </motion.div>
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight">
-                VACINNA<span className="text-blue-500">CARE</span>
+            <h1 className="text-3xl font-bold tracking-tight font-yeseva">
+                <span className="tracking-[0.1em]">VACINNA</span>
+                <span className="text-blue-500 tracking-[0.1em]">CARE</span>
             </h1>
             <p className="text-sm text-muted-foreground">
               The safety of your child today brings joy to parents tomorrow.
