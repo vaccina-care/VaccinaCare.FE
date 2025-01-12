@@ -56,7 +56,9 @@ module.exports = {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
-  			}
+  			},
+			//màu xanh xài nhiều
+			'main-blue': '#1F2B6C',
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

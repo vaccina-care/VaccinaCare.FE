@@ -1,12 +1,18 @@
-import React from 'react'
+import HeroSection from "@/components/landing/HeroSection"
+import WelcomeSection from "@/components/landing/WelcomeSection"
+import VaccineSection from "@/components/landing/VaccineSection"
+import DoctorSection from "@/components/landing/DoctorSection"
 
-const Home: React.FC = () => {
+const Home = () => {
   return (
     <div>
-      <h1>Welcome to VaccinaCare</h1>
-      <p>Your trusted partner in child vaccination management</p>
+      <HeroSection />
+      <WelcomeSection />
+      <VaccineSection />
+      <DoctorSection />
     </div>
   )
 }
 
 export default Home
+

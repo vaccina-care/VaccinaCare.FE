@@ -16,7 +16,7 @@ const Footer = () => {
               <span className="text-blue-300 tracking-[0.08em]">CARE</span>
             </Link>
             <p className="text-gray-300">
-              Leading the Way in Medical Excellence, Trusted Care.
+              Leading the Way in Childhood Health, Trusted Care for Growing Futures.
             </p>
           </div>
 
@@ -38,7 +38,7 @@ const Footer = () => {
               <li>Call: (237) 681-812-255</li>
               <li>Email: skibidi@gmail.com</li>
               <li>Address: 0123 Some place</li>
-              <li>Some country</li>
+              <li>Country: Viet Nam</li>
             </ul>
           </div>
 
