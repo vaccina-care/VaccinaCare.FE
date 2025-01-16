@@ -5,7 +5,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ChevronLeft, ChevronRight, Linkedin, Facebook, Instagram } from 'lucide-react'
 
 //Change the hover color of the arrow
-const hoverColor = 'bg-main-blue'
 
 const doctors = [
   {

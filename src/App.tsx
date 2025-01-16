@@ -9,7 +9,7 @@ import Children from './pages/Children'
 import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
 import Register from './pages/Register'
-import { AnimatePresence } from 'framer-motion'
+
 import Footer from './components/Footer'
 
 const App: React.FC = () => {
