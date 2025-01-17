@@ -5,13 +5,13 @@ import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import AuthLayout from "@/components/AuthLayout"
 
-//import images
+// Import images
 import logoImage from "@/assets/images/logo.png"
-import loginIllustration from "@/assets/images/login.png"
+import registerIllustration from "@/assets/images/register.png"
 
-const Login = () => {
+const Register = () => {
   return (
-    <AuthLayout illustration={loginIllustration}>
+    <AuthLayout illustration={registerIllustration} isReversed>
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-3 items-center text-center">
           <motion.div 
@@ -28,8 +28,8 @@ const Login = () => {
           </motion.div>
           <div className="space-y-1">
             <h1 className="text-3xl font-bold tracking-tight font-yeseva">
-              <span className="tracking-[0.1em]">VACINNA</span>
-              <span className="text-blue-500 tracking-[0.1em]">CARE</span>
+                <span className="tracking-[0.1em]">VACINNA</span>
+                <span className="text-blue-500 tracking-[0.1em]">CARE</span>
             </h1>
             <p className="text-sm text-muted-foreground">
               The safety of your child today brings joy to parents tomorrow.
@@ -40,7 +40,7 @@ const Login = () => {
           <div className="space-y-2">
             <Input
               type="email"
-              placeholder="Username & email"
+              placeholder="Email"
               className="h-12"
             />
           </div>
@@ -51,17 +51,24 @@ const Login = () => {
               className="h-12"
             />
           </div>
+          <div className="space-y-2">
+            <Input
+              type="password"
+              placeholder="Confirm password"
+              className="h-12"
+            />
+          </div>
           <div className="text-sm">
-            {"Don't have account? "}
+            {"Already have an account? "}
             <Link
-              to="/register"
+              to="/login"
               className="text-blue-500 hover:text-blue-700 font-medium"
             >
-              Create account
+              Login
             </Link>
           </div>
           <Button className="w-full h-12 text-base bg-[#1e1b4b] hover:bg-[#1e1b4b]/90">
-            Login
+            Register
           </Button>
         </CardContent>
       </Card>
@@ -69,5 +76,5 @@ const Login = () => {
   )
 }
 
-export default Login
+export default Register
 

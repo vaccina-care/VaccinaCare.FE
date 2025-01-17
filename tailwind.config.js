@@ -56,7 +56,9 @@ module.exports = {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
-  			}
+  			},
+			//màu xanh xài nhiều
+			'main-blue': '#1F2B6C',
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
@@ -84,7 +86,10 @@ module.exports = {
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out'
-  		}
+  		},
+		fontFamily: {
+        'yeseva': ['"Yeseva One"', 'cursive'],
+      },
   	}
   },
   plugins: [require("tailwindcss-animate")],
