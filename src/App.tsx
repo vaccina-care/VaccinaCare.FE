@@ -9,8 +9,8 @@ import Children from './pages/Children'
 import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
 import Register from './pages/Register'
-
 import Footer from './components/Footer'
+import { Toaster } from './components/ui/toaster'
 
 const App: React.FC = () => {
   return (
@@ -29,7 +29,8 @@ const App: React.FC = () => {
               <Route path="/dashboard" element={<Dashboard />} />
             </Routes>
         </main>
-        <Footer />
+        <Toaster/>
+        <Footer />  
       </div>
     </Router>
   )
