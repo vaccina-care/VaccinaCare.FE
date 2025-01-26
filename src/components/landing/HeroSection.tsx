@@ -30,7 +30,7 @@ const HeroSection = () => {
               <Link to="/services">Our Services</Link>
             </Button>
           </div>
-          <div className="relative object-cover">
+          <div className="relative">
             {/* Replace with your hero image */}
             <img
               src={heroImage}
