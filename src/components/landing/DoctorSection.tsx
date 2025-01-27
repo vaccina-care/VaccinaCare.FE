@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ChevronLeft, ChevronRight, Linkedin, Facebook, Instagram } from "lucide-react"
 
-// Assuming you have doctor images in your assets folder
+// Image url
 import doctorImage from "@/assets/images/welcome.png"
 
 const doctors = [
