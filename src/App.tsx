@@ -6,11 +6,12 @@ import About from "./pages/About"
 import Services from "./pages/Services"
 import Appointments from "./pages/Appointments"
 import Children from "./pages/Children"
-import Dashboard from "./pages/Dashboard"
+import Dashboard from "./pages/UserDashboard"
 import Login from "./pages/Login"
 import Register from "./pages/Register"
 import Footer from "./components/Footer"
 import { Toaster } from "./components/ui/toaster"
+import UserDashboard from "./pages/UserDashboard"
 
 const AppContent: React.FC = () => {
   const location = useLocation()
@@ -28,7 +29,7 @@ const AppContent: React.FC = () => {
           <Route path="/services" element={<Services />} />
           <Route path="/appointments" element={<Appointments />} />
           <Route path="/children" element={<Children />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/user-dashboard" element={<UserDashboard />} />
         </Routes>
       </main>
       {!isAuthPage && <Footer />}
