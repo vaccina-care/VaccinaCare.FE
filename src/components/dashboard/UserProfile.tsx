@@ -5,6 +5,10 @@ import { Label } from "@/components/ui/label"
 import { Pencil } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
+// Import images
+import avtUser from "@/assets/images/avtUser.png"
+
+// INTERFACE PART
 interface UserData {
   firstName: string
   lastName: string
@@ -31,6 +35,7 @@ interface District {
   province_code: string
 }
 
+
 const UserProfile = () => {
   const [isEditing, setIsEditing] = useState(false)
   const [userData, setUserData] = useState<UserData>({
@@ -43,6 +48,7 @@ const UserProfile = () => {
     address: "123 Đường ABC",
   })
 
+  // Handle Province and Districts select box API 
   const [provinces, setProvinces] = useState<Province[]>([])
   const [districts, setDistricts] = useState<District[]>([])
 
@@ -86,7 +92,7 @@ const UserProfile = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <img
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-v1u550H0xXSGiXWP63zhL8iHBTFCF0.png"
+            src={avtUser}
             alt="Profile"
             className="h-16 w-16 rounded-full object-cover"
           />

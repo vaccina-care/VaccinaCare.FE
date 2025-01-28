@@ -3,7 +3,6 @@ import axiosInstance from "./axiosInstance";
 
 export namespace Auth {
 
-
 //REGISTER
   //Payload gửi đi tới API
   export interface RegisterPayload {
