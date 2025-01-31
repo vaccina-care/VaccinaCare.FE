@@ -4,7 +4,7 @@ const axiosInstance = axios.create({
   baseURL: "http://localhost:5000/api", 
 })
 
-// Request interceptor
+// Get accessToken from localStorage -> attach to Bearer to enter auth page
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken")
