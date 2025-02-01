@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 
-import logoImage from "@/assets/images/notFound.png"
+import notFoundImage from "@/assets/images/notFound.png"
 
 const NotFound: React.FC = () => {
   return (
@@ -42,7 +42,7 @@ const NotFound: React.FC = () => {
             className="flex justify-center"
           >
             <img
-              src={logoImage}
+              src={notFoundImage}
               alt="404 Illustration"
               className="w-full h-full object-cover"
             />

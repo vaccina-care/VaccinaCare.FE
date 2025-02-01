@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
@@ -21,6 +21,7 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
   const { toast } = useToast()
+  const emailInputRef = useRef<HTMLInputElement>(null)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -56,6 +57,12 @@ const Register = () => {
       setIsLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (emailInputRef.current) {
+      emailInputRef.current.focus()
+    }
+  }, [])
 
   return (
     <AuthLayout illustration={registerIllustration} isReversed>
@@ -93,6 +100,7 @@ const Register = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                ref={emailInputRef}
               />
             </div>
             <div className="space-y-2">
