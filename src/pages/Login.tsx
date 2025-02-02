@@ -37,7 +37,7 @@ const Login = () => {
           description: "Welcome to VaccinaCare!",
           variant: "success",
         })
-        navigate("/Dashboard") // Redirect to dashboard after successful login
+        navigate("/user-dashboard") // Redirect to dashboard after successful login
       } else {
         throw new Error(response.message)
       }

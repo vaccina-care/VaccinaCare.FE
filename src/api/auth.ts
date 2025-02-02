@@ -1,5 +1,7 @@
 import axiosInstance from "./axiosInstance";
 
+const LOGIN_API = "/auth/login"
+const REGISTER_API =  "/auth/register"
 
 export namespace Auth {
 
@@ -38,12 +40,12 @@ export namespace Auth {
   }
 
   export async function login(payload: LoginPayload): Promise<LoginResponse> {
-    const response = await axiosInstance.post<LoginResponse>('/auth/login', payload);
+    const response = await axiosInstance.post<LoginResponse>(LOGIN_API, payload);
     return response.data; // Return the structured response data
   }
 
   export async function register(payload: RegisterPayload): Promise<RegisterResponse> {
-    const response = await axiosInstance.post<RegisterResponse>('/auth/register',payload,);
+    const response = await axiosInstance.post<RegisterResponse>(REGISTER_API,payload,);
     return response.data; // Return the response data directly
   }
 }
