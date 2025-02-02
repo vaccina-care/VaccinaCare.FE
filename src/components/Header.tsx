@@ -34,7 +34,7 @@ const Header = () => {
               </div>
               <div>
                 <p className="text-sm font-medium">WORK HOUR</p>
-                <p className="text-blue-600">05:00 - 24:00 Every fucking day</p>
+                <p className="text-blue-600">05:00 - 24:00 Every fuking days</p>
               </div>
             </div>
 
@@ -45,7 +45,7 @@ const Header = () => {
               </div>
               <div>
                 <p className="text-sm font-medium">LOCATION</p>
-                <p className="text-blue-600">0123 In the street</p>
+                <p className="text-blue-600">0123 Ho Chi Minh City</p>
               </div>
             </div>
           </div>
@@ -60,14 +60,13 @@ const Header = () => {
               <li><Link to="/" className="hover:text-blue-300">Home</Link></li>
               <li><Link to="/about" className="hover:text-blue-300">About us</Link></li>
               <li><Link to="/services" className="hover:text-blue-300">Services</Link></li>
-              <li><Link to="/news" className="hover:text-blue-300">News</Link></li>
               <li><Link to="/contact" className="hover:text-blue-300">Contact</Link></li>
             </ul>
             <Button 
               className="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700"
               asChild
             >
-              <Link to="/appointment">Appointment</Link>
+              <Link to="/Login">Login</Link>
             </Button>
           </div>
         </div>

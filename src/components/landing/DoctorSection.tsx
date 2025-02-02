@@ -1,50 +1,49 @@
-import { useCallback } from 'react'
-import useEmblaCarousel from 'embla-carousel-react'
+import { useCallback } from "react"
+import useEmblaCarousel from "embla-carousel-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ChevronLeft, ChevronRight, Linkedin, Facebook, Instagram } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Linkedin, Facebook, Instagram } from "lucide-react"
 
-//Change the hover color of the arrow
+// Image url
+import doctorImage from "@/assets/images/welcome.png"
 
 const doctors = [
   {
-    name: "Doctor's Name",
+    name: "Dr. Emily Johnson",
     specialty: "NEUROLOGY",
-    image: "/path-to-doctor-1.jpg"
+    image: doctorImage,
   },
   {
-    name: "Doctor's Name",
-    specialty: "NEUROLOGY",
-    image: "/path-to-doctor-2.jpg"
+    name: "Dr. Michael Chen",
+    specialty: "CARDIOLOGY",
+    image: doctorImage,
   },
   {
-    name: "Doctor's Name",
-    specialty: "NEUROLOGY",
-    image: "/path-to-doctor-3.jpg"
+    name: "Dr. Sarah Thompson",
+    specialty: "PEDIATRICS",
+    image: doctorImage,
   },
   {
-    name: "Doctor's Name",
-    specialty: "NEUROLOGY",
-    image: "/path-to-doctor-3.jpg"
+    name: "Dr. David Rodriguez",
+    specialty: "ORTHOPEDICS",
+    image: doctorImage,
   },
   {
-    name: "Doctor's Name",
-    specialty: "NEUROLOGY",
-    image: "/path-to-doctor-3.jpg"
+    name: "Dr. Lisa Patel",
+    specialty: "ONCOLOGY",
+    image: doctorImage,
   },
   {
-    name: "Doctor's Name",
-    specialty: "NEUROLOGY",
-    image: "/path-to-doctor-3.jpg"
+    name: "Dr. James Wilson",
+    specialty: "DERMATOLOGY",
+    image: doctorImage,
   },
-  
-  // Add more doctors as needed
 ]
 
 const DoctorSection = () => {
   const [emblaRef, emblaApi] = useEmblaCarousel({
-    align: 'start',
-    loop: true
+    align: "start",
+    loop: true,
   })
 
   const scrollPrev = useCallback(() => {
@@ -56,23 +55,19 @@ const DoctorSection = () => {
   }, [emblaApi])
 
   return (
-    <section className="py-16">
+    <section className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
         <div className="text-center space-y-4 mb-12">
-          <span className="text-blue-500 font-medium">
-            TRUSTED CARE
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-[#1e1b4b] font-yeseva">
-            Our Doctors
-          </h2>
+          <span className="text-blue-500 font-medium">TRUSTED CARE</span>
+          <h2 className="text-3xl md:text-4xl font-bold text-[#1e1b4b] font-yeseva">Our Doctors</h2>
         </div>
 
-        <div className="relative">
+        <div className="relative px-8">
           {/* Carousel Navigation */}
           <Button
             variant="outline"
             size="icon"
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10"
+            className="absolute -left-5 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md hover:bg-gray-100"
             onClick={scrollPrev}
           >
             <ChevronLeft className="h-6 w-6" />
@@ -80,7 +75,7 @@ const DoctorSection = () => {
           <Button
             variant="outline"
             size="icon"
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10"
+            className="absolute -right-5 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md hover:bg-gray-100"
             onClick={scrollNext}
           >
             <ChevronRight className="h-6 w-6" />
@@ -88,16 +83,16 @@ const DoctorSection = () => {
 
           {/* Carousel */}
           <div className="overflow-hidden" ref={emblaRef}>
-            <div className="flex gap-6">
+            <div className="flex -mx-4">
               {doctors.map((doctor, index) => (
-                <div key={index} className="flex-[0_0_100%] min-w-0 md:flex-[0_0_50%] lg:flex-[0_0_33.333%]">
+                <div key={index} className="flex-[0_0_100%] min-w-0 md:flex-[0_0_50%] lg:flex-[0_0_33.333%] px-4">
                   <Card className="overflow-hidden">
                     <img
-                      src={doctor.image}
+                      src={doctor.image || "/placeholder.svg"}
                       alt={doctor.name}
                       className="w-full h-64 object-cover"
                     />
-                    <CardContent className="text-center p-6 bg-blue-50">
+                    <CardContent className="text-center p-6 bg-white">
                       <h3 className="font-medium text-lg mb-1">{doctor.name}</h3>
                       <p className="text-blue-600 mb-4">{doctor.specialty}</p>
                       <div className="flex justify-center gap-4 mb-4">
@@ -111,11 +106,7 @@ const DoctorSection = () => {
                           <Instagram className="h-4 w-4" />
                         </Button>
                       </div>
-                      <Button 
-                        className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90"
-                      >
-                        View Profile
-                      </Button>
+                      <Button className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90 text-white">View Profile</Button>
                     </CardContent>
                   </Card>
                 </div>

@@ -1,27 +1,75 @@
+import { useEffect, useRef, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import AuthLayout from "@/components/AuthLayout"
+import { Auth } from "@/api/auth"
+import { useToast } from "@/hooks/use-toast"
 
-//import images
+// Import images
 import logoImage from "@/assets/images/logo.png"
 import loginIllustration from "@/assets/images/login.png"
 
 const Login = () => {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate()
+  const { toast } = useToast()
+  const emailInputRef = useRef<HTMLInputElement>(null)
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    try {
+      const response = await Auth.login({ email, password })
+      if (response.isSuccess) {
+        // Store tokens in localStorage
+        localStorage.setItem("accessToken", response.data.accessToken)
+        localStorage.setItem("refreshToken", response.data.refreshToken)
+
+        toast({
+          title: "Login Successful",
+          description: "Welcome to VaccinaCare!",
+          variant: "success",
+        })
+        navigate("/user-dashboard") // Redirect to dashboard after successful login
+      } else {
+        throw new Error(response.message)
+      }
+    } catch (error) {
+      toast({
+        title: "Wrong email or password",
+        description: error instanceof Error ? error.message : "An unexpected error occurred.",
+        variant: "error",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (emailInputRef.current) {
+      emailInputRef.current.focus()
+    }
+  }, [])
+
   return (
     <AuthLayout illustration={loginIllustration}>
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-3 items-center text-center">
-          <motion.div 
+          <motion.div
             initial={{ scale: 0.5 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.5 }}
             className="w-24 h-24"
           >
             <img
-              src={logoImage}
+              src={logoImage || "/placeholder.svg"}
               alt="VacinnaCare Logo"
               className="w-full h-full object-contain"
             />
@@ -37,32 +85,42 @@ const Login = () => {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Input
-              type="email"
-              placeholder="Username & email"
-              className="h-12"
-            />
-          </div>
-          <div className="space-y-2">
-            <Input
-              type="password"
-              placeholder="Password"
-              className="h-12"
-            />
-          </div>
-          <div className="text-sm">
-            {"Don't have account? "}
-            <Link
-              to="/register"
-              className="text-blue-500 hover:text-blue-700 font-medium"
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Input
+                type="email"
+                placeholder="Email"
+                className="h-12"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                ref={emailInputRef}
+              />
+            </div>
+            <div className="space-y-2">
+              <Input
+                type="password"
+                placeholder="Password"
+                className="h-12"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <div className="text-sm">
+              {"Don't have account? "}
+              <Link to="/register" className="text-blue-500 hover:text-blue-700 font-medium">
+                Create account
+              </Link>
+            </div>
+            <Button
+              type="submit"
+              className="w-full h-12 text-base bg-[#1e1b4b] hover:bg-[#1e1b4b]/90"
+              disabled={isLoading}
             >
-              Create account
-            </Link>
-          </div>
-          <Button className="w-full h-12 text-base bg-[#1e1b4b] hover:bg-[#1e1b4b]/90">
-            Login
-          </Button>
+              {isLoading ? "Logging in..." : "Login"}
+            </Button>
+          </form>
         </CardContent>
       </Card>
     </AuthLayout>
