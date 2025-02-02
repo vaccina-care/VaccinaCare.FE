@@ -121,11 +121,13 @@ const UserProfile = () => {
     return <div>No user data available.</div>
   }
 
+
+  // Nhớ add lại userData.imageUrl fetch
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <img src={userData.imageUrl || defaultAvatar} alt="Profile" className="h-16 w-16 rounded-full object-cover" />
+          <img src={defaultAvatar} alt="Profile" className="h-16 w-16 rounded-full object-cover" />
           <div>
             <h2 className="text-xl font-semibold">{userData.fullName}</h2>
             <p className="text-sm text-gray-500">{userData.roleName}</p>
