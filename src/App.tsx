@@ -42,7 +42,7 @@ const AppContent: React.FC = () => {
               <Route path="/about" element={<About />} />
               <Route path="/services" element={<Services />} />
               <Route path="/appointments" element={<Appointments />} />
-              <Route path="/user-dashboard" element={<UserDashboard />} />
+              <Route path="/user-dashboard/*" element={<UserDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </PageTransition>
