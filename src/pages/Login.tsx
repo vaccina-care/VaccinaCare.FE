@@ -1,12 +1,12 @@
-import { useEffect, useRef, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useState } from "react"
+import { useNavigate, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import AuthLayout from "@/components/AuthLayout"
-import { Auth } from "@/api/auth"
+import { useAuthContext } from "@/contexts/AuthContexts"
 import { useToast } from "@/hooks/use-toast"
 
 // Import images
@@ -17,33 +17,31 @@ const Login = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const { login } = useAuthContext()
   const navigate = useNavigate()
+  const location = useLocation()
   const { toast } = useToast()
-  const emailInputRef = useRef<HTMLInputElement>(null)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
 
     try {
-      const response = await Auth.login({ email, password })
-      if (response.isSuccess) {
-        // Store tokens in localStorage
-        localStorage.setItem("accessToken", response.data.accessToken)
-        localStorage.setItem("refreshToken", response.data.refreshToken)
-
+      const success = await login(email, password)
+      if (success) {
         toast({
           title: "Login Successful",
-          description: "Welcome to VaccinaCare!",
+          description: "Welcome back to VaccinaCare!",
           variant: "success",
         })
-        navigate("/user-dashboard") // Redirect to dashboard after successful login
+        const origin = location.state?.from?.pathname || "/user-dashboard"
+        navigate(origin, { replace: true })
       } else {
-        throw new Error(response.message)
+        throw new Error("Login failed")
       }
     } catch (error) {
       toast({
-        title: "Wrong email or password",
+        title: "Login Failed",
         description: error instanceof Error ? error.message : "An unexpected error occurred.",
         variant: "error",
       })
@@ -51,12 +49,6 @@ const Login = () => {
       setIsLoading(false)
     }
   }
-
-  useEffect(() => {
-    if (emailInputRef.current) {
-      emailInputRef.current.focus()
-    }
-  }, [])
 
   return (
     <AuthLayout illustration={loginIllustration}>
@@ -94,7 +86,6 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                ref={emailInputRef}
               />
             </div>
             <div className="space-y-2">
