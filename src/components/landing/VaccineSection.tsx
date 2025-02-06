@@ -3,6 +3,7 @@ import { ArrowRight } from 'lucide-react'
 
 //import images
 import vaccineImage from "@/assets/images/vaccine.png"
+import { useNavigate } from "react-router-dom"
 
 const vaccines = [
   {
@@ -32,6 +33,7 @@ const vaccines = [
 ]
 
 const VaccineSection = () => {
+  const navigate = useNavigate()
   return (
     <section className="py-16 bg-[#EEF2FF]">
       <div className="container mx-auto px-4">
@@ -42,6 +44,7 @@ const VaccineSection = () => {
           <Button
             variant="secondary"
             className="bg-blue-100 hover:bg-blue-200"
+            onClick={() => navigate("/vaccines")}
           >
             Show more <ArrowRight className="ml-2 h-4 w-4" />
           </Button>

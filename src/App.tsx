@@ -13,9 +13,10 @@ import { Toaster } from "./components/ui/toaster"
 import UserDashboard from "./pages/UserDashboard"
 import PageTransition from "./components/PageTransition"
 import NotFound from "./pages/NotFound"
+import VaccineList from "./pages/VaccineList"
 
 // Define valid routes
-const validRoutes = ["/", "/login", "/register", "/about", "/services", "/appointments", "/user-dashboard"]
+const validRoutes = ["/", "/login", "/register", "/about", "/services", "/appointments", "/user-dashboard", "/vaccines"]
 
 const AppContent: React.FC = () => {
   const location = useLocation()
@@ -43,6 +44,7 @@ const AppContent: React.FC = () => {
               <Route path="/services" element={<Services />} />
               <Route path="/appointments" element={<Appointments />} />
               <Route path="/user-dashboard/*" element={<UserDashboard />} />
+              <Route path="/vaccines" element={<VaccineList />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </PageTransition>

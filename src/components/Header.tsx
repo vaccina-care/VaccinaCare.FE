@@ -61,6 +61,7 @@ const Header = () => {
               <li><Link to="/about" className="hover:text-blue-300">About us</Link></li>
               <li><Link to="/services" className="hover:text-blue-300">Services</Link></li>
               <li><Link to="/contact" className="hover:text-blue-300">Contact</Link></li>
+              <li><Link to="/vaccines" className="hover:text-blue-300">Vaccine</Link></li>
             </ul>
             <Button 
               className="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700"
