@@ -12,8 +12,6 @@ const Header = () => {
 
 	const handleLogout = () => {
 		logout()
-		// You might want to redirect the user to the home page or login page after logout
-		// You can use the useNavigate hook from react-router-dom for this
 	}
 
 	return (

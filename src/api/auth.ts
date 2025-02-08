@@ -6,7 +6,7 @@ const REGISTER_API =  "/auth/register"
 
 export namespace Auth {
 
-//REGISTER
+	//REGISTER
 	//Payload gửi đi tới API
 	export interface RegisterPayload {
 		email: string;
@@ -25,7 +25,7 @@ export namespace Auth {
 		data: RegisterResponseData;
 	}
 
-//lOGIN
+	//lOGIN
 	export interface LoginResponseData {
 		accessToken: string;
 		refreshToken: string;

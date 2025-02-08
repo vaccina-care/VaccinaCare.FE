@@ -8,7 +8,6 @@ export const useAuth = () => {
   const checkAuth = useCallback(async () => {
     const token = localStorage.getItem("accessToken")
     if (token) {
-      // For now, we'll just assume it's valid if it exists
       setIsAuthenticated(true)
     } else {
       setIsAuthenticated(false)
