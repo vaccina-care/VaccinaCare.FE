@@ -63,7 +63,7 @@ const Header = () => {
 				</div>
 			</div>
 
-			{/* Navigation */}
+{/* Navigation */}
 			<nav className="bg-[#1e1b4b] text-white">
 				<div className="container mx-auto px-4">
 					<div className="flex flex-col md:flex-row justify-between items-center py-4">
@@ -126,6 +126,7 @@ const Header = () => {
 			</nav>
 		</header>
 	)
+
 }
 
 export default Header

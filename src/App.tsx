@@ -13,12 +13,13 @@ import { Toaster } from "./components/ui/toaster"
 import UserDashboard from "./pages/UserDashboard"
 import PageTransition from "./components/PageTransition"
 import NotFound from "./pages/NotFound"
+import VaccineList from "./pages/VaccineList"
 import ProtectedRoute from "./components/ProtectedRoute"
 import { AuthProvider } from "@/contexts/AuthContexts"
 
 
 // Define valid routes
-const validRoutes = ["/", "/login", "/register", "/about", "/services", "/appointments", "/user-dashboard"]
+const validRoutes = ["/", "/login", "/register", "/about", "/services", "/appointments", "/user-dashboard", "/vaccines"]
 
 const AppContent: React.FC = () => {
   const location = useLocation()
@@ -38,6 +39,8 @@ const AppContent: React.FC = () => {
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/services" element={<Services />} />
+              <Route path="/user-dashboard/*" element={<UserDashboard />} />
+              <Route path="/vaccines" element={<VaccineList />} />
 
               {/* Protected routes */}
               <Route
@@ -59,6 +62,7 @@ const AppContent: React.FC = () => {
 
               {/* 404 Page*/}
               <Route path="*" element={<NotFound />} />
+              
             </Routes>
           </PageTransition>
         </AnimatePresence>
