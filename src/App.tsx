@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound"
 import ProtectedRoute from "./components/ProtectedRoute"
 import { AuthProvider } from "@/contexts/AuthContexts"
 
+
 // Define valid routes
 const validRoutes = ["/", "/login", "/register", "/about", "/services", "/appointments", "/user-dashboard"]
 
