@@ -14,20 +14,17 @@ import UserDashboard from "./pages/UserDashboard"
 import PageTransition from "./components/PageTransition"
 import NotFound from "./pages/NotFound"
 import VaccineList from "./pages/VaccineList"
+import ProtectedRoute from "./components/ProtectedRoute"
+import { AuthProvider } from "@/contexts/AuthContexts"
+
 
 // Define valid routes
 const validRoutes = ["/", "/login", "/register", "/about", "/services", "/appointments", "/user-dashboard", "/vaccines"]
 
 const AppContent: React.FC = () => {
   const location = useLocation()
-
-  // Check if current path is a valid route
   const isValidRoute = validRoutes.includes(location.pathname)
-
-  // Pages that shouldn't show header/footer
   const isAuthPage = location.pathname === "/login" || location.pathname === "/register"
-
-  // Show header/footer only if it's a valid route and not an auth page
   const showHeaderFooter = isValidRoute && !isAuthPage
 
   return (
@@ -42,10 +39,30 @@ const AppContent: React.FC = () => {
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/services" element={<Services />} />
-              <Route path="/appointments" element={<Appointments />} />
               <Route path="/user-dashboard/*" element={<UserDashboard />} />
               <Route path="/vaccines" element={<VaccineList />} />
+
+              {/* Protected routes */}
+              <Route
+                path="/user-dashboard"
+                element={
+                  <ProtectedRoute>
+                    <UserDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/appointments"
+                element={
+                  <ProtectedRoute>
+                    <Appointments />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* 404 Page*/}
               <Route path="*" element={<NotFound />} />
+              
             </Routes>
           </PageTransition>
         </AnimatePresence>
@@ -58,9 +75,11 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AuthProvider>
   )
 }
 

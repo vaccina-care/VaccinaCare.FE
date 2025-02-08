@@ -1,15 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Pencil, CalendarIcon } from "lucide-react"
+import { Pencil } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
-import { fetchUserData, type UserData } from "@/api/user"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { format } from "date-fns"
-import { cn } from "@/lib/utils"
+import { fetchUserData, updateUserProfile, type UserData } from "@/api/user"
+import { DatePicker } from "@/components/DatePicker"
 
 // Import images
 import defaultAvatar from "@/assets/images/aba.png"
@@ -50,12 +48,33 @@ const UserProfile = () => {
         const data = await fetchUserData()
         setUserData(data)
         setDateOfBirth(new Date(data.dateOfBirth))
-        // Parse address into province, district, and home address
+
+        // Parse address into components and fetch proper names
         const addressParts = data.address.split(", ")
         if (addressParts.length >= 3) {
           setHomeAddress(addressParts[0])
-          setSelectedDistrict(addressParts[1])
-          setSelectedProvince(addressParts[2])
+
+          // Fetch province data first
+          const provincesResponse = await fetch("https://provinces.open-api.vn/api/p/")
+          const provincesData: Province[] = await provincesResponse.json()
+          setProvinces(provincesData)
+
+          // Find the province by name
+          const province = provincesData.find((p) => p.name === addressParts[2])
+          if (province) {
+            setSelectedProvince(province.code)
+
+            // Fetch districts for this province
+            const districtsResponse = await fetch(`https://provinces.open-api.vn/api/p/${province.code}?depth=2`)
+            const districtData = await districtsResponse.json()
+            setDistricts(districtData.districts)
+
+            // Find the district by name
+            const district = districtData.districts.find((d: { name: string }) => d.name === addressParts[1])
+            if (district) {
+              setSelectedDistrict(district.code)
+            }
+          }
         } else {
           setHomeAddress(data.address)
         }
@@ -100,17 +119,40 @@ const UserProfile = () => {
     }
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (userData && dateOfBirth) {
-      const fullAddress = `${homeAddress}, ${selectedDistrict}, ${selectedProvince}`
-      setUserData({
+      const selectedProvinceData = provinces.find((p) => p.code === selectedProvince)
+      const selectedDistrictData = districts.find((d) => d.code === selectedDistrict)
+
+      const fullAddress = `${homeAddress}, ${selectedDistrictData?.name || ""}, ${selectedProvinceData?.name || ""}`
+      const updatedUserData = {
         ...userData,
         address: fullAddress,
         dateOfBirth: dateOfBirth.toISOString(),
-      })
+      }
+      try {
+        const response = await updateUserProfile(updatedUserData)
+        setUserData(response)
+        setIsEditing(false)
+        toast({
+          title: "Success",
+          description: "User profile updated successfully.",
+          variant: "success",
+        })
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to update user profile. Please try again.",
+          variant: "destructive",
+        })
+      }
     }
-    setIsEditing(false)
-    // API call for update user info would go here
+  }
+
+  const handleInputChange = (field: keyof UserData, value: string | boolean) => {
+    if (userData) {
+      setUserData({ ...userData, [field]: value })
+    }
   }
 
   if (loading) {
@@ -121,8 +163,6 @@ const UserProfile = () => {
     return <div>No user data available.</div>
   }
 
-
-  // Nhớ add lại userData.imageUrl fetch
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -144,57 +184,58 @@ const UserProfile = () => {
 
         <div className="space-y-2">
           <Label htmlFor="fullName">Full Name</Label>
-          <Input id="fullName" value={userData.fullName} disabled={!isEditing} className="bg-transparent" />
+          <Input
+            id="fullName"
+            value={userData.fullName}
+            onChange={(e) => handleInputChange("fullName", e.target.value)}
+            disabled={!isEditing}
+            className="bg-transparent"
+          />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" value={userData.email} disabled={!isEditing} className="bg-transparent" />
+          <Input
+            id="email"
+            type="email"
+            value={userData.email}
+            onChange={(e) => handleInputChange("email", e.target.value)}
+            disabled={!isEditing}
+            className="bg-transparent"
+          />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="phoneNumber">Phone Number</Label>
-          <Input id="phoneNumber" value={userData.phoneNumber} disabled={!isEditing} className="bg-transparent" />
+          <Input
+            id="phoneNumber"
+            value={userData.phoneNumber}
+            onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+            disabled={!isEditing}
+            className="bg-transparent"
+          />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="gender">Gender</Label>
-            <Select disabled={!isEditing} value={userData.gender ? "true" : "false"}>
-              <SelectTrigger className="w-full">
-                <SelectValue>{userData.gender ? "Male" : "Female"}</SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="true">Male</SelectItem>
-                <SelectItem value="false">Female</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="space-y-2">
+          <Label htmlFor="gender">Gender</Label>
+          <Select
+            disabled={!isEditing}
+            value={userData.gender ? "true" : "false"}
+            onValueChange={(value) => handleInputChange("gender", value === "true")}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue>{userData.gender ? "Male" : "Female"}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="true">Male</SelectItem>
+              <SelectItem value="false">Female</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="dateOfBirth">Date of Birth</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn("w-full justify-start text-left font-normal", !dateOfBirth && "text-muted-foreground")}
-                  disabled={!isEditing}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dateOfBirth ? format(dateOfBirth, "PPP") : <span>Pick a date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={dateOfBirth}
-                  onSelect={setDateOfBirth}
-                  disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
+        <div className="space-y-2">
+          <Label htmlFor="dateOfBirth">Date of Birth</Label>
+          <DatePicker date={dateOfBirth} setDate={setDateOfBirth} disabled={!isEditing} />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
