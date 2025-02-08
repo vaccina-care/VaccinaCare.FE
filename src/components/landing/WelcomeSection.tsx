@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight } from 'lucide-react'
 
 //Import images 
-import logoImage from "@/assets/images/welcome.png"
+import logoImage from "@/assets/images/like.png"
 
 const WelcomeSection = () => {
   return (

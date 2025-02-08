@@ -13,55 +13,70 @@ import { Toaster } from "./components/ui/toaster"
 import UserDashboard from "./pages/UserDashboard"
 import PageTransition from "./components/PageTransition"
 import NotFound from "./pages/NotFound"
-import { Analytics } from "@vercel/analytics/react"
+import ProtectedRoute from "./components/ProtectedRoute"
+import { AuthProvider } from "@/contexts/AuthContexts"
+
 
 // Define valid routes
 const validRoutes = ["/", "/login", "/register", "/about", "/services", "/appointments", "/user-dashboard"]
 
 const AppContent: React.FC = () => {
-	const location = useLocation()
+  const location = useLocation()
+  const isValidRoute = validRoutes.includes(location.pathname)
+  const isAuthPage = location.pathname === "/login" || location.pathname === "/register"
+  const showHeaderFooter = isValidRoute && !isAuthPage
 
-	// Check if current path is a valid route
-	const isValidRoute = validRoutes.includes(location.pathname)
+  return (
+    <div className="min-h-screen flex flex-col">
+      {showHeaderFooter && <Header />}
+      <main className="flex-1">
+        <AnimatePresence mode="wait">
+          <PageTransition key={location.pathname}>
+            <Routes location={location}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/services" element={<Services />} />
 
-	// Pages that shouldn't show header/footer
-	const isAuthPage = location.pathname === "/login" || location.pathname === "/register"
+              {/* Protected routes */}
+              <Route
+                path="/user-dashboard"
+                element={
+                  <ProtectedRoute>
+                    <UserDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/appointments"
+                element={
+                  <ProtectedRoute>
+                    <Appointments />
+                  </ProtectedRoute>
+                }
+              />
 
-	// Show header/footer only if it's a valid route and not an auth page
-	const showHeaderFooter = isValidRoute && !isAuthPage
-
-	return (
-		<div className="min-h-screen flex flex-col">
-			{showHeaderFooter && <Header />}
-			<main className="flex-1">
-				<AnimatePresence mode="wait">
-					<PageTransition key={location.pathname}>
-						<Routes location={location}>
-							<Route path="/login" element={<Login />} />
-							<Route path="/register" element={<Register />} />
-							<Route path="/" element={<Home />} />
-							<Route path="/about" element={<About />} />
-							<Route path="/services" element={<Services />} />
-							<Route path="/appointments" element={<Appointments />} />
-							<Route path="/user-dashboard" element={<UserDashboard />} />
-							<Route path="*" element={<NotFound />} />
-						</Routes>
-					</PageTransition>
-				</AnimatePresence>
-			</main>
-			{showHeaderFooter && <Footer />}
-			<Toaster />
-			<Analytics />
-		</div>
-	)
+              {/* 404 Page*/}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </PageTransition>
+        </AnimatePresence>
+      </main>
+      {showHeaderFooter && <Footer />}
+      <Toaster />
+    </div>
+  )
 }
 
 const App: React.FC = () => {
-	return (
-		<Router>
-			<AppContent />
-		</Router>
-	)
+  return (
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AuthProvider>
+  )
 }
 
 export default App
