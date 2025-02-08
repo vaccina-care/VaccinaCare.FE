@@ -70,7 +70,7 @@ const UserProfile = () => {
             setDistricts(districtData.districts)
 
             // Find the district by name
-            const district = districtData.districts.find((d) => d.name === addressParts[1])
+            const district = districtData.districts.find((d: { name: string }) => d.name === addressParts[1])
             if (district) {
               setSelectedDistrict(district.code)
             }
@@ -90,7 +90,7 @@ const UserProfile = () => {
     }
 
     loadUserData()
-    //fetchProvinces() // Removed as provinces are now fetched within loadUserData
+    fetchProvinces()
   }, [toast])
 
   useEffect(() => {
