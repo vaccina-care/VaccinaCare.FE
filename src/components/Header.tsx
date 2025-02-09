@@ -88,6 +88,11 @@ const Header = () => {
 									Contact
 								</Link>
 							</li>
+							<li>
+								<Link to="/vaccines" className="hover:text-blue-300">
+									Vaccines
+								</Link>
+							</li>
 						</ul>
 						{isAuthenticated ? (
 							<Popover>

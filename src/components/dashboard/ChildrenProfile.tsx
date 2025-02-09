@@ -1,260 +1,303 @@
+"use client"
+
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Pencil, CalendarIcon } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
+import { Button } from "@/components/ui/button"
+import { DatePicker } from "@/components/DatePicker"
+import { Pencil } from "lucide-react"
+import { useChildren } from "@/hooks/useChildren"
+import type { ChildData } from "@/api/children"
+import type React from "react"
 import { useToast } from "@/hooks/use-toast"
-import { fetchUserData, type UserData } from "@/api/user"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { format } from "date-fns"
-import { cn } from "@/lib/utils"
 
-import defaultAvatar from "@/assets/images/vaccine2.png"
+const ChildCard = ({
+  child,
+  isEditing,
+  onEdit,
+  onSave,
+}: {
+  child: ChildData
+  isEditing: boolean
+  onEdit: () => void
+  onSave: (updatedChild: ChildData) => void
+}) => {
+  const [editedChild, setEditedChild] = useState<ChildData>(child)
+  const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(new Date(child.dateOfBirth))
 
-interface Province {
-    code: string
-    codename: string
-    name: string
-    division_type: string
-    phone_code: string
-  }
-  
-  interface District {
-    code: string
-    codename: string
-    name: string
-    division_type: string
-    province_code: string
+  const handleInputChange = (field: keyof ChildData, value: string | boolean) => {
+    setEditedChild((prev) => ({ ...prev, [field]: value }))
   }
 
-const ChildrenProfile = () => {
-  const [isEditing, setIsEditing] = useState(false)
-  const [userData, setUserData] = useState<UserData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const { toast } = useToast()
-
-  const [provinces, setProvinces] = useState<Province[]>([])
-  const [districts, setDistricts] = useState<District[]>([])
-  const [selectedProvince, setSelectedProvince] = useState("")
-  const [selectedDistrict, setSelectedDistrict] = useState("")
-  const [homeAddress, setHomeAddress] = useState("")
-  const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined)
-
-  useEffect(() => {
-    const loadUserData = async () => {
-      try {
-        const data = await fetchUserData()
-        setUserData(data)
-        setDateOfBirth(new Date(data.dateOfBirth))
-        const addressParts = data.address.split(", ")
-        if (addressParts.length >= 3) {
-          setHomeAddress(addressParts[0])
-          setSelectedDistrict(addressParts[1])
-          setSelectedProvince(addressParts[2])
-        } else {
-          setHomeAddress(data.address)
-        }
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to fetch user data. Please try again.",
-          variant: "destructive",
-        })
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadUserData()
-    fetchProvinces()
-  }, [toast])
-
-  useEffect(() => {
-    if (selectedProvince) {
-      fetchDistricts(selectedProvince)
-    }
-  }, [selectedProvince])
-
-  const fetchProvinces = async () => {
-    try {
-      const response = await fetch("https://provinces.open-api.vn/api/p/")
-      const data: Province[] = await response.json()
-      setProvinces(data)
-    } catch (error) {
-      console.error("Error fetching provinces:", error)
-    }
-  }
-
-  const fetchDistricts = async (provinceCode: string) => {
-    try {
-      const response = await fetch(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`)
-      const data = await response.json()
-      setDistricts(data.districts)
-    } catch (error) {
-      console.error("Error fetching districts:", error)
+  const handleDateChange = (newDate: Date | undefined) => {
+    setDateOfBirth(newDate)
+    if (newDate) {
+      handleInputChange("dateOfBirth", newDate.toISOString())
     }
   }
 
   const handleSave = () => {
-    if (userData && dateOfBirth) {
-      const fullAddress = `${homeAddress}, ${selectedDistrict}, ${selectedProvince}`
-      setUserData({
-        ...userData,
-        address: fullAddress,
-        dateOfBirth: dateOfBirth.toISOString(),
+    onSave({ ...editedChild, dateOfBirth: dateOfBirth ? dateOfBirth.toISOString() : child.dateOfBirth })
+  }
+
+  return (
+    <Card>
+      <CardContent className="p-6">
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <h3 className="text-lg font-semibold">Child Profile</h3>
+            <p className="text-sm text-muted-foreground">Manage your child's information</p>
+          </div>
+          <Button variant="outline" size="sm" onClick={onEdit}>
+            <Pencil className="h-4 w-4 mr-2" />
+            {isEditing ? "Cancel" : "Edit"}
+          </Button>
+        </div>
+
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="fullName">Full Name</Label>
+            <Input
+              id="fullName"
+              value={editedChild.fullName}
+              onChange={(e) => handleInputChange("fullName", e.target.value)}
+              disabled={!isEditing}
+              className="bg-transparent"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="dateOfBirth">Date of Birth</Label>
+              <DatePicker date={dateOfBirth} setDate={handleDateChange} disabled={!isEditing} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="gender">Gender</Label>
+              <Select
+                disabled={!isEditing}
+                value={editedChild.gender ? "true" : "false"}
+                onValueChange={(value) => handleInputChange("gender", value === "true")}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="true">Male</SelectItem>
+                  <SelectItem value="false">Female</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="bloodType">Blood Type</Label>
+            <Select
+              disabled={!isEditing}
+              value={editedChild.bloodType}
+              onValueChange={(value) => handleInputChange("bloodType", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select blood type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="A">A</SelectItem>
+                <SelectItem value="B">B</SelectItem>
+                <SelectItem value="AB">AB</SelectItem>
+                <SelectItem value="O">O</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="medicalHistory">Medical History</Label>
+            <Textarea
+              id="medicalHistory"
+              value={editedChild.medicalHistory}
+              onChange={(e) => handleInputChange("medicalHistory", e.target.value)}
+              disabled={!isEditing}
+              className="min-h-[100px] bg-transparent"
+            />
+          </div>
+
+          <div className="space-y-4 border-t pt-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="chronicIllnesses" className="text-lg font-semibold">
+                Chronic Illnesses
+              </Label>
+              <Switch
+                id="chronicIllnesses"
+                checked={editedChild.hasChronicIllnesses}
+                onCheckedChange={(checked) => handleInputChange("hasChronicIllnesses", checked)}
+                disabled={!isEditing}
+              />
+            </div>
+            {editedChild.hasChronicIllnesses && (
+              <Textarea
+                id="chronicIllnessesDescription"
+                value={editedChild.chronicIllnessesDescription}
+                onChange={(e) => handleInputChange("chronicIllnessesDescription", e.target.value)}
+                placeholder="Describe any chronic illnesses"
+                className="mt-2 min-h-[100px]"
+                disabled={!isEditing}
+              />
+            )}
+          </div>
+
+          <div className="space-y-4 border-t pt-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="allergies" className="text-lg font-semibold">
+                Allergies
+              </Label>
+              <Switch
+                id="allergies"
+                checked={editedChild.hasAllergies}
+                onCheckedChange={(checked) => handleInputChange("hasAllergies", checked)}
+                disabled={!isEditing}
+              />
+            </div>
+            {editedChild.hasAllergies && (
+              <Textarea
+                id="allergiesDescription"
+                value={editedChild.allergiesDescription}
+                onChange={(e) => handleInputChange("allergiesDescription", e.target.value)}
+                placeholder="Describe any allergies"
+                className="mt-2 min-h-[100px]"
+                disabled={!isEditing}
+              />
+            )}
+          </div>
+
+          <div className="space-y-4 border-t pt-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="recentMedication" className="text-lg font-semibold">
+                Recent Medication
+              </Label>
+              <Switch
+                id="recentMedication"
+                checked={editedChild.hasRecentMedication}
+                onCheckedChange={(checked) => handleInputChange("hasRecentMedication", checked)}
+                disabled={!isEditing}
+              />
+            </div>
+            {editedChild.hasRecentMedication && (
+              <Textarea
+                id="recentMedicationDescription"
+                value={editedChild.recentMedicationDescription}
+                onChange={(e) => handleInputChange("recentMedicationDescription", e.target.value)}
+                placeholder="Describe any recent medication"
+                className="mt-2 min-h-[100px]"
+                disabled={!isEditing}
+              />
+            )}
+          </div>
+
+          <div className="space-y-4 border-t pt-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="otherConditions" className="text-lg font-semibold">
+                Other Special Conditions
+              </Label>
+              <Switch
+                id="otherConditions"
+                checked={editedChild.hasOtherSpecialCondition}
+                onCheckedChange={(checked) => handleInputChange("hasOtherSpecialCondition", checked)}
+                disabled={!isEditing}
+              />
+            </div>
+            {editedChild.hasOtherSpecialCondition && (
+              <Textarea
+                id="otherConditionsDescription"
+                value={editedChild.otherSpecialConditionDescription}
+                onChange={(e) => handleInputChange("otherSpecialConditionDescription", e.target.value)}
+                placeholder="Describe any other special conditions"
+                className="mt-2 min-h-[100px]"
+                disabled={!isEditing}
+              />
+            )}
+          </div>
+
+          {isEditing && (
+            <div className="flex justify-end">
+              <Button onClick={handleSave} className="bg-[#1e1b4b] hover:bg-[#1e1b4b]/90">
+                Save changes
+              </Button>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+const ChildProfile: React.FC = () => {
+  const { children, loading, fetchChildren } = useChildren()
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const { toast } = useToast()
+
+  useEffect(() => {
+    console.log("ChildProfile mounted")
+    return () => {
+      console.log("ChildProfile unmounted")
+    }
+  }, [])
+
+  useEffect(() => {
+    console.log("Current children state:", children)
+  }, [children])
+
+  const handleSaveChild = async (updatedChild: ChildData) => {
+    try {
+      console.log("Saving updated child:", updatedChild)
+      // Here you would typically call an API to update the child's data
+      // For now, we'll just update the local state
+      setEditingId(null)
+      // Refresh the children list after saving
+      await fetchChildren()
+      toast({
+        title: "Success",
+        description: "Child information updated successfully",
+      })
+    } catch (error) {
+      console.error("Failed to save child:", error)
+      toast({
+        title: "Error",
+        description: "Failed to save child information. Please check the console for more details.",
+        variant: "destructive",
       })
     }
-    setIsEditing(false)
-    // API call for update user info would go here
   }
 
   if (loading) {
-    return <div>Loading...</div>
-  }
-
-  if (!userData) {
-    return <div>No user data available.</div>
+    return <div>Loading children information...</div>
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <img src={defaultAvatar} alt="Profile" className="h-16 w-16 rounded-full object-cover" />
-          <div>
-            <h2 className="text-xl font-semibold">{userData.fullName}</h2>
-            <p className="text-sm text-gray-500">Child</p> {/* Update label to reflect Child */}
-          </div>
-        </div>
-        <Button variant="outline" size="sm" onClick={() => setIsEditing(!isEditing)}>
-          <Pencil className="h-4 w-4 mr-2" />
-          {isEditing ? "Cancel" : "Edit"}
-        </Button>
+        <h2 className="text-2xl font-bold">Children Information</h2>
       </div>
 
-      <div className="border rounded-lg p-4 space-y-4">
-        <h3 className="text-lg font-semibold mb-4">Personal Information</h3>
-
-        <div className="space-y-2">
-          <Label htmlFor="fullName">Full Name</Label>
-          <Input id="fullName" value={userData.fullName} disabled={!isEditing} className="bg-transparent" />
+      {children.length === 0 ? (
+        <p>No children found.</p>
+      ) : (
+        <div className="space-y-6">
+          {children.map((child) => (
+            <ChildCard
+              key={child.id}
+              child={child}
+              isEditing={editingId === child.id}
+              onEdit={() => setEditingId(editingId === child.id ? null : child.id)}
+              onSave={handleSaveChild}
+            />
+          ))}
         </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" value={userData.email} disabled={!isEditing} className="bg-transparent" />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="phoneNumber">Phone Number</Label>
-          <Input id="phoneNumber" value={userData.phoneNumber} disabled={!isEditing} className="bg-transparent" />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="gender">Gender</Label>
-            <Select disabled={!isEditing} value={userData.gender ? "true" : "false"}>
-              <SelectTrigger className="w-full">
-                <SelectValue>{userData.gender ? "Male" : "Female"}</SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="true">Male</SelectItem>
-                <SelectItem value="false">Female</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="dateOfBirth">Date of Birth</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn("w-full justify-start text-left font-normal", !dateOfBirth && "text-muted-foreground")}
-                  disabled={!isEditing}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dateOfBirth ? format(dateOfBirth, "PPP") : <span>Pick a date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={dateOfBirth}
-                  onSelect={setDateOfBirth}
-                  disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="province">Province</Label>
-            <Select
-              disabled={!isEditing}
-              value={selectedProvince}
-              onValueChange={(value) => {
-                setSelectedProvince(value)
-                setSelectedDistrict("")
-              }}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Choose a province" />
-              </SelectTrigger>
-              <SelectContent>
-                {provinces.map((province) => (
-                  <SelectItem key={province.code} value={province.code}>
-                    {province.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="district">District</Label>
-            <Select
-              disabled={!isEditing || !selectedProvince}
-              value={selectedDistrict}
-              onValueChange={setSelectedDistrict}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Choose a district" />
-              </SelectTrigger>
-              <SelectContent>
-                {districts.map((district) => (
-                  <SelectItem key={district.code} value={district.code}>
-                    {district.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="homeAddress">Home Address</Label>
-          <Input
-            id="homeAddress"
-            value={homeAddress}
-            onChange={(e) => setHomeAddress(e.target.value)}
-            disabled={!isEditing}
-            className="bg-transparent"
-          />
-        </div>
-
-        {isEditing && (
-          <div className="flex justify-end">
-            <Button onClick={handleSave}>Save changes</Button>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   )
 }
 
-export default ChildrenProfile
+export default ChildProfile
+
