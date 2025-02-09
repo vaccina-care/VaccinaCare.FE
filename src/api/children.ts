@@ -19,16 +19,29 @@ export interface ChildData {
 
 export const getChildren = async (): Promise<ChildData[]> => {
   try {
-    const response = await axiosInstance.get("/children")
-    if (response.data.isSuccess) {
-      return response.data.data
-    } else {
-      throw new Error(response.data.message)
-    }
+	const response = await axiosInstance.get("/children")
+	if (response.data.isSuccess) {
+	  return response.data.data
+	} else {
+	  throw new Error(response.data.message)
+	}
   } catch (error) {
-    console.error("Error fetching children:", error)
-    throw error
+	console.error("Error fetching children:", error)
+	throw error
   }
 }
 
+export const createChild = async (childData: Omit<ChildData, "id">): Promise<ChildData> => {
+	try {
+	  const response = await axiosInstance.post("/children", childData)
+	  if (response.data.isSuccess) {
+		return response.data.data
+	  } else {
+		throw new Error(response.data.message)
+	  }
+	} catch (error) {
+	  console.error("Error creating child:", error)
+	  throw error
+	}
+  }
 

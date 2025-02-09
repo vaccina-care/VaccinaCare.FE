@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import { DatePicker } from "@/components/DatePicker"
-import { Pencil } from "lucide-react"
+import { Pencil, Plus } from "lucide-react"
 import { useChildren } from "@/hooks/useChildren"
 import type { ChildData } from "@/api/children"
 import type React from "react"
@@ -20,11 +20,13 @@ const ChildCard = ({
   isEditing,
   onEdit,
   onSave,
+  childNumber,
 }: {
   child: ChildData
   isEditing: boolean
   onEdit: () => void
   onSave: (updatedChild: ChildData) => void
+  childNumber: number
 }) => {
   const [editedChild, setEditedChild] = useState<ChildData>(child)
   const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(new Date(child.dateOfBirth))
@@ -49,8 +51,7 @@ const ChildCard = ({
       <CardContent className="p-6">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h3 className="text-lg font-semibold">Child Profile</h3>
-            <p className="text-sm text-muted-foreground">Manage your child's information</p>
+            <h3 className="text-lg font-bold">Child #{childNumber}</h3>
           </div>
           <Button variant="outline" size="sm" onClick={onEdit}>
             <Pencil className="h-4 w-4 mr-2" />
@@ -232,8 +233,24 @@ const ChildCard = ({
   )
 }
 
+const defaultChildData: Omit<ChildData, "id"> = {
+  fullName: "",
+  dateOfBirth: new Date().toISOString(),
+  gender: true,
+  medicalHistory: "",
+  bloodType: "A",
+  hasChronicIllnesses: false,
+  chronicIllnessesDescription: "",
+  hasAllergies: false,
+  allergiesDescription: "",
+  hasRecentMedication: false,
+  recentMedicationDescription: "",
+  hasOtherSpecialCondition: false,
+  otherSpecialConditionDescription: "",
+}
+
 const ChildProfile: React.FC = () => {
-  const { children, loading, fetchChildren } = useChildren()
+  const { children, loading, fetchChildren, addChild } = useChildren()
   const [editingId, setEditingId] = useState<string | null>(null)
   const { toast } = useToast()
 
@@ -270,6 +287,14 @@ const ChildProfile: React.FC = () => {
     }
   }
 
+  const handleAddChild = async () => {
+    try {
+      await addChild(defaultChildData)
+    } catch (error) {
+      console.error("Failed to add new child:", error)
+    }
+  }
+
   if (loading) {
     return <div>Loading children information...</div>
   }
@@ -278,19 +303,24 @@ const ChildProfile: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Children Information</h2>
+        <Button onClick={handleAddChild}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Child
+        </Button>
       </div>
 
       {children.length === 0 ? (
-        <p>No children found.</p>
+        <p>No children found. Click the "Add Child" button to add a new child.</p>
       ) : (
         <div className="space-y-6">
-          {children.map((child) => (
+          {children.map((child, index) => (
             <ChildCard
               key={child.id}
               child={child}
               isEditing={editingId === child.id}
               onEdit={() => setEditingId(editingId === child.id ? null : child.id)}
               onSave={handleSaveChild}
+              childNumber={index + 1}
             />
           ))}
         </div>
