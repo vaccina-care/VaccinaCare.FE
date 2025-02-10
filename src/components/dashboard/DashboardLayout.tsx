@@ -1,39 +1,54 @@
-import type { ReactNode } from "react"
+import type React from "react"
 import { Card } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 import { User, Users, Bell } from "lucide-react"
+import { useNavigate, useLocation } from "react-router-dom"
 
 interface DashboardLayoutProps {
-  children: ReactNode
+  children: React.ReactNode
 }
 
-const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const isActive = (path: string) => location.pathname === path
+
   return (
     <div className="container mx-auto py-8">
       <Card className="flex min-h-[600px]">
         {/* Sidebar */}
         <div className="w-64 border-r border-gray-200 p-4">
           <nav className="space-y-2">
-            <a
-              href="#personal-info"
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-blue-600 bg-blue-50 transition-colors hover:bg-blue-100"
+            <button
+              onClick={() => navigate("/user-dashboard")}
+              className={cn(
+                "flex w-full items-center gap-2 rounded-lg px-3 py-2 transition-colors hover:bg-gray-100",
+                isActive("/user-dashboard") ? "text-blue-600 bg-blue-50" : "text-gray-600",
+              )}
             >
               <User className="h-4 w-4" />
-              <span>Personal information</span>
-            </a>
-            <a
-              href="#children-info"
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-gray-600 transition-colors hover:bg-gray-100"
+              <span>Personal Information</span>
+            </button>
+            <button
+              onClick={() => navigate("/child-dashboard")}
+              className={cn(
+                "flex w-full items-center gap-2 rounded-lg px-3 py-2 transition-colors hover:bg-gray-100",
+                isActive("/child-dashboard") ? "text-blue-600 bg-blue-50" : "text-gray-600",
+              )}
             >
               <Users className="h-4 w-4" />
-              <span>Children information</span>
-            </a>
-            <a
-              href="#notifications"
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-gray-600 transition-colors hover:bg-gray-100"
+              <span>Children Information</span>
+            </button>
+            <button
+              className={cn(
+                "flex w-full items-center gap-2 rounded-lg px-3 py-2 transition-colors hover:bg-gray-100",
+                "text-gray-600",
+              )}
             >
               <Bell className="h-4 w-4" />
-              <span>Notification</span>
-            </a>
+              <span>Notifications</span>
+            </button>
           </nav>
         </div>
 

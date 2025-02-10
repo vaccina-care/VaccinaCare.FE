@@ -63,7 +63,7 @@ const Header = () => {
 				</div>
 			</div>
 
-			{/* Navigation */}
+{/* Navigation */}
 			<nav className="bg-[#1e1b4b] text-white">
 				<div className="container mx-auto px-4">
 					<div className="flex flex-col md:flex-row justify-between items-center py-4">
@@ -86,6 +86,11 @@ const Header = () => {
 							<li>
 								<Link to="/contact" className="hover:text-blue-300">
 									Contact
+								</Link>
+							</li>
+							<li>
+								<Link to="/vaccines" className="hover:text-blue-300">
+									Vaccines
 								</Link>
 							</li>
 						</ul>
@@ -126,6 +131,7 @@ const Header = () => {
 			</nav>
 		</header>
 	)
+
 }
 
 export default Header

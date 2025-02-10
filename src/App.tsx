@@ -10,73 +10,101 @@ import Login from "./pages/Login"
 import Register from "./pages/Register"
 import Footer from "./components/Footer"
 import { Toaster } from "./components/ui/toaster"
-import UserDashboard from "./pages/UserDashboard"
 import PageTransition from "./components/PageTransition"
 import NotFound from "./pages/NotFound"
 import ProtectedRoute from "./components/ProtectedRoute"
 import { AuthProvider } from "@/contexts/AuthContexts"
-
+import UserDashboard from "./pages/UserDashboard"
+import ChildDashboard from "./pages/ChildDashboard"
+import VaccineList from "./pages/VaccineList"
 
 // Define valid routes
-const validRoutes = ["/", "/login", "/register", "/about", "/services", "/appointments", "/user-dashboard"]
+const validRoutes = [
+	"/",
+	"/login",
+	"/register",
+	"/about",
+	"/services",
+	"/appointments",
+	"/user-dashboard",
+	"/child-dashboard",
+	"/vaccines"
+]
 
 const AppContent: React.FC = () => {
-  const location = useLocation()
-  const isValidRoute = validRoutes.includes(location.pathname)
-  const isAuthPage = location.pathname === "/login" || location.pathname === "/register"
-  const showHeaderFooter = isValidRoute && !isAuthPage
+	const location = useLocation()
+	const isValidRoute = validRoutes.includes(location.pathname)
+	const isAuthPage = location.pathname === "/login" || location.pathname === "/register"
+	const showHeaderFooter = isValidRoute && !isAuthPage
 
-  return (
-    <div className="min-h-screen flex flex-col">
-      {showHeaderFooter && <Header />}
-      <main className="flex-1">
-        <AnimatePresence mode="wait">
-          <PageTransition key={location.pathname}>
-            <Routes location={location}>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/" element={<Home />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/services" element={<Services />} />
+	return (
+		<div className="min-h-screen flex flex-col">
+			{showHeaderFooter && <Header />}
+			<main className="flex-1">
+				<AnimatePresence mode="wait">
+					<PageTransition key={location.pathname}>
+						<Routes location={location}>
+							<Route path="/login" element={<Login />} />
+							<Route path="/register" element={<Register />} />
+							<Route path="/" element={<Home />} />
+							<Route path="/about" element={<About />} />
+							<Route path="/services" element={<Services />} />
 
-              {/* Protected routes */}
-              <Route
-                path="/user-dashboard"
-                element={
-                  <ProtectedRoute>
-                    <UserDashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/appointments"
-                element={
-                  <ProtectedRoute>
-                    <Appointments />
-                  </ProtectedRoute>
-                }
-              />
+							{/* Protected routes */}
+							<Route
+								path="/user-dashboard"
+								element={
+									<ProtectedRoute>
+										<UserDashboard />
+									</ProtectedRoute>
+								}
+							/>
+							<Route
+								path="/child-dashboard"
+								element={
+									<ProtectedRoute>
+										<ChildDashboard />
+									</ProtectedRoute>
+								}
+							/>
+							<Route
+								path="/vaccines"
+								element={
+									<ProtectedRoute>
+										<VaccineList />
+									</ProtectedRoute>
+								}
+							/>
+							<Route
+								path="/appointments"
+								element={
+									<ProtectedRoute>
+										<Appointments />
+									</ProtectedRoute>
+								}
+							/>
 
-              {/* 404 Page*/}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </PageTransition>
-        </AnimatePresence>
-      </main>
-      {showHeaderFooter && <Footer />}
-      <Toaster />
-    </div>
-  )
+
+							{/* 404 Page*/}
+							<Route path="*" element={<NotFound />} />
+						</Routes>
+					</PageTransition>
+				</AnimatePresence>
+			</main>
+			{showHeaderFooter && <Footer />}
+			<Toaster />
+		</div>
+	)
 }
 
 const App: React.FC = () => {
-  return (
-    <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </AuthProvider>
-  )
+	return (
+		<AuthProvider>
+			<Router>
+				<AppContent />
+			</Router>
+		</AuthProvider>
+	)
 }
 
 export default App
