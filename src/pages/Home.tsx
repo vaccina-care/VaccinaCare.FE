@@ -19,6 +19,7 @@ const Home = () => {
       <FadeInSection delay={0.8}>
         <ParentSection />
       </FadeInSection>
+
     </div>
   )
 }
