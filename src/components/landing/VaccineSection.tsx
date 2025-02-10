@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight } from 'lucide-react'
 
 //import images
-import vaccineImage from "@/assets/images/aba.png"
+import vaccineImage from "@/assets/images/vaccine1.png"
 import { useNavigate } from "react-router-dom"
 
 

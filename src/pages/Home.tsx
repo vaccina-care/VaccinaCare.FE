@@ -16,9 +16,9 @@ const Home = () => {
       <FadeInSection delay={0.6}>
         <VaccineSection />
       </FadeInSection>
-      <FadeInSection delay={0.8}>
+      {/* <FadeInSection delay={0.8}>
         <DoctorSection />
-      </FadeInSection>
+      </FadeInSection> */}
     </div>
   )
 }
