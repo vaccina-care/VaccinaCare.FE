@@ -2,7 +2,7 @@
 import axiosInstance from "./axiosInstance";
 
 const LOGIN_API = "/auth/login"
-const REGISTER_API =  "/auth/register"
+const REGISTER_API = "/auth/register"
 
 export namespace Auth {
 
