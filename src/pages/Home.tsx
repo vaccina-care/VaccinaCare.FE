@@ -1,8 +1,8 @@
 import HeroSection from "@/components/landing/HeroSection"
 import WelcomeSection from "@/components/landing/WelcomeSection"
 import VaccineSection from "@/components/landing/VaccineSection"
-import DoctorSection from "@/components/landing/DoctorSection"
 import { FadeInSection } from "@/components/FadeInSection"
+import ParentSection from "@/components/landing/ParentSection"
 
 const Home = () => {
   return (
@@ -17,8 +17,9 @@ const Home = () => {
         <VaccineSection />
       </FadeInSection>
       <FadeInSection delay={0.8}>
-        <DoctorSection />
+        <ParentSection />
       </FadeInSection>
+
     </div>
   )
 }
