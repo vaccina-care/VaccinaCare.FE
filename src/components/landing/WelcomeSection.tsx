@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight } from 'lucide-react'
 
 //Import images 
-import logoImage from "@/assets/images/like.png"
+const logoImage = "http://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=like.png&version_id=null"
 
 const WelcomeSection = () => {
   return (
@@ -33,7 +33,7 @@ const WelcomeSection = () => {
           <img
             src={logoImage}
             alt="Medical Team"
-            className="w-full h-full object-cover object-fill"
+            className="w-full h-full object-fill"
           />
         </div>
       </div>

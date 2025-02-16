@@ -49,7 +49,7 @@ const AppContent: React.FC = () => {
 							<Route path="/" element={<Home />} />
 							<Route path="/about" element={<About />} />
 							<Route path="/services" element={<Services />} />
-
+							
 							{/* Protected routes */}
 							<Route
 								path="/user-dashboard"

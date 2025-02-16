@@ -10,8 +10,8 @@ import { Auth } from "@/api/auth"
 import { useToast } from "@/hooks/use-toast"
 
 // Import images
-import logoImage from "@/assets/images/logo.png"
-import registerIllustration from "@/assets/images/register.png"
+const logoImage = "http://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=logo.png&version_id=null"
+const registerIllustration = "http://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=register.png"
 
 
 const Register = () => {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,6 +14,7 @@ import { useChildren } from "@/hooks/useChildren"
 import type { ChildData } from "@/api/children"
 import type React from "react"
 import { useToast } from "@/hooks/use-toast"
+import { createChild } from "@/api/children"
 
 const ChildCard = ({
   child,
@@ -51,7 +52,8 @@ const ChildCard = ({
       <CardContent className="p-6">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h3 className="text-lg font-bold">Child #{childNumber}</h3>
+            <h3 className="text-lg font-semibold">Child #{childNumber} Profile</h3>
+            <p className="text-sm text-muted-foreground">Manage your child's information</p>
           </div>
           <Button variant="outline" size="sm" onClick={onEdit}>
             <Pencil className="h-4 w-4 mr-2" />
@@ -109,6 +111,7 @@ const ChildCard = ({
                 <SelectItem value="B">B</SelectItem>
                 <SelectItem value="AB">AB</SelectItem>
                 <SelectItem value="O">O</SelectItem>
+                <SelectItem value="Unknown">Unknown</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -235,10 +238,10 @@ const ChildCard = ({
 
 const defaultChildData: Omit<ChildData, "id"> = {
   fullName: "",
-  dateOfBirth: new Date().toISOString(),
+  dateOfBirth: new Date().toISOString().split("T")[0], // Format as YYYY-MM-DD
   gender: true,
   medicalHistory: "",
-  bloodType: "A",
+  bloodType: "Unknown",
   hasChronicIllnesses: false,
   chronicIllnessesDescription: "",
   hasAllergies: false,
@@ -250,20 +253,9 @@ const defaultChildData: Omit<ChildData, "id"> = {
 }
 
 const ChildProfile: React.FC = () => {
-  const { children, loading, fetchChildren, addChild } = useChildren()
+  const { children, loading, fetchChildren } = useChildren()
   const [editingId, setEditingId] = useState<string | null>(null)
   const { toast } = useToast()
-
-  useEffect(() => {
-    console.log("ChildProfile mounted")
-    return () => {
-      console.log("ChildProfile unmounted")
-    }
-  }, [])
-
-  useEffect(() => {
-    console.log("Current children state:", children)
-  }, [children])
 
   const handleSaveChild = async (updatedChild: ChildData) => {
     try {
@@ -289,9 +281,25 @@ const ChildProfile: React.FC = () => {
 
   const handleAddChild = async () => {
     try {
-      await addChild(defaultChildData)
-    } catch (error) {
+      await createChild(defaultChildData)
+      await fetchChildren() // Refresh the children list
+      toast({
+        title: "Success",
+        description: "New child added successfully",
+      })
+    } catch (error: unknown) {
       console.error("Failed to add new child:", error)
+      if (error && typeof error === "object" && "response" in error) {
+        const axiosError = error as { response: { data: unknown; status: number; headers: unknown } }
+        console.error("Response data:", axiosError.response.data)
+        console.error("Response status:", axiosError.response.status)
+        console.error("Response headers:", axiosError.response.headers)
+      }
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to add new child",
+        variant: "destructive",
+      })
     }
   }
 
