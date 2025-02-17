@@ -79,11 +79,6 @@ const Header = () => {
 								</Link>
 							</li>
 							<li>
-								<Link to="/services" className="hover:text-blue-300">
-									Services
-								</Link>
-							</li>
-							<li>
 								<Link to="/contact" className="hover:text-blue-300">
 									Contact
 								</Link>
