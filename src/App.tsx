@@ -27,7 +27,7 @@ const validRoutes = [
 	"/appointments",
 	"/user-dashboard",
 	"/child-dashboard",
-	"/vaccines"
+	"/vaccines-packages"
 ]
 
 const AppContent: React.FC = () => {
@@ -48,7 +48,7 @@ const AppContent: React.FC = () => {
 							<Route path="/" element={<Home />} />
 							<Route path="/about" element={<About />} />
 							<Route path="/services" element={<Services />} />
-							<Route path="/vaccines" element={<Services />} />
+							<Route path="/vaccines-packages" element={<Services />} />
 							
 							{/* Protected routes */}
 							<Route

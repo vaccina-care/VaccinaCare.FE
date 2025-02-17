@@ -1,8 +1,6 @@
 import { FadeInSection } from "@/components/FadeInSection"
-
 const missionImage = "http://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=about-us%2Fmission.jpg&version_id=null"
-
-const MissionSection = () => {
+const AboutMission = () => {
 	return (
 		<section className="py-20">
 			<div className="container mx-auto px-4">
@@ -10,21 +8,23 @@ const MissionSection = () => {
 					<FadeInSection>
 						<div className="space-y-6">
 							<h2 className="text-3xl md:text-4xl font-bold text-[#1e1b4b]">
-								Our commitment to children's health is at the heart of everything we do
+								The VaccinaCare Story: <br /> Nurturing Health Since 2018
 							</h2>
 							<p className="text-gray-600">
-								Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
-								dolore magna aliqua.
+								VaccinaCare was born from a vision to revolutionize child healthcare. Founded in 2018 by a team of
+								passionate pediatricians and tech innovators, our journey began with a simple yet powerful idea: to make
+								vaccination accessible, efficient, and stress-free for every family.
 							</p>
 							<p className="text-gray-600">
-								Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-								consequat.
+								What started as a small clinic in downtown has now grown into a nationwide network of care centers. Our
+								commitment to leveraging cutting-edge technology and personalized care has helped us safeguard the
+								health of over 100,000 children and counting.
 							</p>
 						</div>
 					</FadeInSection>
 
 					<FadeInSection delay={0.2}>
-						<div className="rounded-lg overflow-hidden h-[300px] md:h-[400px] lg:h-[500px]">
+						<div className="rounded-lg overflow-hidden h-[400px]">
 							<img
 								src={missionImage}
 								alt="Our Mission"
@@ -38,5 +38,5 @@ const MissionSection = () => {
 	)
 }
 
-export default MissionSection
+export default AboutMission
 

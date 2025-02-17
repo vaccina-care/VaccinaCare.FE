@@ -10,7 +10,7 @@ interface Stat {
 const stats: Stat[] = [
     { value: 10000, label: "Children Vaccinated", suffix: "+" },
     { value: 50, label: "Expert Doctors", suffix: "+" },
-    { value: 15, label: "Years Experience", suffix: "+" },
+    { value: 7, label: "Years Experience", suffix: "+" },
     { value: 98, label: "Success Rate", suffix: "%" },
 ]
 
