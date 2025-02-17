@@ -1,12 +1,8 @@
 import { ChevronRight } from "lucide-react";
 
 import embe from "@/assets/images/skibidi/embe.png";
-import loveshit from "@/assets/images/skibidi/loveshit.png";
-import nguoilon from "@/assets/images/skibidi/nguoilon.png";
-import cobau from "@/assets/images/skibidi/cobau.png";
 import nhairanh from "@/assets/images/skibidi/nhairanh.png";
 import nhoccon from "@/assets/images/skibidi/nhoccon.png";
-import onggia from "@/assets/images/skibidi/onggia.png";
 
 interface PackageOption {
   id: string;
@@ -15,13 +11,9 @@ interface PackageOption {
 }
 
 const packageOptions: PackageOption[] = [
-  { id: "baby", icon: embe, title: "Gói trẻ em từ 0-2 tuổi" },
-  { id: "bigboy", icon: nhairanh, title: "Gói tiền học đường từ 3-9 tuổi" },
-  { id: "teenager", icon: nhoccon, title: "Gói thanh thiếu niên từ 9-18 tuổi" },
-  { id: "pregnant", icon: cobau, title: "Gói phụ nữ trước khi mang thai" },
-  { id: "adult", icon: nguoilon, title: "Gói người trưởng thành" },
-  { id: "chronic", icon: onggia, title: "Gói người có bệnh mãn tính" },
-  { id: "premarital", icon: loveshit, title: "Gói tiền hôn nhân" },
+  { id: "860cdd9e-b6e0-4e1b-e56f-08dd4eeb7d57", icon: embe, title: "Gói trẻ em từ 0-2 tuổi" },
+  { id: "a6be5729-22af-4025-9bdb-dffcd46b3186", icon: nhairanh, title: "Gói tiền học đường từ 3-9 tuổi" },
+  { id: "teenager", icon: nhoccon, title: "Gói thanh thiếu niên từ 9-18 tuổi" }
 ];
 
 interface PackageSidebarProps {

@@ -1,30 +1,26 @@
 import like from "@/assets/images/like.png";
 
 interface VaccineInfo {
-    disease: string
-    vaccineName: string
-    manufacturer: string
-    batchNumber: string
+    description: string;
+    vaccineName: string;
+    type: string;
+    batchNumber: string;  // Temporarily left unchanged
 }
 
 interface PackageDetailsProps {
-    packageId: string
-    price: string
-    vaccineInfo: VaccineInfo[]
+    packageId: string;
+    price: string;
+    vaccineInfo: VaccineInfo[];
 }
 
 export function PackageDetails({ packageId, price, vaccineInfo }: PackageDetailsProps) {
     const titles: Record<string, string> = {
-        baby: "Gói trẻ em từ 0-2 tuổi",
-        bigboy: "Gói tiền học đường từ 3-9 tuổi",
-        teenager: "Gói thanh thiếu niên từ 9-18 tuổi",
-        pregnant: "Gói phụ nữ trước khi mang thai",
-        adult: "Gói người trưởng thành",
-        chronic: "Gói người có bệnh mãn tính",
-        premarital: "Gói tiền hôn nhân",
+        "860cdd9e-b6e0-4e1b-e56f-08dd4eeb7d57": "Gói trẻ em từ 0-2 tuổi",
+        "a6be5729-22af-4025-9bdb-dffcd46b3186": "Gói tiền học đường từ 3-9 tuổi",
+        teenager: "Gói thanh thiếu niên từ 9-18 tuổi"
     };
 
-    const packageTitle = titles[packageId] || "Gói không xác định"; // Xử lý trường hợp packageId không hợp lệ
+    const packageTitle = titles[packageId] || "Gói không xác định";
 
     return (
         <div className="border border-gray-200 rounded-lg overflow-hidden">
@@ -45,28 +41,7 @@ export function PackageDetails({ packageId, price, vaccineInfo }: PackageDetails
                         <span className="font-semibold text-white">{price}đ</span>
                     </div>
                 </div>
-                {/* <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="border-b">
-                                <th className="text-left py-3 px-4">Phòng bệnh</th>
-                                <th className="text-left py-3 px-4">Tên vắc xin</th>
-                                <th className="text-left py-3 px-4">Nước sản xuất</th>
-                                <th className="text-left py-3 px-4">Số mũi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {vaccineInfo.map((info, index) => (
-                                <tr key={index} className="border-b last:border-0">
-                                    <td className="py-3 px-4">{info.disease}</td>
-                                    <td className="py-3 px-4">{info.vaccineName}</td>
-                                    <td className="py-3 px-4">{info.manufacturer}</td>
-                                    <td className="py-3 px-4">{info.batchNumber}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div> */}
+
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
@@ -78,20 +53,22 @@ export function PackageDetails({ packageId, price, vaccineInfo }: PackageDetails
                             </tr>
                         </thead>
                         <tbody>
-                            {vaccineInfo.map((info, index) => (
+                            {(vaccineInfo && vaccineInfo.length > 0) ? vaccineInfo.map((info, index) => (
                                 <tr key={index} className="border-b last:border-0">
-                                    <td className="py-3 px-4">{info.disease}</td>
+                                    <td className="py-3 px-4">{info.description}</td>
                                     <td className="py-3 px-4">{info.vaccineName}</td>
-                                    <td className="py-3 px-4">{info.manufacturer}</td>
+                                    <td className="py-3 px-4">{info.type}</td>
                                     <td className="py-3 px-4">{info.batchNumber}</td>
                                 </tr>
-                            ))}
+                            )) : (
+                                <tr>
+                                    <td colSpan={4} className="py-3 px-4 text-center">Không có thông tin vắc xin</td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
-
             </div>
         </div>
     );
 }
-
