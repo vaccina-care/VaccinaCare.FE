@@ -1,10 +1,15 @@
-import React from 'react'
+import HeroSection from "@/components/about/HeroSection"
+import MissionSection from "@/components/about/MissionSection"
+import StatSection from "@/components/about/StatSection"
+import VaccinationProcessSection from "@/components/about/VaccinationProcessSection"
 
-const About: React.FC = () => {
+const About = () => {
   return (
-    <div>
-      <h1>About VaccinaCare</h1>
-      <p>VaccinaCare is a leading vaccination management system dedicated to ensuring the health and well-being of children through timely and efficient vaccination programs.</p>
+    <div className="min-h-screen">
+      <HeroSection />
+      <MissionSection />
+      <StatSection />
+      <VaccinationProcessSection />
     </div>
   )
 }

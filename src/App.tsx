@@ -16,7 +16,6 @@ import ProtectedRoute from "./components/ProtectedRoute"
 import { AuthProvider } from "@/contexts/AuthContexts"
 import UserDashboard from "./pages/UserDashboard"
 import ChildDashboard from "./pages/ChildDashboard"
-import VaccineList from "./pages/VaccineList"
 
 // Define valid routes
 const validRoutes = [
@@ -49,6 +48,7 @@ const AppContent: React.FC = () => {
 							<Route path="/" element={<Home />} />
 							<Route path="/about" element={<About />} />
 							<Route path="/services" element={<Services />} />
+							<Route path="/vaccines" element={<Services />} />
 							
 							{/* Protected routes */}
 							<Route
@@ -64,14 +64,6 @@ const AppContent: React.FC = () => {
 								element={
 									<ProtectedRoute>
 										<ChildDashboard />
-									</ProtectedRoute>
-								}
-							/>
-							<Route
-								path="/vaccines"
-								element={
-									<ProtectedRoute>
-										<VaccineList />
 									</ProtectedRoute>
 								}
 							/>
