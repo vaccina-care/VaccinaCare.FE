@@ -4,7 +4,6 @@ import { AnimatePresence } from "framer-motion"
 import Header from "./components/Header"
 import Home from "./pages/Home"
 import About from "./pages/About"
-import Services from "./pages/Services"
 import Appointments from "./pages/Appointments"
 import Login from "./pages/Login"
 import Register from "./pages/Register"
@@ -23,7 +22,6 @@ const validRoutes = [
 	"/login",
 	"/register",
 	"/about",
-	"/services",
 	"/appointments",
 	"/user-dashboard",
 	"/child-dashboard",
@@ -47,8 +45,7 @@ const AppContent: React.FC = () => {
 							<Route path="/register" element={<Register />} />
 							<Route path="/" element={<Home />} />
 							<Route path="/about" element={<About />} />
-							<Route path="/services" element={<Services />} />
-							<Route path="/vaccines-packages" element={<Services />} />
+							{/* <Route path="/vaccines-packages" element={<VaccineList />} /> */}
 							
 							{/* Protected routes */}
 							<Route
