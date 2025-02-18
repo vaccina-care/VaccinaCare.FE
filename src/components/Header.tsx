@@ -84,8 +84,8 @@ const Header = () => {
 								</Link>
 							</li>
 							<li>
-								<Link to="/vaccines-packages" className="hover:text-blue-300">
-									Vaccine Packages
+								<Link to="/vaccines" className="hover:text-blue-300">
+									Vaccine List
 								</Link>
 							</li>
 						</ul>
