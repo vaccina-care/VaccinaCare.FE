@@ -17,6 +17,7 @@ export interface ChildData {
 	otherSpecialConditionDescription: string
 }
 
+
 export const getChildren = async (): Promise<ChildData[]> => {
 	try {
 		const response = await axiosInstance.get("/children")
@@ -37,11 +38,11 @@ export const createChild = async (childData: Omit<ChildData, "id">): Promise<Chi
 
 		// Append each field to FormData with proper string conversion
 		Object.entries(childData).forEach(([key, value]) => {
-			// Convert booleans to strings
+			// Convert các dòng từ boolean -> string
 			if (typeof value === "boolean") {
 				formData.append(key, value ? "true" : "false")
 			}
-			// Handle all other values as strings
+			// Handle tất cả các value bằng string
 			else {
 				formData.append(key, String(value))
 			}
