@@ -54,7 +54,7 @@ export default function VaccineList() {
         <div className="space-y-8">
           {/* Header Section */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <h1 className="text-2xl font-bold text-[#1e1b4b]">Danh sách vắc xin</h1>
+            <h1 className="text-2xl font-bold text-[#1e1b4b]">List of Vaccines</h1>
             <div className="flex flex-col sm:flex-row gap-4 md:items-center">
               <Select
                 value={vaccineFilter}
@@ -70,20 +70,20 @@ export default function VaccineList() {
                 <SelectContent>
                   <SelectItem value="all">
                     <div className="flex items-center gap-2">
-                      <span>Tất cả</span>
+                      <span>All</span>
                     </div>
                   </SelectItem>
                   <SelectItem value="single">
                     <div className="flex items-center gap-2">
                       <Syringe className="h-4 w-4" />
-                      <span>Vắc xin Lẻ</span>
+                      <span>Single vaccines</span>
                     </div>
                   </SelectItem>
                 </SelectContent>
               </Select>
               <Input
                 type="search"
-                placeholder="Tìm kiếm vắc xin..."
+                placeholder="Search for vaccines"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full sm:w-[300px]"
@@ -153,7 +153,7 @@ export default function VaccineList() {
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <span className="text-sm">
-              Trang {currentPage} / {totalPages}
+              Page {currentPage} / {totalPages}
             </span>
             <Button
               variant="outline"

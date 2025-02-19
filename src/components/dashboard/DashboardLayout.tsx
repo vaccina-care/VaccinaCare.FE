@@ -41,9 +41,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
               <span>Children Information</span>
             </button>
             <button
+              onClick={() => navigate("/notifications")}
               className={cn(
                 "flex w-full items-center gap-2 rounded-lg px-3 py-2 transition-colors hover:bg-gray-100",
-                "text-gray-600",
+                isActive("/notifications") ? "text-blue-600 bg-blue-50" : "text-gray-600",
               )}
             >
               <Bell className="h-4 w-4" />
