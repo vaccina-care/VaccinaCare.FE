@@ -1,5 +1,5 @@
 import { FadeInSection } from "@/components/FadeInSection"
-const missionImage = "http://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=about-us%2Fmission.jpg&version_id=null"
+const missionImage = "https://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=about-us%2Fmission.jpg&version_id=null"
 const AboutMission = () => {
 	return (
 		<section className="py-20">

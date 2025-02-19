@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
-import { Phone, Clock, MapPin, LogOut, User, LogInIcon as Logs, Bell } from "lucide-react"
+import { Phone, Clock, MapPin, LogOut, User, Bell, NotepadText } from "lucide-react"
 import { useAuthContext } from "@/contexts/AuthContexts"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -82,11 +82,6 @@ const Header = () => {
 								</Link>
 							</li>
 							<li>
-								<Link to="/contact" className="hover:text-blue-300">
-									Contact
-								</Link>
-							</li>
-							<li>
 								<Link to="/vaccines" className="hover:text-blue-300">
 									Vaccine List
 								</Link>
@@ -121,7 +116,7 @@ const Header = () => {
 									<PopoverContent className="w-50">
 										<div className="flex flex-col space-y-1">
 											<Button variant="ghost" className="flex items-center justify-start px-2">
-												<Logs className="mr-2 h-4 w-4" />
+												<NotepadText className="mr-2 h-4 w-4" />
 												<Link to="/user-dashboard">Dashboard</Link>
 											</Button>
 											<Button variant="ghost" className="flex items-center justify-start px-2" onClick={handleLogout}>

@@ -1,7 +1,7 @@
 import { FadeInSection } from "@/components/FadeInSection"
 import SplitText from "@/components/ui/split-text"
 
-const heroImage = "http://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=about-us%2Fhero.jpg&version_id=null"
+const heroImage = "https://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=about-us%2Fhero.jpg&version_id=null"
 
 const HeroSection = () => {
 	return (

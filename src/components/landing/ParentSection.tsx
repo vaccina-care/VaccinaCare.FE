@@ -7,12 +7,12 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ChevronLeft, ChevronRight, Linkedin, Facebook, Instagram, Quote } from "lucide-react"
 
 // Image url
-const parent1 = "http://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=parents%2Fparent1.jpg"
-const parent2 = "http://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=parents%2Fparent2.jpg"
-const parent3 = "http://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=parents%2Fparent3.jpg"
-const parent4 = "http://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=parents%2Fparent4.jpg"
-const parent5 = "http://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=parents%2Fparent5.jpg"
-const parent6 = "http://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=parents%2Fparent6.jpg"
+const parent1 = "https://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=parents%2Fparent1.jpg"
+const parent2 = "https://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=parents%2Fparent2.jpg"
+const parent3 = "https://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=parents%2Fparent3.jpg"
+const parent4 = "https://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=parents%2Fparent4.jpg"
+const parent5 = "https://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=parents%2Fparent5.jpg"
+const parent6 = "https://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=parents%2Fparent6.jpg"
 
 const parents = [
 	{

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 
 //Import images 
-const heroImage = "http://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=welcome.png"
+const heroImage = "https://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=welcome.png"
 import { FadeInSection } from "../FadeInSection"
 
 const HeroSection = () => {
