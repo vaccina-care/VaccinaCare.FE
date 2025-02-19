@@ -1,13 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+"use client"
+
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Pencil } from "lucide-react"
+import { Pencil, User, Mail, Phone, MapPin, Calendar } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { fetchUserData, updateUserProfile, type UserData } from "@/api/user"
 import { DatePicker } from "@/components/DatePicker"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 // Import images
 import defaultAvatar from "@/assets/images/aba.png"
@@ -164,142 +167,165 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <img src={defaultAvatar} alt="Profile" className="h-16 w-16 rounded-full object-cover" />
-          <div>
-            <h2 className="text-xl font-semibold">{userData.fullName}</h2>
-            <p className="text-sm text-gray-500">{userData.roleName}</p>
-          </div>
-        </div>
+    <Card className="w-full max-w-4xl mx-auto">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-2xl font-bold">User Profile</CardTitle>
         <Button variant="outline" size="sm" onClick={() => setIsEditing(!isEditing)}>
           <Pencil className="h-4 w-4 mr-2" />
           {isEditing ? "Cancel" : "Edit"}
         </Button>
-      </div>
-
-      <div className="border rounded-lg p-4 space-y-4">
-        <h3 className="text-lg font-semibold mb-4">Personal Information</h3>
-
-        <div className="space-y-2">
-          <Label htmlFor="fullName">Full Name</Label>
-          <Input
-            id="fullName"
-            value={userData.fullName}
-            onChange={(e) => handleInputChange("fullName", e.target.value)}
-            disabled={!isEditing}
-            className="bg-transparent"
+      </CardHeader>
+      <CardContent className="pt-6">
+        <div className="flex items-center space-x-4 mb-6">
+          <img
+            src={defaultAvatar || "/placeholder.svg"}
+            alt="Profile"
+            className="h-20 w-20 rounded-full object-cover"
           />
+          <div>
+            <h2 className="text-2xl font-semibold">{userData.fullName}</h2>
+            <p className="text-sm text-gray-500">{userData.roleName}</p>
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            value={userData.email}
-            onChange={(e) => handleInputChange("email", e.target.value)}
-            disabled={!isEditing}
-            className="bg-transparent"
-          />
-        </div>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="fullName" className="flex items-center space-x-2">
+                <User className="h-4 w-4" />
+                <span>Full Name</span>
+              </Label>
+              <Input
+                id="fullName"
+                value={userData.fullName}
+                onChange={(e) => handleInputChange("fullName", e.target.value)}
+                disabled={!isEditing}
+                className="bg-transparent"
+              />
+            </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="phoneNumber">Phone Number</Label>
-          <Input
-            id="phoneNumber"
-            value={userData.phoneNumber}
-            onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-            disabled={!isEditing}
-            className="bg-transparent"
-          />
-        </div>
+            <div className="space-y-2">
+              <Label htmlFor="email" className="flex items-center space-x-2">
+                <Mail className="h-4 w-4" />
+                <span>Email</span>
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                value={userData.email}
+                onChange={(e) => handleInputChange("email", e.target.value)}
+                disabled={!isEditing}
+                className="bg-transparent"
+              />
+            </div>
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="gender">Gender</Label>
-          <Select
-            disabled={!isEditing}
-            value={userData.gender ? "true" : "false"}
-            onValueChange={(value) => handleInputChange("gender", value === "true")}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue>{userData.gender ? "Male" : "Female"}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="true">Male</SelectItem>
-              <SelectItem value="false">Female</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="phoneNumber" className="flex items-center space-x-2">
+                <Phone className="h-4 w-4" />
+                <span>Phone Number</span>
+              </Label>
+              <Input
+                id="phoneNumber"
+                value={userData.phoneNumber}
+                onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+                disabled={!isEditing}
+                className="bg-transparent"
+              />
+            </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="dateOfBirth">Date of Birth</Label>
-          <DatePicker date={dateOfBirth} setDate={setDateOfBirth} disabled={!isEditing} />
-        </div>
+            <div className="space-y-2">
+              <Label htmlFor="gender" className="flex items-center space-x-2">
+                <User className="h-4 w-4" />
+                <span>Gender</span>
+              </Label>
+              <Select
+                disabled={!isEditing}
+                value={userData.gender ? "true" : "false"}
+                onValueChange={(value) => handleInputChange("gender", value === "true")}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue>{userData.gender ? "Male" : "Female"}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="true">Male</SelectItem>
+                  <SelectItem value="false">Female</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="province">Province</Label>
-            <Select
-              disabled={!isEditing}
-              value={selectedProvince}
-              onValueChange={(value) => {
-                setSelectedProvince(value)
-                setSelectedDistrict("")
-              }}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Choose a province" />
-              </SelectTrigger>
-              <SelectContent>
-                {provinces.map((province) => (
-                  <SelectItem key={province.code} value={province.code}>
-                    {province.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label htmlFor="dateOfBirth" className="flex items-center space-x-2">
+              <Calendar className="h-4 w-4" />
+              <span>Date of Birth</span>
+            </Label>
+            <DatePicker date={dateOfBirth} setDate={setDateOfBirth} disabled={!isEditing} />
           </div>
+
           <div className="space-y-2">
-            <Label htmlFor="district">District</Label>
-            <Select
-              disabled={!isEditing || !selectedProvince}
-              value={selectedDistrict}
-              onValueChange={setSelectedDistrict}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Choose a district" />
-              </SelectTrigger>
-              <SelectContent>
-                {districts.map((district) => (
-                  <SelectItem key={district.code} value={district.code}>
-                    {district.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label htmlFor="address" className="flex items-center space-x-2">
+              <MapPin className="h-4 w-4" />
+              <span>Address</span>
+            </Label>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Select
+                disabled={!isEditing}
+                value={selectedProvince}
+                onValueChange={(value) => {
+                  setSelectedProvince(value)
+                  setSelectedDistrict("")
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Province" />
+                </SelectTrigger>
+                <SelectContent>
+                  {provinces.map((province) => (
+                    <SelectItem key={province.code} value={province.code}>
+                      {province.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                disabled={!isEditing || !selectedProvince}
+                value={selectedDistrict}
+                onValueChange={setSelectedDistrict}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="District" />
+                </SelectTrigger>
+                <SelectContent>
+                  {districts.map((district) => (
+                    <SelectItem key={district.code} value={district.code}>
+                      {district.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Input
+                id="homeAddress"
+                value={homeAddress}
+                onChange={(e) => setHomeAddress(e.target.value)}
+                disabled={!isEditing}
+                className="bg-transparent"
+                placeholder="Street Address"
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="homeAddress">Home Address</Label>
-          <Input
-            id="homeAddress"
-            value={homeAddress}
-            onChange={(e) => setHomeAddress(e.target.value)}
-            disabled={!isEditing}
-            className="bg-transparent"
-          />
+          {isEditing && (
+            <div className="flex justify-end">
+              <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
+                Save changes
+              </Button>
+            </div>
+          )}
         </div>
-
-        {isEditing && (
-          <div className="flex justify-end">
-            <Button onClick={handleSave}>Save changes</Button>
-          </div>
-        )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }
 

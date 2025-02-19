@@ -1,14 +1,17 @@
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
-import { Phone, Clock, MapPin, LogOut, User, Logs } from "lucide-react"
+import { Phone, Clock, MapPin, LogOut, User, LogInIcon as Logs, Bell } from "lucide-react"
 import { useAuthContext } from "@/contexts/AuthContexts"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Badge } from "@/components/ui/badge"
 
 import avtImage from "@/assets/images/aba.png"
 
 const Header = () => {
 	const { isAuthenticated, logout } = useAuthContext()
+	// This would typically come from your notification context or API
+	const unreadNotifications = 3 // Replace with actual unread notifications count
 
 	const handleLogout = () => {
 		logout()
@@ -63,7 +66,7 @@ const Header = () => {
 				</div>
 			</div>
 
-{/* Navigation */}
+			{/* Navigation */}
 			<nav className="bg-[#1e1b4b] text-white">
 				<div className="container mx-auto px-4">
 					<div className="flex flex-col md:flex-row justify-between items-center py-4">
@@ -84,38 +87,51 @@ const Header = () => {
 								</Link>
 							</li>
 							<li>
-								<Link to="/vaccines-packages" className="hover:text-blue-300">
-									Vaccine Packages
+								<Link to="/vaccines" className="hover:text-blue-300">
+									Vaccine List
 								</Link>
 							</li>
 						</ul>
 						{isAuthenticated ? (
-							<Popover>
-								<PopoverTrigger asChild>
-									<Button variant="ghost" className="relative h-8 w-8 rounded-full">
-										<Avatar className="h-8 w-8">
-											<AvatarImage src={avtImage} alt="User" />
-											<AvatarFallback>
-												<User className="h-4 w-4" />
-											</AvatarFallback>
-										</Avatar>
+							<div className="flex items-center gap-4">
+								{/* Notification Bell */}
+								<Link to="/notifications" className="relative">
+									<Button variant="ghost" size="icon" className="text-white hover:bg-white transition-colors">
+										<Bell className="h-6 w-6" />
+										{unreadNotifications > 0 && (
+											<Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center rounded-full bg-red-500 text-white text-xs p-0 border-2 border-[#1e1b4b]">
+												{unreadNotifications}
+											</Badge>
+										)}
 									</Button>
-								</PopoverTrigger>
-								<PopoverContent className="w-50">
-									<div className="flex flex-col space-y-1">
-										<Button variant="ghost" className="flex items-center justify-start px-2">
-											<Logs className="mr-2 h-4 w-4" />
-											<Link to="/user-dashboard">
-												Dashboard
-											</Link>
+								</Link>
+
+								{/* User Avatar */}
+								<Popover>
+									<PopoverTrigger asChild>
+										<Button variant="ghost" className="relative h-8 w-8 rounded-full">
+											<Avatar className="h-8 w-8">
+												<AvatarImage src={avtImage} alt="User" />
+												<AvatarFallback>
+													<User className="h-4 w-4" />
+												</AvatarFallback>
+											</Avatar>
 										</Button>
-										<Button variant="ghost" className="flex items-center justify-start px-2" onClick={handleLogout}>
-											<LogOut className="mr-2 h-4 w-4" />
-											<span>Log out</span>
-										</Button>
-									</div>
-								</PopoverContent>
-							</Popover>
+									</PopoverTrigger>
+									<PopoverContent className="w-50">
+										<div className="flex flex-col space-y-1">
+											<Button variant="ghost" className="flex items-center justify-start px-2">
+												<Logs className="mr-2 h-4 w-4" />
+												<Link to="/user-dashboard">Dashboard</Link>
+											</Button>
+											<Button variant="ghost" className="flex items-center justify-start px-2" onClick={handleLogout}>
+												<LogOut className="mr-2 h-4 w-4" />
+												<span>Log out</span>
+											</Button>
+										</div>
+									</PopoverContent>
+								</Popover>
+							</div>
 						) : (
 							<Button className="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700" asChild>
 								<Link to="/Login">Login</Link>
@@ -126,7 +142,6 @@ const Header = () => {
 			</nav>
 		</header>
 	)
-
 }
 
 export default Header
