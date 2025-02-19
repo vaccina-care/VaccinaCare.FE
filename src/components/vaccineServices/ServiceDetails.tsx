@@ -4,7 +4,7 @@ interface VaccineInfo {
     description: string;
     vaccineName: string;
     type: string;
-    batchNumber: string;  // Temporarily left unchanged
+    requiredDoses: number;
 }
 
 interface PackageDetailsProps {
@@ -14,14 +14,6 @@ interface PackageDetailsProps {
 }
 
 export function PackageDetails({ packageId, price, vaccineInfo }: PackageDetailsProps) {
-    const titles: Record<string, string> = {
-        "860cdd9e-b6e0-4e1b-e56f-08dd4eeb7d57": "Gói trẻ em từ 0-2 tuổi",
-        "a6be5729-22af-4025-9bdb-dffcd46b3186": "Gói tiền học đường từ 3-9 tuổi",
-        teenager: "Gói thanh thiếu niên từ 9-18 tuổi"
-    };
-
-    const packageTitle = titles[packageId] || "Gói không xác định";
-
     return (
         <div className="border border-gray-200 rounded-lg overflow-hidden">
             {/* Header image */}
@@ -36,7 +28,7 @@ export function PackageDetails({ packageId, price, vaccineInfo }: PackageDetails
             {/* Content */}
             <div className="bg-white p-6">
                 <div className="flex items-center justify-between mb-6 bg-[#BFD2F8]/30 p-4 rounded-lg">
-                    <h2 className="text-2xl font-semibold text-[#1E1E1E]">{packageTitle}</h2>
+                    <h2 className="text-2xl font-semibold text-[#1E1E1E]">{packageId}</h2>
                     <div className="bg-[#526AE9] px-4 py-2 rounded">
                         <span className="font-semibold text-white">{price}đ</span>
                     </div>
@@ -58,7 +50,7 @@ export function PackageDetails({ packageId, price, vaccineInfo }: PackageDetails
                                     <td className="py-3 px-4">{info.description}</td>
                                     <td className="py-3 px-4">{info.vaccineName}</td>
                                     <td className="py-3 px-4">{info.type}</td>
-                                    <td className="py-3 px-4">{info.batchNumber}</td>
+                                    <td className="py-3 px-4">{info.requiredDoses}</td>
                                 </tr>
                             )) : (
                                 <tr>

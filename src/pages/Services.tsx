@@ -4,9 +4,10 @@ import { PackageDetails } from "@/components/vaccineServices/ServiceDetails";
 import { getVaccinePackages, getVaccineById } from "@/api/service";
 
 export default function Services() {
-  const [selectedPackage, setSelectedPackage] = useState<string>("860cdd9e-b6e0-4e1b-e56f-08dd4eeb7d57");  
+  const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
   const [vaccinePackages, setVaccinePackages] = useState<any[]>([]);
   const [selectedPackageData, setSelectedPackageData] = useState<any | null>(null);
+  const [packageIdMap, setPackageIdMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const fetchPackages = async () => {
@@ -14,6 +15,16 @@ export default function Services() {
         const packages = await getVaccinePackages();
         console.log("API Response for Packages:", packages);
         setVaccinePackages(packages);
+
+        if (packages.length >= 3) {
+          const map: Record<string, string> = {
+            [packages[0].id]: "Gói trẻ em từ 0-2 tuổi",
+            [packages[1].id]: "Gói tiền học đường từ 3-9 tuổi",
+            [packages[2].id]: "Gói thanh thiếu niên từ 9-18 tuổi",
+          };
+          setPackageIdMap(map);
+          setSelectedPackage(packages[0].id); // Mặc định chọn gói đầu tiên
+        }
       } catch (error) {
         console.error("Failed to fetch vaccine packages:", error);
       }
@@ -26,10 +37,7 @@ export default function Services() {
     const fetchPackageDetails = async () => {
       if (!vaccinePackages.length || !selectedPackage) return;
 
-      // Kiểm tra selectedPackage có phải là GUID hợp lệ không
       console.log("Selected Package ID:", selectedPackage);
-
-      // Tìm package dựa trên ID (phải là GUID)
       const currentPackage = vaccinePackages.find(pkg => pkg.id === selectedPackage);
       console.log("Current Package Found:", currentPackage);
 
@@ -43,7 +51,7 @@ export default function Services() {
         return;
       }
 
-      try {
+     try {
         const vaccineDetails = await Promise.all(
           currentPackage.vaccineDetails.map((detail: { vaccineId: string }) =>
             getVaccineById(detail.vaccineId)
@@ -68,12 +76,13 @@ export default function Services() {
         <h1 className="text-3xl font-bold text-center text-[#1E1E1E] mb-8">GIỚI THIỆU CÁC GÓI TIÊM CHỦNG</h1>
         <div className="grid grid-cols-1 md:grid-cols-[400px_1fr] gap-6">
           <PackageSidebar 
-            selectedPackage={selectedPackage} 
+            selectedPackage={selectedPackage || ""}
             onSelectPackage={setSelectedPackage}
+            vaccinePackages={vaccinePackages} 
           />
           <div className="space-y-6">
             <PackageDetails
-              packageId={selectedPackage || "Gói không xác định"} // Sử dụng title map
+              packageId={packageIdMap[selectedPackage || ""] || "Gói không xác định"}
               price={selectedPackageData.price}
               vaccineInfo={selectedPackageData.vaccineDetails || []}
             />
