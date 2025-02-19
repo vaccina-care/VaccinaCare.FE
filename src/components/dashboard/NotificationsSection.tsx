@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
 import { useState } from "react"
@@ -168,7 +167,7 @@ const NotificationCard = ({ notification }: { notification: Notification }) => {
 }
 
 export default function NotificationsSection() {
-    const [notifications, setNotifications] = useState<Notification[]>(sampleNotifications)
+    const [notifications] = useState<Notification[]>(sampleNotifications)
 
     return (
         <div className="space-y-6">

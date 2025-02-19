@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import { DatePicker } from "@/components/DatePicker"
-import { Pencil, Plus } from "lucide-react"
+import { Pencil, Plus, User, Calendar, Droplet, FileText, AlertTriangle, Pill, Activity } from "lucide-react"
 import { useChildren } from "@/hooks/useChildren"
 import type { ChildData } from "@/api/children"
 import type React from "react"
@@ -49,21 +49,20 @@ const ChildCard = ({
 
 	return (
 		<Card>
-			<CardContent className="p-6">
-				<div className="flex justify-between items-start mb-6">
-					<div>
-						<h3 className="text-lg font-semibold">Child #{childNumber} Profile</h3>
-						<p className="text-sm text-muted-foreground">Manage your child's information</p>
-					</div>
-					<Button variant="outline" size="sm" onClick={onEdit}>
-						<Pencil className="h-4 w-4 mr-2" />
-						{isEditing ? "Cancel" : "Edit"}
-					</Button>
-				</div>
-
+			<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+				<CardTitle className="text-xl font-semibold text-blue-600">Child #{childNumber}</CardTitle>
+				<Button variant="outline" size="sm" onClick={onEdit}>
+					<Pencil className="h-4 w-4 mr-2" />
+					{isEditing ? "Cancel" : "Edit"}
+				</Button>
+			</CardHeader>
+			<CardContent className="pt-6">
 				<div className="space-y-6">
 					<div className="space-y-2">
-						<Label htmlFor="fullName">Full Name</Label>
+						<Label htmlFor="fullName" className="flex items-center space-x-2">
+							<User className="h-4 w-4" />
+							<span>Full Name</span>
+						</Label>
 						<Input
 							id="fullName"
 							value={editedChild.fullName}
@@ -75,11 +74,17 @@ const ChildCard = ({
 
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 						<div className="space-y-2">
-							<Label htmlFor="dateOfBirth">Date of Birth</Label>
+							<Label htmlFor="dateOfBirth" className="flex items-center space-x-2">
+								<Calendar className="h-4 w-4" />
+								<span>Date of Birth</span>
+							</Label>
 							<DatePicker date={dateOfBirth} setDate={handleDateChange} disabled={!isEditing} />
 						</div>
 						<div className="space-y-2">
-							<Label htmlFor="gender">Gender</Label>
+							<Label htmlFor="gender" className="flex items-center space-x-2">
+								<User className="h-4 w-4" />
+								<span>Gender</span>
+							</Label>
 							<Select
 								disabled={!isEditing}
 								value={editedChild.gender ? "true" : "false"}
@@ -97,7 +102,10 @@ const ChildCard = ({
 					</div>
 
 					<div className="space-y-2">
-						<Label htmlFor="bloodType">Blood Type</Label>
+						<Label htmlFor="bloodType" className="flex items-center space-x-2">
+							<Droplet className="h-4 w-4" />
+							<span>Blood Type</span>
+						</Label>
 						<Select
 							disabled={!isEditing}
 							value={editedChild.bloodType}
@@ -117,7 +125,10 @@ const ChildCard = ({
 					</div>
 
 					<div className="space-y-2">
-						<Label htmlFor="medicalHistory">Medical History</Label>
+						<Label htmlFor="medicalHistory" className="flex items-center space-x-2">
+							<FileText className="h-4 w-4" />
+							<span>Medical History</span>
+						</Label>
 						<Textarea
 							id="medicalHistory"
 							value={editedChild.medicalHistory}
@@ -129,8 +140,9 @@ const ChildCard = ({
 
 					<div className="space-y-4 border-t pt-4">
 						<div className="flex items-center justify-between">
-							<Label htmlFor="chronicIllnesses" className="text-lg font-semibold">
-								Chronic Illnesses
+							<Label htmlFor="chronicIllnesses" className="flex items-center space-x-2">
+								<Activity className="h-4 w-4" />
+								<span>Chronic Illnesses</span>
 							</Label>
 							<Switch
 								id="chronicIllnesses"
@@ -153,8 +165,9 @@ const ChildCard = ({
 
 					<div className="space-y-4 border-t pt-4">
 						<div className="flex items-center justify-between">
-							<Label htmlFor="allergies" className="text-lg font-semibold">
-								Allergies
+							<Label htmlFor="allergies" className="flex items-center space-x-2">
+								<AlertTriangle className="h-4 w-4" />
+								<span>Allergies</span>
 							</Label>
 							<Switch
 								id="allergies"
@@ -177,8 +190,9 @@ const ChildCard = ({
 
 					<div className="space-y-4 border-t pt-4">
 						<div className="flex items-center justify-between">
-							<Label htmlFor="recentMedication" className="text-lg font-semibold">
-								Recent Medication
+							<Label htmlFor="recentMedication" className="flex items-center space-x-2">
+								<Pill className="h-4 w-4" />
+								<span>Recent Medication</span>
 							</Label>
 							<Switch
 								id="recentMedication"
@@ -201,8 +215,9 @@ const ChildCard = ({
 
 					<div className="space-y-4 border-t pt-4">
 						<div className="flex items-center justify-between">
-							<Label htmlFor="otherConditions" className="text-lg font-semibold">
-								Other Special Conditions
+							<Label htmlFor="otherConditions" className="flex items-center space-x-2">
+								<Activity className="h-4 w-4" />
+								<span>Other Special Conditions</span>
 							</Label>
 							<Switch
 								id="otherConditions"
@@ -225,7 +240,7 @@ const ChildCard = ({
 
 					{isEditing && (
 						<div className="flex justify-end">
-							<Button onClick={handleSave} className="bg-[#1e1b4b] hover:bg-[#1e1b4b]/90">
+							<Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
 								Save changes
 							</Button>
 						</div>
@@ -236,13 +251,13 @@ const ChildCard = ({
 	)
 }
 
-// Default value khi init 1 child mới
+// Default value when initializing a new child
 const defaultChildData: Omit<ChildData, "id"> = {
-	fullName: "default child",
+	fullName: "New Child",
 	dateOfBirth: new Date().toISOString().split("T")[0], // Format as YYYY-MM-DD
 	gender: true,
-	medicalHistory: "not having issue",
-	bloodType: "A",
+	medicalHistory: "",
+	bloodType: "Unknown",
 	hasChronicIllnesses: false,
 	chronicIllnessesDescription: "",
 	hasAllergies: false,
@@ -312,7 +327,7 @@ const ChildProfile: React.FC = () => {
 		<div className="space-y-6">
 			<div className="flex items-center justify-between">
 				<h2 className="text-2xl font-bold">Children Information</h2>
-				<Button onClick={handleAddChild}>
+				<Button onClick={handleAddChild} className="bg-blue-600 hover:bg-blue-700">
 					<Plus className="h-4 w-4 mr-2" />
 					Add Child
 				</Button>
