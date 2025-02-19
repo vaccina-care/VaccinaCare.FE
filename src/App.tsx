@@ -15,10 +15,12 @@ import PageTransition from "./components/PageTransition"
 import NotFound from "./pages/NotFound"
 import ProtectedRoute from "./components/ProtectedRoute"
 import { AuthProvider } from "@/contexts/AuthContexts"
+import VaccineDetailPage from "./pages/VaccineDetail"
+
 
 
 // Define valid routes
-const validRoutes = ["/", "/login", "/register", "/about", "/services", "/appointments", "/user-dashboard"]
+const validRoutes = ["/", "/login", "/register", "/about", "/services", "/details", "/appointments", "/user-dashboard"]
 
 const AppContent: React.FC = () => {
   const location = useLocation()
@@ -38,6 +40,7 @@ const AppContent: React.FC = () => {
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/services" element={<Services />} />
+              <Route path="/details" element={<VaccineDetailPage />} />
 
               {/* Protected routes */}
               <Route
