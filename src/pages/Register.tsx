@@ -10,8 +10,8 @@ import { Auth } from "@/api/auth"
 import { useToast } from "@/hooks/use-toast"
 
 // Import images
-const logoImage = "https://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=logo.png&version_id=null"
-const registerIllustration = "https://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=register.png"
+const logoImage = "https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=logo.png&version_id=null"
+const registerIllustration = "https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=auth%2Fregister.png&version_id=null"
 
 
 const Register = () => {

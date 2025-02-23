@@ -7,12 +7,12 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ChevronLeft, ChevronRight, Linkedin, Facebook, Instagram, Quote } from "lucide-react"
 
 // Image url
-const parent1 = "https://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=parents%2Fparent1.jpg"
-const parent2 = "https://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=parents%2Fparent2.jpg"
-const parent3 = "https://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=parents%2Fparent3.jpg"
-const parent4 = "https://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=parents%2Fparent4.jpg"
-const parent5 = "https://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=parents%2Fparent5.jpg"
-const parent6 = "https://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=parents%2Fparent6.jpg"
+const parent1 = "https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=home%2Ffamily1.jpg&version_id=null"
+const parent2 = "https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=home%2Ffamily2.jpg&version_id=null"
+const parent3 = "https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=home%2Ffamily3.jpg&version_id=null"
+const parent4 = "https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=home%2Ffamily4.jpg&version_id=null"
+const parent5 = "https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=home%2Ffamily5.jpg&version_id=null"
+const parent6 = "https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=home%2Ffamily6.jpg&version_id=null"
 
 const parents = [
 	{
@@ -98,7 +98,7 @@ const ParentSection = () => {
 						<div className="flex -mx-4">
 							{parents.map((parent, index) => (
 								<div key={index} className="flex-[0_0_100%] min-w-0 md:flex-[0_0_50%] lg:flex-[0_0_33.333%] px-4">
-									<Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg">
+									<Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg h-[500px] flex flex-col">
 										<div className="relative">
 											<img
 												src={parent.image || "/placeholder.svg"}
@@ -107,39 +107,46 @@ const ParentSection = () => {
 											/>
 											<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 										</div>
-										<CardContent className="relative p-6 bg-white">
+										<CardContent className="relative p-6 bg-white flex flex-col flex-grow">
 											<Quote className="absolute top-0 right-0 h-24 w-24 text-blue-50 -mt-8 -mr-8 rotate-12" />
-											<div className="relative">
-												<h3 className="font-medium text-lg mb-2 group-hover:text-blue-600 transition-colors duration-200">
-													{parent.name}
-												</h3>
-												<p className="text-gray-600 mb-6 text-sm leading-relaxed">"{parent.description}"</p>
-												<div className="flex justify-start gap-3 mb-4">
-													<Button
-														variant="ghost"
-														size="icon"
-														className="h-8 w-8 rounded-full hover:bg-blue-50 hover:text-blue-600"
-													>
-														<Linkedin className="h-4 w-4" />
-													</Button>
-													<Button
-														variant="ghost"
-														size="icon"
-														className="h-8 w-8 rounded-full hover:bg-blue-50 hover:text-blue-600"
-													>
-														<Facebook className="h-4 w-4" />
-													</Button>
-													<Button
-														variant="ghost"
-														size="icon"
-														className="h-8 w-8 rounded-full hover:bg-blue-50 hover:text-blue-600"
-													>
-														<Instagram className="h-4 w-4" />
+											<div className="flex flex-col h-full">
+												{/* Content section that can grow */}
+												<div className="flex-grow">
+													<h3 className="font-medium text-lg mb-2 group-hover:text-blue-600 transition-colors duration-200">
+														{parent.name}
+													</h3>
+													<p className="text-gray-600 text-sm leading-relaxed line-clamp-3">"{parent.description}"</p>
+												</div>
+
+												{/* Footer section that stays at bottom */}
+												<div className="mt-auto pt-6">
+													<div className="flex justify-start gap-3 mb-4">
+														<Button
+															variant="ghost"
+															size="icon"
+															className="h-8 w-8 rounded-full hover:bg-blue-50 hover:text-blue-600"
+														>
+															<Linkedin className="h-4 w-4" />
+														</Button>
+														<Button
+															variant="ghost"
+															size="icon"
+															className="h-8 w-8 rounded-full hover:bg-blue-50 hover:text-blue-600"
+														>
+															<Facebook className="h-4 w-4" />
+														</Button>
+														<Button
+															variant="ghost"
+															size="icon"
+															className="h-8 w-8 rounded-full hover:bg-blue-50 hover:text-blue-600"
+														>
+															<Instagram className="h-4 w-4" />
+														</Button>
+													</div>
+													<Button className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90 text-white transition-all duration-200 group-hover:shadow-md">
+														View Story
 													</Button>
 												</div>
-												<Button className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90 text-white transition-all duration-200 group-hover:shadow-md">
-													View Story
-												</Button>
 											</div>
 										</CardContent>
 									</Card>

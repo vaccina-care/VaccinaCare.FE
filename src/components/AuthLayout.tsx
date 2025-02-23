@@ -33,12 +33,12 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, illustration, isRever
         initial={{ x: isReversed ? -50 : 50, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="hidden lg:flex flex-1 bg-[#EEF2FF]"
+        className="hidden lg:block flex-1 bg-[#EEF2FF] relative overflow-hidden"
       >
         <img
           src={illustration}
           alt="Medical illustration"
-          className="w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover object-center"
         />
       </motion.div>
     </motion.div>

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight } from 'lucide-react'
 
 //Import images 
-const logoImage = "https://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=like.png&version_id=null"
+const logoImage = "https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=home%2Fwelcome.jpg&version_id=null"
 
 const WelcomeSection = () => {
   return (
@@ -28,13 +28,8 @@ const WelcomeSection = () => {
           </Button>
         </div>
         
-        <div className="w-full h-[300px] md:h-[200px] overflow-hidden rounded-lg">
-          {/* Replace with your team image */}
-          <img
-            src={logoImage}
-            alt="Medical Team"
-            className="w-full h-full object-fill"
-          />
+        <div className="max-w-4xl mx-auto h-[300px] md:h-[200px] overflow-hidden rounded-lg">
+          <img src={logoImage || "/placeholder.svg"} alt="Medical Team" className="w-full h-full object-fit" />
         </div>
       </div>
     </section>  

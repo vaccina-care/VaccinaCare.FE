@@ -19,6 +19,13 @@ export interface VaccineResponse {
 	}
 }
 
+// New interface for single vaccine response
+export interface SingleVaccineResponse {
+	isSuccess: boolean
+	message: string
+	data: Vaccine
+}
+
 // GET for VaccineSection on landing page
 export const getVaccineSection = async (params?: {
 	search?: string
@@ -63,6 +70,21 @@ export const getVaccineList = async (params?: {
 		return response.data
 	} catch (error) {
 		console.error("Error fetching vaccine list:", error)
+		throw error
+	}
+}
+
+// GET single vaccine by ID
+export const getVaccineById = async (id: string): Promise<Vaccine> => {
+	try {
+		const response = await axiosInstance.get<SingleVaccineResponse>(`/vaccine/${id}`)
+		if (response.data.isSuccess) {
+			return response.data.data
+		} else {
+			throw new Error(response.data.message)
+		}
+	} catch (error) {
+		console.error(`Error fetching vaccine with id ${id}:`, error)
 		throw error
 	}
 }
