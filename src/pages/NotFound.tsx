@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 
-const notFoundImage = "https://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=notFound.png"
+const notFoundImage = "https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=notFound.jpg&version_id=null"
 
 const NotFound: React.FC = () => {
   return (

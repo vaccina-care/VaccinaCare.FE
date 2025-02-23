@@ -9,24 +9,36 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import { DatePicker } from "@/components/DatePicker"
-import { Pencil, Plus, User, Calendar, Droplet, FileText, AlertTriangle, Pill, Activity } from "lucide-react"
+import { Pencil, Plus, User, Calendar, Droplet, FileText, AlertTriangle, Pill, Activity, Trash2 } from "lucide-react"
 import { useChildren } from "@/hooks/useChildren"
+import { createChild, updateChild, deleteChild } from "@/api/children"
 import type { ChildData } from "@/api/children"
-import type React from "react"
 import { useToast } from "@/hooks/use-toast"
-import { createChild } from "@/api/children"
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 const ChildCard = ({
 	child,
 	isEditing,
 	onEdit,
 	onSave,
+	onDelete,
 	childNumber,
 }: {
 	child: ChildData
 	isEditing: boolean
 	onEdit: () => void
 	onSave: (updatedChild: ChildData) => void
+	onDelete: (childId: string) => void
 	childNumber: number
 }) => {
 	const [editedChild, setEditedChild] = useState<ChildData>(child)
@@ -51,10 +63,38 @@ const ChildCard = ({
 		<Card>
 			<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 				<CardTitle className="text-xl font-semibold text-blue-600">Child #{childNumber}</CardTitle>
-				<Button variant="outline" size="sm" onClick={onEdit}>
-					<Pencil className="h-4 w-4 mr-2" />
-					{isEditing ? "Cancel" : "Edit"}
-				</Button>
+				<div className="flex space-x-2">
+					<Button variant="outline" size="sm" onClick={onEdit}>
+						<Pencil className="h-4 w-4 mr-2" />
+						{isEditing ? "Cancel" : "Edit"}
+					</Button>
+					<AlertDialog>
+						<AlertDialogTrigger asChild>
+							<Button variant="outline" size="sm" className="bg-red-100 hover:bg-red-200 text-red-600">
+								<Trash2 className="h-4 w-4 mr-2" />
+								Delete
+							</Button>
+						</AlertDialogTrigger>
+						<AlertDialogContent>
+							<AlertDialogHeader>
+								<AlertDialogTitle>Are you sure you want to delete this child's profile?</AlertDialogTitle>
+								<AlertDialogDescription>
+									This action cannot be undone. This will permanently delete the child's profile and remove all
+									associated data.
+								</AlertDialogDescription>
+							</AlertDialogHeader>
+							<AlertDialogFooter>
+								<AlertDialogCancel>Cancel</AlertDialogCancel>
+								<AlertDialogAction
+									onClick={() => onDelete(child.id)}
+									className="bg-red-600 text-white hover:bg-red-700"
+								>
+									Delete
+								</AlertDialogAction>
+							</AlertDialogFooter>
+						</AlertDialogContent>
+					</AlertDialog>
+				</div>
 			</CardHeader>
 			<CardContent className="pt-6">
 				<div className="space-y-6">
@@ -268,18 +308,15 @@ const defaultChildData: Omit<ChildData, "id"> = {
 	otherSpecialConditionDescription: "",
 }
 
-const ChildProfile: React.FC = () => {
+export function ChildrenProfile() {
 	const { children, loading, fetchChildren } = useChildren()
 	const [editingId, setEditingId] = useState<string | null>(null)
 	const { toast } = useToast()
 
 	const handleSaveChild = async (updatedChild: ChildData) => {
 		try {
-			console.log("Saving updated child:", updatedChild)
-			// Here you would typically call an API to update the child's data
-			// For now, we'll just update the local state
+			await updateChild(updatedChild.id, updatedChild)
 			setEditingId(null)
-			// Refresh the children list after saving
 			await fetchChildren()
 			toast({
 				title: "Success",
@@ -289,7 +326,7 @@ const ChildProfile: React.FC = () => {
 			console.error("Failed to save child:", error)
 			toast({
 				title: "Error",
-				description: "Failed to save child information. Please check the console for more details.",
+				description: "Failed to save child information. Please try again.",
 				variant: "destructive",
 			})
 		}
@@ -298,22 +335,34 @@ const ChildProfile: React.FC = () => {
 	const handleAddChild = async () => {
 		try {
 			await createChild(defaultChildData)
-			await fetchChildren() // Refresh the children list
+			await fetchChildren()
 			toast({
 				title: "Success",
 				description: "New child added successfully",
 			})
-		} catch (error: unknown) {
+		} catch (error) {
 			console.error("Failed to add new child:", error)
-			if (error && typeof error === "object" && "response" in error) {
-				const axiosError = error as { response: { data: unknown; status: number; headers: unknown } }
-				console.error("Response data:", axiosError.response.data)
-				console.error("Response status:", axiosError.response.status)
-				console.error("Response headers:", axiosError.response.headers)
-			}
 			toast({
 				title: "Error",
 				description: error instanceof Error ? error.message : "Failed to add new child",
+				variant: "destructive",
+			})
+		}
+	}
+
+	const handleDeleteChild = async (childId: string) => {
+		try {
+			await deleteChild(childId)
+			await fetchChildren()
+			toast({
+				title: "Success",
+				description: "Child profile deleted successfully",
+			})
+		} catch (error) {
+			console.error("Failed to delete child:", error)
+			toast({
+				title: "Error",
+				description: "Failed to delete child profile. Please try again.",
 				variant: "destructive",
 			})
 		}
@@ -344,6 +393,7 @@ const ChildProfile: React.FC = () => {
 							isEditing={editingId === child.id}
 							onEdit={() => setEditingId(editingId === child.id ? null : child.id)}
 							onSave={handleSaveChild}
+							onDelete={handleDeleteChild}
 							childNumber={index + 1}
 						/>
 					))}
@@ -353,5 +403,5 @@ const ChildProfile: React.FC = () => {
 	)
 }
 
-export default ChildProfile
+export default ChildrenProfile
 

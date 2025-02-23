@@ -1,4 +1,4 @@
-import { axiosInstance } from "./authConfig"
+import axiosInstance from "./axiosInstance"
 
 
 export interface UserData {
@@ -28,15 +28,15 @@ export const fetchUserData = async (): Promise<UserData> => {
 
 
 export const updateUserProfile = async (userData: Partial<UserData>): Promise<UserData> => {
-  try {
-    const response = await axiosInstance.put("/users/me", userData)
-    if (response.data.isSuccess) {
-      return response.data.data
-    } else {
-      throw new Error(response.data.message)
-    }
-  } catch (error) {
-    console.error("Error updating user profile:", error)
-    throw error
-  }
+	try {
+		const response = await axiosInstance.put("/users/me", userData)
+		if (response.data.isSuccess) {
+			return response.data.data
+		} else {
+			throw new Error(response.data.message)
+		}
+	} catch (error) {
+		console.error("Error updating user profile:", error)
+		throw error
+	}
 }

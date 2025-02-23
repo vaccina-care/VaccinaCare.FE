@@ -10,8 +10,8 @@ import { useAuthContext } from "@/contexts/AuthContexts"
 import { useToast } from "@/hooks/use-toast"
 
 // Import images
-const logoImage = "https://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=logo.png&version_id=null"
-const loginIllustration = "https://103.211.201.162:9001/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=login.png"
+const logoImage = "https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=logo.png&version_id=null"
+const loginIllustration = "https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=auth%2Flogin.png&version_id=null"
 
 const Login = () => {
 	const [email, setEmail] = useState("")
