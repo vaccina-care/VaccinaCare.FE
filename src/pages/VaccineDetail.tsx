@@ -75,14 +75,13 @@ export default function VaccineDetail() {
                     <div className="prose max-w-none">
                         <h1 className="text-3xl font-bold text-[#1e1b4b] mb-6">{vaccine.vaccineName}</h1>
                         <p className="text-gray-600 mb-4">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
-                            dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
-                            ea commodo consequat.
+                        Vaccine {vaccine.vaccineName} giúp phòng ngừa {vaccine.description}, tăng cường hệ miễn dịch và giảm nguy cơ lây nhiễm. 
+                        Được khuyến nghị cho trẻ em, với {vaccine.requiredDoses} mũi tiêm, mỗi mũi cách nhau 10 ngày. 
+                        
                         </p>
                         <p className="text-gray-600">
-                            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
-                            laborum.
+                        Phản ứng sau tiêm có thể bao gồm đau nhẹ, sốt hoặc mệt mỏi, hiếm khi có biến chứng nghiêm trọng. 
+                        Đặt lịch ngay để bảo vệ sức khỏe!
                         </p>
                     </div>
 
