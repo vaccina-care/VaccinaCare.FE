@@ -291,12 +291,12 @@ const ChildCard = ({
 	)
 }
 
-// Default value when initializing a new child
+// Default value 
 const defaultChildData: Omit<ChildData, "id"> = {
-	fullName: "New Child",
-	dateOfBirth: new Date().toISOString().split("T")[0], // Format as YYYY-MM-DD
+	fullName: "New child",
+	dateOfBirth: new Date().toISOString().split("T")[0],
 	gender: true,
-	medicalHistory: "",
+	medicalHistory: "no issues",
 	bloodType: "Unknown",
 	hasChronicIllnesses: false,
 	chronicIllnessesDescription: "",
