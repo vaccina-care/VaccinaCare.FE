@@ -53,7 +53,7 @@ export namespace Auth {
 
 	export function logout(): void {
 		localStorage.removeItem("accessToken")
-		localStorage.removeItem("refreshToken")
+		//localStorage.removeItem("refreshToken")
 	}
 
 	export function getToken(): string | null {
@@ -64,12 +64,12 @@ export namespace Auth {
 		localStorage.setItem("accessToken", token)
 	}
 
-	export async function refreshToken(): Promise<LoginResponse> {
-		const refreshToken = localStorage.getItem("refreshToken")
-		if (!refreshToken) throw new Error("No refresh token available")
-		const response = await axiosInstance.post<LoginResponse>("/auth/refresh", {
-			refreshToken
-		})
-		return response.data
-	}
+	// export async function refreshToken(): Promise<LoginResponse> {
+	// 	const refreshToken = localStorage.getItem("refreshToken")
+	// 	if (!refreshToken) throw new Error("No refresh token available")
+	// 	const response = await axiosInstance.post<LoginResponse>("/auth/refresh", {
+	// 		refreshToken
+	// 	})
+	// 	return response.data
+	// }
 }

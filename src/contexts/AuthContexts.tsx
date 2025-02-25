@@ -4,6 +4,7 @@ import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
 import { Auth } from "@/api/auth"
 import axiosInstance from "@/api/axiosInstance"
+import { Loading } from "@/components/ui/loading"
 
 interface AuthContextType {
   isAuthenticated: boolean
@@ -65,8 +66,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsAuthenticated(false)
   }
 
+
+
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
+    return <Loading text="Please wait, we are cooking..."/>
   }
 
   return <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout }}>{children}</AuthContext.Provider>
