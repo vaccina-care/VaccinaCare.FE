@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 // Import images
 import defaultAvatar from "@/assets/images/aba.png"
+import { ImageUpload } from "../ImageUpload"
 
 interface Province {
   code: string
@@ -177,11 +178,33 @@ const UserProfile = () => {
       </CardHeader>
       <CardContent className="pt-6">
         <div className="flex items-center space-x-4 mb-6">
-          <img
-            src={defaultAvatar || "/placeholder.svg"}
-            alt="Profile"
-            className="h-20 w-20 rounded-full object-cover"
-          />
+          <div className="w-20 h-20">
+            <ImageUpload
+              onChange={async (file) => {
+                if (userData) {
+                  try {
+                    const formData = new FormData()
+                    formData.append("image", file)
+                    const response = await updateUserProfile({ ...userData }, file)
+                    setUserData(response)
+                    toast({
+                      title: "Success",
+                      description: "Profile picture updated successfully.",
+                      variant: "success",
+                    })
+                  } catch (error) {
+                    toast({
+                      title: "Error",
+                      description: "Failed to update profile picture. Please try again.",
+                      variant: "destructive",
+                    })
+                  }
+                }
+              }}
+              defaultImage={userData.imageUrl || defaultAvatar}
+              ratio="round"
+            />
+          </div>
           <div>
             <h2 className="text-2xl font-semibold">{userData.fullName}</h2>
             <p className="text-sm text-gray-500">{userData.roleName}</p>

@@ -61,14 +61,21 @@ export function AddChildDialog({ onSubmit }: AddChildDialogProps) {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // const handleDateChange = (newDate: Date | undefined) => {
+    //     if (newDate) {
+    //         setDateOfBirth(newDate)
+    //         // Format date as YYYY-MM-DD
+    //         const formattedDate = newDate.toISOString().split("T")[0]
+    //         handleInputChange("dateOfBirth", formattedDate)
+    //     }
+    // }
+
     const handleDateChange = (newDate: Date | undefined) => {
-        if (newDate) {
-            setDateOfBirth(newDate)
-            // Format date as YYYY-MM-DD
-            const formattedDate = newDate.toISOString().split("T")[0]
-            handleInputChange("dateOfBirth", formattedDate)
-        }
-    }
+		setDateOfBirth(newDate)
+		if (newDate) {
+			handleInputChange("dateOfBirth", newDate.toISOString())
+		}
+	}
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -138,12 +145,7 @@ export function AddChildDialog({ onSubmit }: AddChildDialogProps) {
                             <div onClick={(e) => e.stopPropagation()}>
                                 <DatePicker
                                     date={dateOfBirth}
-                                    setDate={(date) => {
-                                        setDateOfBirth(date)
-                                        if (date) {
-                                            handleInputChange("dateOfBirth", date.toISOString().split("T")[0])
-                                        }
-                                    }}
+                                    setDate={handleDateChange}
                                 />
                             </div>
                         </div>
