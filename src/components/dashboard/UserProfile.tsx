@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 // Import images
 import defaultAvatar from "@/assets/images/aba.png"
 import { ImageUpload } from "../ImageUpload"
+import { Loading } from "../ui/loading"
 
 interface Province {
   code: string
@@ -37,6 +38,7 @@ const UserProfile = () => {
   const [userData, setUserData] = useState<UserData | null>(null)
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
+  const [selectedImage, setSelectedImage] = useState<File | null>(null)
 
   // Handle Province and Districts select box API
   const [provinces, setProvinces] = useState<Province[]>([])
@@ -130,13 +132,18 @@ const UserProfile = () => {
 
       const fullAddress = `${homeAddress}, ${selectedDistrictData?.name || ""}, ${selectedProvinceData?.name || ""}`
       const updatedUserData = {
-        ...userData,
+        fullName: userData.fullName,
+        email: userData.email,
+        gender: userData.gender,
         address: fullAddress,
         dateOfBirth: dateOfBirth.toISOString(),
+        phoneNumber: userData.phoneNumber,
+        ...(selectedImage && { image: selectedImage }),
       }
       try {
         const response = await updateUserProfile(updatedUserData)
         setUserData(response)
+        setSelectedImage(null) // Reset selected image after successful update
         setIsEditing(false)
         toast({
           title: "Success",
@@ -160,7 +167,7 @@ const UserProfile = () => {
   }
 
   if (loading) {
-    return <div>Loading...</div>
+    return <Loading text="Please wait, we are cooking..."/>
   }
 
   if (!userData) {
@@ -178,31 +185,42 @@ const UserProfile = () => {
       </CardHeader>
       <CardContent className="pt-6">
         <div className="flex items-center space-x-4 mb-6">
-          <div className="w-20 h-20">
+          <div className="w-24 h-24">
             <ImageUpload
               onChange={async (file) => {
                 if (userData) {
-                  try {
-                    const formData = new FormData()
-                    formData.append("image", file)
-                    const response = await updateUserProfile({ ...userData }, file)
-                    setUserData(response)
+                  if (isEditing) {
+                    // Store the file to be uploaded with other profile data
+                    setSelectedImage(file)
                     toast({
                       title: "Success",
-                      description: "Profile picture updated successfully.",
+                      description: "Image selected. Click Save to update your profile.",
                       variant: "success",
                     })
-                  } catch (error) {
-                    toast({
-                      title: "Error",
-                      description: "Failed to update profile picture. Please try again.",
-                      variant: "destructive",
-                    })
+                  } else {
+                    // Immediate upload if not in editing mode
+                    try {
+                      const response = await updateUserProfile({
+                        image: file,
+                      })
+                      setUserData(response)
+                      toast({
+                        title: "Success",
+                        description: "Profile picture updated successfully.",
+                        variant: "success",
+                      })
+                    } catch (error) {
+                      toast({
+                        title: "Error",
+                        description: "Failed to update profile picture. Please try again.",
+                        variant: "destructive",
+                      })
+                    }
                   }
                 }
               }}
-              defaultImage={userData.imageUrl || defaultAvatar}
-              ratio="round"
+              defaultImage={userData?.imageUrl || defaultAvatar}
+              disabled={!isEditing}
             />
           </div>
           <div>

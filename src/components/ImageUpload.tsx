@@ -1,52 +1,44 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Slider } from "@/components/ui/slider"
-import { Upload, Trash2Icon } from "lucide-react"
 import { useDropzone } from "react-dropzone"
-import Cropper, { Area } from 'react-easy-crop'
+import Cropper from "react-easy-crop"
+import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Slider } from "@/components/ui/slider"
+import { Upload, X } from "lucide-react"
 
+interface Point {
+    x: number
+    y: number
+}
+
+interface Area {
+    x: number
+    y: number
+    width: number
+    height: number
+}
 
 interface ImageUploadProps {
     onChange: (file: File) => void
-    ratio?: "1:1" | "16:9" | "round"
-    showGrid?: boolean
     defaultImage?: string
-    isTextDisplay?: boolean
+    ratio?: number
+    disabled?: boolean
 }
 
-export function ImageUpload({
-    onChange,
-    ratio = "1:1",
-    showGrid = true,
-    defaultImage,
-    isTextDisplay = false,
-}: ImageUploadProps) {
+export function ImageUpload({ onChange, defaultImage, ratio = 1, disabled = false }: ImageUploadProps) {
     const [preview, setPreview] = useState<string | null>(defaultImage || null)
-    const [crop, setCrop] = useState({ x: 0, y: 0 })
+    const [crop, setCrop] = useState<Point>({ x: 0, y: 0 })
     const [zoom, setZoom] = useState(1)
-    const [rotation, setRotation] = useState(0)
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
     const [isCropperOpen, setIsCropperOpen] = useState(false)
-    const [currentFile, setCurrentFile] = useState<File | null>(null)
 
-    const aspectRatio = {
-        "1:1": 1,
-        "16:9": 16 / 9,
-        round: 1,
-    }[ratio]
-
-    const isRound = ratio === "round"
-
-    const handleImageUpload = useCallback((files: File[]) => {
-        const file = files[0]
+    const onDrop = useCallback((acceptedFiles: File[]) => {
+        const file = acceptedFiles[0]
         if (file) {
-            setCurrentFile(file)
             const reader = new FileReader()
-            reader.onloadend = () => {
+            reader.onload = () => {
                 setPreview(reader.result as string)
                 setIsCropperOpen(true)
             }
@@ -55,17 +47,13 @@ export function ImageUpload({
     }, [])
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
-        onDrop: handleImageUpload,
+        onDrop,
         accept: { "image/*": [] },
         multiple: false,
+        disabled,
     })
 
-    const removeImage = () => {
-        setPreview(null)
-        setCurrentFile(null)
-    }
-
-    const handleCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
+    const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
         setCroppedAreaPixels(croppedAreaPixels)
     }, [])
 
@@ -73,12 +61,11 @@ export function ImageUpload({
         new Promise((resolve, reject) => {
             const image = new Image()
             image.addEventListener("load", () => resolve(image))
-            image.addEventListener("error", (error) => reject(error))
-            image.setAttribute("crossOrigin", "anonymous")
+            image.addEventListener("error", reject)
             image.src = url
         })
 
-    const getCroppedImg = async (imageSrc: string, pixelCrop: Area, rotation = 0): Promise<Blob> => {
+    const getCroppedImage = async (imageSrc: string, pixelCrop: Area): Promise<File> => {
         const image = await createImage(imageSrc)
         const canvas = document.createElement("canvas")
         const ctx = canvas.getContext("2d")
@@ -87,41 +74,37 @@ export function ImageUpload({
             throw new Error("No 2d context")
         }
 
-        const maxSize = Math.max(image.width, image.height)
-        canvas.width = maxSize
-        canvas.height = maxSize
-
-        ctx.translate(maxSize / 2, maxSize / 2)
-        ctx.rotate((rotation * Math.PI) / 180)
-        ctx.translate(-maxSize / 2, -maxSize / 2)
-
-        ctx.drawImage(image, maxSize / 2 - image.width / 2, maxSize / 2 - image.height / 2)
-
-        const data = ctx.getImageData(pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height)
-
         canvas.width = pixelCrop.width
         canvas.height = pixelCrop.height
 
-        ctx.putImageData(data, 0, 0)
+        ctx.drawImage(
+            image,
+            pixelCrop.x,
+            pixelCrop.y,
+            pixelCrop.width,
+            pixelCrop.height,
+            0,
+            0,
+            pixelCrop.width,
+            pixelCrop.height,
+        )
 
         return new Promise((resolve) => {
             canvas.toBlob((blob) => {
                 if (blob) {
-                    resolve(blob)
+                    const file = new File([blob], "cropped-image.jpg", { type: "image/jpeg" })
+                    resolve(file)
                 }
             }, "image/jpeg")
         })
     }
 
     const handleCropConfirm = async () => {
-        if (preview && croppedAreaPixels && currentFile) {
+        if (preview && croppedAreaPixels) {
             try {
-                const croppedBlob = await getCroppedImg(preview, croppedAreaPixels, rotation)
-                const croppedFile = new File([croppedBlob], currentFile.name, {
-                    type: "image/jpeg",
-                })
-                onChange(croppedFile)
-                setPreview(URL.createObjectURL(croppedBlob))
+                const croppedImage = await getCroppedImage(preview, croppedAreaPixels)
+                setPreview(URL.createObjectURL(croppedImage))
+                onChange(croppedImage)
                 setIsCropperOpen(false)
             } catch (e) {
                 console.error(e)
@@ -129,95 +112,79 @@ export function ImageUpload({
         }
     }
 
+    const handleRemove = () => {
+        setPreview(null)
+        onChange(new File([], ""))
+    }
+
     return (
-        <>
-            <Card className={`mx-auto w-full ${isRound ? "overflow-hidden rounded-full" : ""}`}>
-                <CardContent className="p-2">
-                    <div
-                        {...getRootProps()}
-                        className={`relative ${isRound ? "aspect-square" : ratio === "16:9" ? "aspect-video" : "aspect-square"
-                            } border-2 border-dashed transition-colors ${isDragActive ? "border-muted-foreground bg-primary/10" : "border-muted hover:border-muted-foreground"
-                            } ${isRound ? "rounded-full" : "rounded-lg"}`}
-                    >
-                        <input {...getInputProps()} />
-                        {preview ? (
-                            <div className="group relative h-full w-full cursor-pointer">
-                                <img
-                                    src={preview || "/placeholder.svg"}
-                                    alt="Preview"
-                                    className={`h-full w-full object-cover ${isRound ? "rounded-full" : "rounded-lg"}`}
-                                />
-                                <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100">
-                                    <div className="flex gap-2">
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="icon"
-                                            onClick={(event) => {
-                                                event.stopPropagation()
-                                                removeImage()
-                                            }}
-                                            aria-label="Remove image"
-                                        >
-                                            <Trash2Icon className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="flex h-full cursor-pointer flex-col items-center justify-center p-4 text-center">
-                                <Upload className="mb-4 h-12 w-12 text-gray-400" />
-                                <p className="text-sm text-gray-500">
-                                    {isTextDisplay
-                                        ? isDragActive
-                                            ? "Drop the image here"
-                                            : "Drag 'n' drop an image here, or click to select"
-                                        : undefined}
-                                </p>
+        <div className="relative">
+            <div
+                {...getRootProps()}
+                className={`relative aspect-square overflow-hidden rounded-full border-2 border-dashed transition-colors ${isDragActive ? "border-primary bg-primary/10" : "border-muted-foreground/25"
+                    } ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:border-muted-foreground/50"}`}
+            >
+                <input {...getInputProps()} />
+                {preview ? (
+                    <div className="relative h-full w-full">
+                        <img src={preview || "/placeholder.svg"} alt="Preview" className="h-full w-full object-cover" />
+                        {!disabled && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100">
+                                <Button
+                                    type="button"
+                                    variant="secondary"
+                                    size="icon"
+                                    className="h-8 w-8"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleRemove()
+                                    }}
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
                             </div>
                         )}
                     </div>
-                </CardContent>
-            </Card>
+                ) : (
+                    <div className="flex h-full flex-col items-center justify-center gap-1 p-4">
+                        <Upload className="h-8 w-8 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">
+                            {isDragActive ? "Drop the image here" : "Upload an image"}
+                        </span>
+                    </div>
+                )}
+            </div>
 
             <Dialog open={isCropperOpen} onOpenChange={setIsCropperOpen}>
                 <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                        <DialogTitle>Crop Image</DialogTitle>
-                    </DialogHeader>
-                    <div className="relative h-[300px] w-full">
+                    <div className="relative h-[300px]">
                         {preview && (
                             <Cropper
                                 image={preview}
                                 crop={crop}
                                 zoom={zoom}
-                                aspect={aspectRatio}
+                                aspect={ratio}
                                 onCropChange={setCrop}
-                                onCropComplete={handleCropComplete}
+                                onCropComplete={onCropComplete}
                                 onZoomChange={setZoom}
-                                rotation={rotation}
-                                showGrid={showGrid}
                             />
                         )}
                     </div>
-                    <div className="flex items-center gap-4">
-                        <span className="w-16 text-right">Zoom:</span>
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">Zoom</span>
                         <Slider value={[zoom]} min={1} max={3} step={0.1} onValueChange={(value) => setZoom(value[0])} />
-                        <span>{zoom.toFixed(1)}x</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <span className="w-16 text-right">Rotate:</span>
-                        <Slider value={[rotation]} min={0} max={360} step={1} onValueChange={(value) => setRotation(value[0])} />
-                        <span>{rotation}°</span>
                     </div>
                     <DialogFooter>
+                        <Button type="button" variant="secondary" onClick={() => setIsCropperOpen(false)}>
+                            Cancel
+                        </Button>
                         <Button type="button" onClick={handleCropConfirm}>
-                            Confirm
+                            Crop & Save
                         </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </>
+        </div>
     )
 }
 
