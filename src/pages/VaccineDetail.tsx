@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams, useNavigate, Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowLeft, Syringe } from "lucide-react"
@@ -135,7 +135,7 @@ export default function VaccineDetail() {
 
                                 <Button size="lg" className="w-full mt-6 bg-[#1e1b4b] hover:bg-[#1e1b4b]/90">
                                     <Syringe className="mr-2 h-5 w-5" />
-                                    Schedule Vaccination
+                                    <Link to="/appointments">Schedule Vaccination</Link>
                                 </Button>
                             </div>
                         </div>

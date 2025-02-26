@@ -14,10 +14,7 @@ const About = () => {
       <VaccinationProcessSection />
 
       <div className="fixed bottom-6 right-6 z-50">
-        <Button
-          asChild
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-full shadow-lg transition-all"
-        >
+        <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-full shadow-lg transition-all">
           <Link to="/appointments">Book Appointment</Link>
         </Button>
       </div>

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { DateTimePicker } from "./AppointmentDate"
-import { AppointmentServices } from "./AppointmentServices"
+import { ServiceSelection } from "./AppointmentServices"
 
 interface Child {
   id: string
@@ -25,14 +25,13 @@ export function AppointmentForm() {
     <div className="space-y-6">
       <div className="w-full bg-gray-50">
         <div className="max-w-[800px] mx-auto py-4">
-          <h1 className="text-2xl font-bold text-center text-[#204d94]">ĐĂNG KÝ TIÊM CHỦNG</h1>
+          <h1 className="text-2xl font-bold text-center text-[#204d94]">REGISTER FOR VACCINATION</h1>
         </div>
       </div>
 
-      <div className="max-w-[800px] mx-auto px-4">
-        <p className="text-gray-600 mb-8">
-          Đăng ký thông tin tiêm chủng để tiết kiệm thời gian khi đến làm thủ tục tại quầy Lễ tân cho Quý Khách hàng,
-          việc đăng ký thông tin tiêm chủng chưa hỗ trợ đặt lịch hẹn chính xác theo giờ.
+      <div className="max-w-[1000px] mx-auto px-4">
+        <p className="text-gray-600 mb-8">Register vaccination information to save time when checking in at the Reception desk for customers.
+Registering vaccination information does not yet support accurate hourly appointment scheduling.
         </p>
 
         <div className="grid grid-cols-5 gap-6">
@@ -76,7 +75,7 @@ export function AppointmentForm() {
           </div>
         </div>
 
-        <AppointmentServices />
+        <ServiceSelection />
       </div>
     </div>
   )
