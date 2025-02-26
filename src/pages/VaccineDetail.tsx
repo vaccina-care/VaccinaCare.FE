@@ -75,13 +75,12 @@ export default function VaccineDetail() {
                     <div className="prose max-w-none">
                         <h1 className="text-3xl font-bold text-[#1e1b4b] mb-6">{vaccine.vaccineName}</h1>
                         <p className="text-gray-600 mb-4">
-                        Vaccine {vaccine.vaccineName} giúp phòng ngừa {vaccine.description}, tăng cường hệ miễn dịch và giảm nguy cơ lây nhiễm. 
-                        Được khuyến nghị cho trẻ em, với {vaccine.requiredDoses} mũi tiêm, mỗi mũi cách nhau 10 ngày. 
-                        
+                        Vaccine {vaccine.vaccineName} helps prevent {vaccine.description}, strengthens the immune system, and reduces the risk of infection. 
+                        It is recommended for children, with {vaccine.requiredDoses} doses, each spaced 10 days apart.
                         </p>
                         <p className="text-gray-600">
-                        Phản ứng sau tiêm có thể bao gồm đau nhẹ, sốt hoặc mệt mỏi, hiếm khi có biến chứng nghiêm trọng. 
-                        Đặt lịch ngay để bảo vệ sức khỏe!
+                        Post-vaccination reactions may include mild pain, fever, or fatigue, with severe complications being rare.
+                        Book an appointment now to protect your health!
                         </p>
                     </div>
 
@@ -135,7 +134,7 @@ export default function VaccineDetail() {
 
                                 <Button size="lg" className="w-full mt-6 bg-[#1e1b4b] hover:bg-[#1e1b4b]/90">
                                     <Syringe className="mr-2 h-5 w-5" />
-                                    Schedule Vaccination
+                                        Book Appointment
                                 </Button>
                             </div>
                         </div>
