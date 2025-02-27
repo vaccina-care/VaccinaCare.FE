@@ -19,12 +19,29 @@ export interface VaccineResponse {
 	}
 }
 
+export interface VaccineDetail {
+	id: string
+	vaccineName: string
+	description: string
+	picUrl: string | null
+	type: string
+	price: number
+	requiredDoses: number
+	doseIntervalDays: 0 
+	forBloodType: string
+	avoidChronic: boolean
+	avoidAllergy: boolean
+	hasDrugInteraction: boolean
+	hasSpecialWarning: boolean
+}
 // New interface for single vaccine response
 export interface SingleVaccineResponse {
 	isSuccess: boolean
 	message: string
-	data: Vaccine
+	data: VaccineDetail
 }
+
+
 
 // GET for VaccineSection on landing page
 export const getVaccineSection = async (params?: {
@@ -36,7 +53,7 @@ export const getVaccineSection = async (params?: {
 	pageSize?: number
 }) => {
 	try {
-		const response = await axiosInstance.get<VaccineResponse>("/vaccine", {
+		const response = await axiosInstance.get<VaccineResponse>("/vaccines", {
 			params: {
 				...params,
 				pageSize: params?.pageSize || 6, // Set 6 for vaccine section
@@ -60,7 +77,7 @@ export const getVaccineList = async (params?: {
 	pageSize?: number
 }) => {
 	try {
-		const response = await axiosInstance.get<VaccineResponse>("/vaccine", {
+		const response = await axiosInstance.get<VaccineResponse>("/vaccines", {
 			params: {
 				...params,
 				pageSize: params?.pageSize || 12,
@@ -77,7 +94,7 @@ export const getVaccineList = async (params?: {
 // GET single vaccine by ID
 export const getVaccineById = async (id: string): Promise<Vaccine> => {
 	try {
-		const response = await axiosInstance.get<SingleVaccineResponse>(`/vaccine/${id}`)
+		const response = await axiosInstance.get<SingleVaccineResponse>(`/vaccines/${id}`)
 		if (response.data.isSuccess) {
 			return response.data.data
 		} else {

@@ -7,18 +7,15 @@ const REGISTER_API = "/auth/register"
 export namespace Auth {
 
 	//REGISTER
-	//Payload gửi đi tới API
 	export interface RegisterPayload {
 		email: string;
 		password: string;
 	}
-	//User data - register response trả về
 	export interface RegisterResponseData {
 		userId: number;
 		email: string;
 		fullname: string | null
 	}
-	//Response: API trả về
 	export interface RegisterResponse {
 		isSuccess: boolean;
 		message: string;
@@ -44,20 +41,35 @@ export namespace Auth {
 		const response = await axiosInstance.post<LoginResponse>(LOGIN_API, payload);
 		if (response.data.isSuccess) {
 			localStorage.setItem("accessToken", response.data.data.accessToken)
+			//localStorage.setItem("refreshToken", response.data.data.accessToken)
 		}
-		return response.data; // Return the structured response data
+		return response.data;
 	}
 
 	export async function register(payload: RegisterPayload): Promise<RegisterResponse> {
-		const response = await axiosInstance.post<RegisterResponse>(REGISTER_API,payload,);
-		return response.data; // Return the response data directly
+		const response = await axiosInstance.post<RegisterResponse>(REGISTER_API, payload,);
+		return response.data;
 	}
-	
+
 	export function logout(): void {
 		localStorage.removeItem("accessToken")
+		//localStorage.removeItem("refreshToken")
 	}
 
 	export function getToken(): string | null {
 		return localStorage.getItem("accessToken")
 	}
+
+	export function setToken(token: string): void {
+		localStorage.setItem("accessToken", token)
+	}
+
+	// export async function refreshToken(): Promise<LoginResponse> {
+	// 	const refreshToken = localStorage.getItem("refreshToken")
+	// 	if (!refreshToken) throw new Error("No refresh token available")
+	// 	const response = await axiosInstance.post<LoginResponse>("/auth/refresh", {
+	// 		refreshToken
+	// 	})
+	// 	return response.data
+	// }
 }

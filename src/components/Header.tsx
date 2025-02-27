@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge"
 import avtImage from "@/assets/images/aba.png"
 
 const Header = () => {
-	const { isAuthenticated, logout } = useAuthContext()
+	const { isAuthenticated, logout, user } = useAuthContext()
+
 	// This would typically come from your notification context or API
 	const unreadNotifications = 3 // Replace with actual unread notifications count
 
@@ -77,12 +78,12 @@ const Header = () => {
 								</Link>
 							</li>
 							<li>
-								<Link to="/about" className="hover:text-blue-300">
+								<Link to="/about" className="hover:text-blue-300 ">
 									About us
 								</Link>
 							</li>
 							<li>
-								<Link to="/vaccines" className="hover:text-blue-300">
+								<Link to="/vaccine-list" className="hover:text-blue-300">
 									Vaccine List
 								</Link>
 							</li>
@@ -106,7 +107,7 @@ const Header = () => {
 									<PopoverTrigger asChild>
 										<Button variant="ghost" className="relative h-8 w-8 rounded-full">
 											<Avatar className="h-8 w-8">
-												<AvatarImage src={avtImage} alt="User" />
+												<AvatarImage src={user?.imageUrl || avtImage} alt="Avatar" />
 												<AvatarFallback>
 													<User className="h-4 w-4" />
 												</AvatarFallback>
