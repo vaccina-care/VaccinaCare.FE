@@ -84,7 +84,7 @@ export default function VaccineDetail() {
                 </Button>
 
                 {/* Top Section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 items-center">
                     {/* Description */}
                     <div className="prose max-w-none">
                         <div className="flex items-center gap-4 mb-4">
@@ -94,8 +94,9 @@ export default function VaccineDetail() {
                             </Badge>
                         </div>
                         <p className="text-gray-600 mb-4">
-                            Vaccine {vaccine.vaccineName} helps prevent {vaccine.description}, strengthens the immune system, and reduces the risk of infection.
-                            It is recommended for children, with {vaccine.requiredDoses} doses, each spaced 10 days apart.
+                            Vaccine {vaccine.vaccineName} helps prevent {vaccine.description}, strengthens the immune system, and
+                            reduces the risk of infection. It is recommended for children, with {vaccine.requiredDoses} doses, each
+                            spaced 10 days apart.
                         </p>
                         <p className="text-gray-600">
                             Post-vaccination reactions may include mild pain, fever, or fatigue, with severe complications being rare.
@@ -139,15 +140,15 @@ export default function VaccineDetail() {
                                         <Syringe className="h-5 w-5" />
                                         Dosage Information
                                     </h2>
-                                    <div className="space-y-3">
-                                        <div className="flex items-start gap-2">
+                                    <div className="space-y-3 divide-y divide-gray-100">
+                                        <div className="flex items-start gap-2 pt-3 first:pt-0">
                                             <Calendar className="h-4 w-4 mt-1 text-gray-500" />
                                             <div>
                                                 <p className="font-medium">Required Doses</p>
                                                 <p className="text-sm text-gray-600">{vaccine.requiredDoses} dose(s)</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-start gap-2">
+                                        <div className="flex items-start gap-2 pt-3">
                                             <Clock className="h-4 w-4 mt-1 text-gray-500" />
                                             <div>
                                                 <p className="font-medium">Interval Between Doses</p>
@@ -163,8 +164,8 @@ export default function VaccineDetail() {
                                         <HeartPulse className="h-5 w-5" />
                                         Medical Considerations
                                     </h2>
-                                    <div className="space-y-3">
-                                        <div className="flex items-start gap-2">
+                                    <div className="space-y-3 divide-y divide-gray-100">
+                                        <div className="flex items-start gap-2 pt-3 first:pt-0">
                                             <Droplets className="h-4 w-4 mt-1 text-gray-500" />
                                             <div>
                                                 <p className="font-medium">Blood Type Compatibility</p>
@@ -172,7 +173,7 @@ export default function VaccineDetail() {
                                             </div>
                                         </div>
                                         {vaccine.avoidChronic && (
-                                            <div className="flex items-start gap-2">
+                                            <div className="flex items-start gap-2 pt-3">
                                                 <Ban className="h-4 w-4 mt-1 text-red-500" />
                                                 <div>
                                                     <p className="font-medium text-red-600">Chronic Conditions</p>
@@ -181,7 +182,7 @@ export default function VaccineDetail() {
                                             </div>
                                         )}
                                         {vaccine.avoidAllergy && (
-                                            <div className="flex items-start gap-2">
+                                            <div className="flex items-start gap-2 pt-3">
                                                 <AlertTriangle className="h-4 w-4 mt-1 text-red-500" />
                                                 <div>
                                                     <p className="font-medium text-red-600">Allergy Warning</p>
@@ -190,7 +191,7 @@ export default function VaccineDetail() {
                                             </div>
                                         )}
                                         {vaccine.hasDrugInteraction && (
-                                            <div className="flex items-start gap-2">
+                                            <div className="flex items-start gap-2 pt-3">
                                                 <Pill className="h-4 w-4 mt-1 text-amber-500" />
                                                 <div>
                                                     <p className="font-medium text-amber-600">Drug Interactions</p>
@@ -221,7 +222,7 @@ export default function VaccineDetail() {
                     {/* Pricing and Booking Card */}
                     <Card>
                         <CardContent className="p-6">
-                            <div className="space-y-6">
+                            <div className="space-y-8">
                                 <div className="bg-blue-50 p-6 rounded-lg">
                                     <h3 className="text-lg font-semibold text-blue-900 mb-2">Price per Dose</h3>
                                     <div className="flex items-baseline space-x-2">
@@ -242,8 +243,8 @@ export default function VaccineDetail() {
                                     </p>
                                 </div>
 
-                                <div className="space-y-4">
-                                    <div className="flex items-start gap-2 text-gray-600">
+                                <div className="space-y-6">
+                                    <div className="flex items-start gap-2 text-gray-600 bg-gray-50/80 p-4 rounded-lg">
                                         <Info className="h-4 w-4 mt-1" />
                                         <p className="text-sm">
                                             Schedule includes {vaccine.requiredDoses} doses with {vaccine.doseIntervalDays} days between each
@@ -251,10 +252,12 @@ export default function VaccineDetail() {
                                         </p>
                                     </div>
 
-                                    <Button size="lg" className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90">
-                                        <Syringe className="mr-2 h-5 w-5" />
-                                        <Link to="/appointments">Book Appointment</Link>
-                                    </Button>
+                                    <Link to="/appointments" className="block mt-6">
+                                        <Button size="lg" className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90">
+                                            <Syringe className="mr-2 h-5 w-5" />
+                                            Book Appointment
+                                        </Button>
+                                    </Link>
                                 </div>
                             </div>
                         </CardContent>

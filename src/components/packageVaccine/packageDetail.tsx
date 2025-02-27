@@ -1,4 +1,4 @@
-import { Vaccine } from "@/api/vaccine"
+import type { Vaccine } from "@/api/vaccine"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowLeft, Info, Syringe } from "lucide-react"
@@ -31,11 +31,7 @@ export function PackageDetails({ packageName, description, vaccineInfo, price }:
 
 					{/* Package Image */}
 					<div className="relative h-[300px] rounded-lg overflow-hidden bg-white shadow-lg">
-						<img
-							src={like || "/placeholder.svg"}
-							alt="Vaccine Package"
-							className="w-full h-full object-contain"
-						/>
+						<img src={like || "/placeholder.svg"} alt="Vaccine Package" className="w-full h-full object-contain" />
 					</div>
 				</div>
 
@@ -44,15 +40,23 @@ export function PackageDetails({ packageName, description, vaccineInfo, price }:
 					{/* Vaccine List */}
 					<Card className="lg:col-span-2">
 						<CardContent className="p-6">
-							<h2 className="text-2xl font-semibold text-[#1e1b4b] mb-4">Danh sách Vắc-xin</h2>
+							<h2 className="text-2xl font-semibold text-[#1e1b4b] mb-4">Vaccine List</h2>
 							<div className="overflow-x-auto">
 								<table className="w-full border-collapse">
 									<thead>
 										<tr className="border-b bg-gray-100">
-											<th className="text-left py-3 px-4" style={{ width: "52%" }}>Phòng bệnh</th>
-											<th className="text-left py-3 px-4" style={{ width: "18%" }}>Tên vắc xin</th>
-											<th className="text-left py-3 px-4" style={{ width: "18%" }}>Nước sản xuất</th>
-											<th className="text-left py-3 px-4" style={{ width: "12%" }}>Số mũi</th>
+											<th className="text-left py-3 px-4" style={{ width: "52%" }}>
+												Disease Prevention
+											</th>
+											<th className="text-left py-3 px-4" style={{ width: "18%" }}>
+												Vaccine Name
+											</th>
+											<th className="text-left py-3 px-4" style={{ width: "18%" }}>
+												Origin
+											</th>
+											<th className="text-left py-3 px-4" style={{ width: "12%" }}>
+												Doses
+											</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -68,7 +72,7 @@ export function PackageDetails({ packageName, description, vaccineInfo, price }:
 										) : (
 											<tr>
 												<td colSpan={4} className="py-3 px-4 text-center text-gray-500">
-													Không có thông tin vắc xin
+													No vaccine information available
 												</td>
 											</tr>
 										)}
@@ -78,10 +82,10 @@ export function PackageDetails({ packageName, description, vaccineInfo, price }:
 						</CardContent>
 					</Card>
 
-					{/* Card chứa giá tiền & nút booking */}
+					{/* Pricing & Booking Card */}
 					<Card>
 						<CardContent className="p-6">
-							<div className="space-y-6">
+							<div className="space-y-8">
 								<div className="bg-blue-50 p-6 rounded-lg">
 									<h3 className="text-lg font-semibold text-blue-900 mb-2">Vaccine Package Price</h3>
 									<div className="flex items-baseline space-x-2">
@@ -91,25 +95,25 @@ export function PackageDetails({ packageName, description, vaccineInfo, price }:
 												currency: "VND",
 											}).format(price)}
 										</span>
-										<span className="text-sm text-blue-600">/gói</span>
+										<span className="text-sm text-blue-600">/package</span>
 									</div>
 									<p className="text-sm text-blue-600 mt-2">
 										Total price for {vaccineInfo.length} vaccine, including all necessary injections.
 									</p>
 								</div>
 
-								<div className="space-y-4">
-									<div className="flex items-start gap-2 text-gray-600">
+								<div className="space-y-6">
+									<div className="flex items-start gap-2 text-gray-600 bg-gray-50/80 p-4 rounded-lg">
 										<Info className="h-4 w-4 mt-1" />
-										<p className="text-sm">
-											Detailed injection schedule will be advised when booking.
-										</p>
+										<p className="text-sm">Detailed injection schedule will be advised when booking.</p>
 									</div>
 
-									<Button size="lg" className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90">
-										<Syringe className="mr-2 h-5 w-5" />
-										<Link to="/appointments">Book Appointment</Link>
-									</Button>
+									<Link to="/appointments" className="block mt-6">
+										<Button size="lg" className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90">
+											<Syringe className="mr-2 h-5 w-5" />
+											Book Appointment
+										</Button>
+									</Link>
 								</div>
 							</div>
 						</CardContent>
@@ -119,3 +123,4 @@ export function PackageDetails({ packageName, description, vaccineInfo, price }:
 		</div>
 	)
 }
+

@@ -17,7 +17,6 @@ import UserDashboard from "./pages/UserDashboard"
 import ChildDashboard from "./pages/ChildDashboard"
 import VaccineList from "./pages/VaccineList"
 import Notifications from "./pages/Notifications"
-// import VaccinePackagesLayout from "./pages/packageVaccineLayout"
 import VaccineDetail from "./pages/VaccineDetail"
 import VaccinePackageDetail from "./pages/VaccinePackageDetail"
 
@@ -31,13 +30,13 @@ const validRoutes = [
 	"/user-dashboard",
 	"/child-dashboard",
 	"/notifications",
-	"/vaccinePackage/:packageId"
 	"/vaccine-list",
 	"/vaccine/:id",
+	"/vaccine-package/:packageId",
 ]
 
 const isValidRoute = (pathname: string) => {
-	return validRoutes.includes(pathname) || /^\/vaccine\/[^/]+$/.test(pathname)
+	return validRoutes.includes(pathname) || /^\/vaccine\/[^/]+$/.test(pathname) || /^\/vaccine-package\/[^/]+$/.test(pathname)
 }
 
 const AppContent: React.FC = () => {
@@ -59,8 +58,7 @@ const AppContent: React.FC = () => {
 							<Route path="/about" element={<About />} />
 							<Route path="/vaccine-list" element={<VaccineList />} />
 							<Route path="/vaccine/:id" element={<VaccineDetail />} />
-							<Route path="/vaccinePackage/:packageId" element={<VaccinePackageDetail />} />
-							<Route path="/package-vaccines" element={<VaccinePackagesLayout />} />
+							<Route path="/vaccine-package/:packageId" element={<VaccinePackageDetail />} />
 
 							{/* Protected routes */}
 							<Route

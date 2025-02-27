@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { getVaccinePackageById, VaccinePackage } from "@/api/packageVaccine"
@@ -40,14 +41,12 @@ const PackageLayout = () => {
 	if (!packageData) return <p>Không có dữ liệu.</p>
 
 	return (
-		<div className="mx-auto p-6">
-			<PackageDetails
+		<PackageDetails
 				packageName={packageData.packageName}
 				price={packageData.price}
                 description={packageData.description}
 				vaccineInfo={vaccineInfo}
 			/>
-		</div>
 	)
 }
 
