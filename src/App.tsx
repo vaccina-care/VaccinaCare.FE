@@ -32,8 +32,8 @@ const validRoutes = [
 	"/child-dashboard",
 	"/notifications",
 	"/vaccines",
-	"/vaccine/:id",
-	"/package-vaccines"
+	"/vaccine/:id",	
+	"/vaccinePackage/:packageId"
 ]
 
 const isValidRoute = (pathname: string) => {
@@ -44,7 +44,7 @@ const AppContent: React.FC = () => {
 	const location = useLocation()
 	const isAuthPage = location.pathname === "/login" || location.pathname === "/register"
 	const isValid = isValidRoute(location.pathname)
-	const showHeaderFooter = isValid && !isAuthPage
+	const showHeaderFooter = isValid && !isAuthPage 
 
 	return (
 		<div className="min-h-screen flex flex-col">
@@ -59,7 +59,7 @@ const AppContent: React.FC = () => {
 							<Route path="/about" element={<About />} />
 							<Route path="/vaccines" element={<VaccineList />} />
 							<Route path="/vaccine/:id" element={<VaccineDetail />} />
-							<Route path="/vaccinePackages/:packageId" element={<VaccinePackageDetail />} />
+							<Route path="/vaccinePackage/:packageId" element={<VaccinePackageDetail />} />
 							{/* <Route path="/vaccinePackages" element={<VaccinePackagesLayout />} /> */}
 							
 							{/* Protected routes */}

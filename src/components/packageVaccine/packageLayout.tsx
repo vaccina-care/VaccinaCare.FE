@@ -40,10 +40,11 @@ const PackageLayout = () => {
 	if (!packageData) return <p>Không có dữ liệu.</p>
 
 	return (
-		<div className="max-w-4xl mx-auto p-6">
+		<div className="mx-auto p-6">
 			<PackageDetails
 				packageName={packageData.packageName}
 				price={packageData.price}
+                description={packageData.description}
 				vaccineInfo={vaccineInfo}
 			/>
 		</div>

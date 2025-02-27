@@ -68,7 +68,7 @@ export default function VaccineList() {
   }, [currentPage, searchTerm, filterType])
 
   const handlePackageSelect = (packageId: string) => {
-    navigate(`/vaccinePackages/${packageId}`)
+    navigate(`/vaccinePackage/${packageId}`)
   }
 
   return (

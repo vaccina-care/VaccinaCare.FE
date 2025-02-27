@@ -1,69 +1,121 @@
 import { Vaccine } from "@/api/vaccine"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { ArrowLeft, Info, Syringe } from "lucide-react"
 import like from "@/assets/images/aba.png"
+import { Link } from "react-router-dom"
 
 interface PackageDetailsProps {
 	packageName: string
-	price: number
+	description: string
 	vaccineInfo: Vaccine[]
+	price: number
 }
 
-export function PackageDetails({ packageName, price, vaccineInfo }: PackageDetailsProps) {
+export function PackageDetails({ packageName, description, vaccineInfo, price }: PackageDetailsProps) {
 	return (
-		<div className="border border-gray-200 rounded-lg overflow-hidden">
-			<div className="relative h-48 bg-[#BFD2F8]/20">
-				<img
-					src={like || "/placeholder.svg"}
-					alt="Vaccine illustration"
-					className="h-full w-full object-cover"
-				/>
-			</div>
-			<div className="bg-white p-6">
-				<div className="flex items-center justify-between mb-6 bg-[#BFD2F8]/30 p-4 rounded-lg">
-					<h2 className="text-2xl font-semibold text-[#1E1E1E]">{packageName}</h2>
-					<div className="bg-[#526AE9] px-4 py-2 rounded">
-						<span className="font-semibold text-white">{price.toLocaleString()}đ</span>
+		<div className="min-h-screen bg-gray-50">
+			<div className="container mx-auto py-8 px-4">
+				{/* Back Button */}
+				<Button variant="ghost" onClick={() => history.back()} className="mb-8 hover:bg-gray-100">
+					<ArrowLeft className="mr-2 h-4 w-4" /> Back to Vaccine List
+				</Button>
+
+				{/* Top Section */}
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 items-center">
+					{/* Package Name & Description */}
+					<div>
+						<h1 className="text-3xl font-bold text-[#1e1b4b]">{packageName}</h1>
+						<p className="text-gray-600 mt-4">{description}</p>
+					</div>
+
+					{/* Package Image */}
+					<div className="relative h-[300px] rounded-lg overflow-hidden bg-white shadow-lg">
+						<img
+							src={like || "/placeholder.svg"}
+							alt="Vaccine Package"
+							className="w-full h-full object-contain"
+						/>
 					</div>
 				</div>
-				<div className="overflow-x-auto">
-					<table className="w-full">
-						<thead>
-							<tr className="border-b">
-								<th className="text-left py-3 px-4" style={{ width: "52%" }}>
-									Phòng bệnh
-								</th>
-								<th className="text-left py-3 px-4" style={{ width: "18%" }}>
-									Tên vắc xin
-								</th>
-								<th className="text-left py-3 px-4" style={{ width: "18%" }}>
-									Nước sản xuất
-								</th>
-								<th className="text-left py-3 px-4" style={{ width: "12%" }}>
-									Số mũi
-								</th>
-							</tr>
-						</thead>
-						<tbody>
-							{vaccineInfo.length > 0 ? (
-								vaccineInfo.map((info, index) => (
-									<tr key={index} className="border-b last:border-0">
-										<td className="py-3 px-4">{info.description}</td>
-										<td className="py-3 px-4">{info.vaccineName}</td>
-										<td className="py-3 px-4">{info.type}</td>
-										<td className="py-3 px-4">{info.requiredDoses}</td>
-									</tr>
-								))
-							) : (
-								<tr>
-									<td colSpan={4} className="py-3 px-4 text-center">
-										Không có thông tin vắc xin
-									</td>
-								</tr>
-							)}
-						</tbody>
-					</table>
+
+				{/* Bottom Section: Pricing & Vaccine List */}
+				<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+					{/* Vaccine List */}
+					<Card className="lg:col-span-2">
+						<CardContent className="p-6">
+							<h2 className="text-2xl font-semibold text-[#1e1b4b] mb-4">Danh sách Vắc-xin</h2>
+							<div className="overflow-x-auto">
+								<table className="w-full border-collapse">
+									<thead>
+										<tr className="border-b bg-gray-100">
+											<th className="text-left py-3 px-4" style={{ width: "52%" }}>Phòng bệnh</th>
+											<th className="text-left py-3 px-4" style={{ width: "18%" }}>Tên vắc xin</th>
+											<th className="text-left py-3 px-4" style={{ width: "18%" }}>Nước sản xuất</th>
+											<th className="text-left py-3 px-4" style={{ width: "12%" }}>Số mũi</th>
+										</tr>
+									</thead>
+									<tbody>
+										{vaccineInfo.length > 0 ? (
+											vaccineInfo.map((info, index) => (
+												<tr key={index} className="border-b last:border-0">
+													<td className="py-3 px-4">{info.description}</td>
+													<td className="py-3 px-4">{info.vaccineName}</td>
+													<td className="py-3 px-4">{info.type}</td>
+													<td className="py-3 px-4">{info.requiredDoses}</td>
+												</tr>
+											))
+										) : (
+											<tr>
+												<td colSpan={4} className="py-3 px-4 text-center text-gray-500">
+													Không có thông tin vắc xin
+												</td>
+											</tr>
+										)}
+									</tbody>
+								</table>
+							</div>
+						</CardContent>
+					</Card>
+
+					{/* Card chứa giá tiền & nút booking */}
+					<Card>
+						<CardContent className="p-6">
+							<div className="space-y-6">
+								<div className="bg-blue-50 p-6 rounded-lg">
+									<h3 className="text-lg font-semibold text-blue-900 mb-2">Vaccine Package Price</h3>
+									<div className="flex items-baseline space-x-2">
+										<span className="text-3xl font-bold text-blue-600">
+											{new Intl.NumberFormat("vi-VN", {
+												style: "currency",
+												currency: "VND",
+											}).format(price)}
+										</span>
+										<span className="text-sm text-blue-600">/gói</span>
+									</div>
+									<p className="text-sm text-blue-600 mt-2">
+										Total price for {vaccineInfo.length} vaccine, including all necessary injections.
+									</p>
+								</div>
+
+								<div className="space-y-4">
+									<div className="flex items-start gap-2 text-gray-600">
+										<Info className="h-4 w-4 mt-1" />
+										<p className="text-sm">
+											Detailed injection schedule will be advised when booking.
+										</p>
+									</div>
+
+									<Button size="lg" className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90">
+										<Syringe className="mr-2 h-5 w-5" />
+										<Link to="/appointments">Book Appointment</Link>
+									</Button>
+								</div>
+							</div>
+						</CardContent>
+					</Card>
 				</div>
 			</div>
 		</div>
 	)
 }
-
