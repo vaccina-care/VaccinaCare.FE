@@ -14,14 +14,6 @@ export interface VaccinePackage {
 	vaccineDetails: VaccineDetail[]
 }
 
-export interface Vaccine {
-	id: string
-	vaccineName: string
-	description: string
-	type: string
-	requiredDoses: number
-}
-
 
 export const getVaccinePackages = async (): Promise<VaccinePackage[]> => {
 	try {
@@ -39,17 +31,20 @@ export const getVaccinePackages = async (): Promise<VaccinePackage[]> => {
 	}
 }
 
-export const getVaccineById = async (id: string): Promise<Vaccine> => {
+export const getVaccinePackageById = async (id: string): Promise<VaccinePackage> => {
 	try {
-		const response = await axiosInstance.get<{ isSuccess: boolean; message: string; data: Vaccine }>(`/Vaccine/${id}`)
+		const response = await axiosInstance.get<{ isSuccess: boolean; message: string; data: VaccinePackage }>(
+			`/VaccinePackage/${id}`,
+		)
 		if (response.data.isSuccess) {
 			return response.data.data
 		} else {
 			throw new Error(response.data.message)
 		}
 	} catch (error) {
-		console.error(`Error fetching vaccine with id ${id}:`, error)
+		console.error(`Error fetching vaccine package with id ${id}:`, error)
 		throw error
 	}
 }
+
 

@@ -1,13 +1,11 @@
-import React from 'react'
+import { AppointmentForm } from "@/components/appointment/AppointmentForm"
 
-const About: React.FC = () => {
+const Appointment = () => {
   return (
-    <div>
-      <h1>About VaccinaCare</h1>
-      <p>VaccinaCare is a leading vaccination management system dedicated to ensuring the health and well-being of children through timely and efficient vaccination programs.</p>
+    <div className="min-h-screen">
+      <AppointmentForm />
     </div>
   )
 }
 
-export default About
-
+export default Appointment

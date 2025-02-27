@@ -90,6 +90,10 @@ const Header = () => {
 						</ul>
 						{isAuthenticated ? (
 							<div className="flex items-center gap-4">
+								<Button asChild className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg shadow-lg transition-all">
+									<Link to="/appointments">Appointment</Link>
+								</Button>
+
 								{/* Notification Bell */}
 								<Link to="/notifications" className="relative">
 									<Button variant="ghost" size="icon" className="text-white hover:bg-white transition-colors">
