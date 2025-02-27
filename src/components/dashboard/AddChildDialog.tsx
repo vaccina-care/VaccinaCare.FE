@@ -9,11 +9,11 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import { DatePicker } from "@/components/DatePicker"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { User, Calendar, Droplet, FileText, AlertTriangle, Pill, Activity, Plus } from "lucide-react"
 import type { ChildData } from "@/api/children"
+import { DateInput } from "../ui/date-input"
 
 
 interface AddChildDialogProps {
@@ -146,12 +146,13 @@ export function AddChildDialog({ onSubmit }: AddChildDialogProps) {
                                         <Calendar className="h-4 w-4" />
                                         <span>Date of Birth</span>
                                     </Label>
-                                    <div onClick={(e) => e.stopPropagation()}>
-                                        <DatePicker
-                                            date={dateOfBirth}
-                                            setDate={handleDateChange}
-                                        />
-                                    </div>
+                                    <DateInput
+                                        id="dateOfBirth"
+                                        date={dateOfBirth}
+                                        setDate={handleDateChange}
+                                        max={new Date().toISOString().split("T")[0]}
+                                        required
+                                    />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="gender" className="flex items-center space-x-2">
