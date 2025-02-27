@@ -45,7 +45,7 @@ const VaccineSection = () => {
 			<div className="container mx-auto px-4">
 				<div className="flex justify-between items-center mb-8">
 					<h2 className="text-2xl md:text-3xl font-bold text-[#1e1b4b] font-yeseva">LIST OF VACCINES</h2>
-					<Button variant="secondary" className="bg-blue-100 hover:bg-blue-200" onClick={() => navigate("/vaccines")}>
+					<Button variant="secondary" className="bg-blue-100 hover:bg-blue-200" onClick={() => navigate("/vaccine-list")}>
 						Show more <ArrowRight className="ml-2 h-4 w-4" />
 					</Button>
 				</div>
