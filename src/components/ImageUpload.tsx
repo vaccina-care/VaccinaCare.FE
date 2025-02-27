@@ -66,16 +66,16 @@ export function ImageUpload({ onChange, defaultImage, ratio = 1, disabled = fals
         })
 
     const getCroppedImage = async (imageSrc: string, pixelCrop: Area): Promise<File> => {
-        const image = await createImage(imageSrc)
-        const canvas = document.createElement("canvas")
-        const ctx = canvas.getContext("2d")
+        const image = await createImage(imageSrc);
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
 
         if (!ctx) {
-            throw new Error("No 2d context")
+            throw new Error("No 2d context");
         }
 
-        canvas.width = pixelCrop.width
-        canvas.height = pixelCrop.height
+        canvas.width = pixelCrop.width;
+        canvas.height = pixelCrop.height;
 
         ctx.drawImage(
             image,
@@ -87,30 +87,31 @@ export function ImageUpload({ onChange, defaultImage, ratio = 1, disabled = fals
             0,
             pixelCrop.width,
             pixelCrop.height,
-        )
+        );
 
         return new Promise((resolve) => {
             canvas.toBlob((blob) => {
                 if (blob) {
-                    const file = new File([blob], "cropped-image.jpg", { type: "image/jpeg" })
-                    resolve(file)
+                    // Ensure correct file format
+                    const file = new File([blob], `avatar-${Date.now()}.jpg`, { type: "image/jpeg" });
+                    resolve(file);
                 }
-            }, "image/jpeg")
-        })
-    }
+            }, "image/jpeg");
+        });
+    };
+
 
     const handleCropConfirm = async () => {
         if (preview && croppedAreaPixels) {
             try {
-                const croppedImage = await getCroppedImage(preview, croppedAreaPixels)
-                setPreview(URL.createObjectURL(croppedImage))
-                onChange(croppedImage)
-                setIsCropperOpen(false)
+                const croppedImage = await getCroppedImage(preview, croppedAreaPixels);
+                onChange(croppedImage); // Send properly formatted file
+                setIsCropperOpen(false);
             } catch (e) {
-                console.error(e)
+                console.error(e);
             }
         }
-    }
+    };
 
     const handleRemove = () => {
         setPreview(null)
