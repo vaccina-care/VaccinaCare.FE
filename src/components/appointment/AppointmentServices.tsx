@@ -1,65 +1,42 @@
-import * as React from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
-
-interface VaccineOption {
-  id: string
-  name: string
-  price: number
-  category?: string
-  description?: string
-}
-
-const singleVaccines: VaccineOption[] = [
-  {
-    id: "vaxigrip",
-    name: "VẮC XIN CÚM TỨ GIÁ VAXIGRIP TETRA",
-    price: 356000,
-    category: "Cúm",
-  },
-  {
-    id: "influvac",
-    name: "VẮC XIN CÚM TỨ GIÁ INFLUVAC TETRA",
-    price: 356000,
-    category: "Cúm",
-  },
-  {
-    id: "ivacflu",
-    name: "VẮC XIN IVACFLU-S 0,5ml (VIỆT NAM) PHÒNG BỆNH CÚM",
-    price: 315000,
-    category: "Cúm",
-  },
-  // Add other single vaccines...
-]
-
-const vaccinePackages: VaccineOption[] = [
-  {
-    id: "hexaxim-0-6",
-    name: "Gói vắc xin Hexaxim – Rotarix – Varilrix (0 - 6 tháng)",
-    price: 13434900,
-    description: "Gói vắc xin Hexaxim–Rotarix–Varilrix (0-6 tháng) cần thiết bảo vệ trẻ trong 6 tháng đầu đời",
-  },
-  {
-    id: "hexaxim-0-9",
-    name: "Gói vắc xin Hexaxim – Rotarix – Varilrix (0 - 9 tháng)",
-    price: 17897976,
-    description: "Gói vắc xin Hexaxim–Rotarix–Varilrix (0-9 tháng) có đủ các vắc xin cho trẻ ở 9 tháng đầu đời",
-  },
-  {
-    id: "hexaxim-rotateq",
-    name: "Gói vắc xin Hexaxim – Rotateq – Varilrix (0 - 6 tháng)",
-    price: 13828200,
-    description: "Gói vắc xin Hexaxim – Rotateq – Varilrix (0 - 6 tháng)",
-  },
-]
+import { Checkbox } from "@/components/ui/checkbox"
+import { getVaccinePackages, VaccinePackage } from "@/api/packageVaccine"
+import { getVaccineList, Vaccine } from "@/api/vaccine"
+import { useEffect, useState } from "react"
 
 export function ServiceSelection() {
-  const [serviceType, setServiceType] = React.useState<"single" | "package">("single")
-  const [selectedVaccines, setSelectedVaccines] = React.useState<string[]>([])
-  const [selectedPackage, setSelectedPackage] = React.useState<string>("")
+  const [serviceType, setServiceType] = useState<"single" | "package">("single")
+  const [vaccines, setVaccines] = useState<Vaccine[]>([]) 
+  const [vaccinePackages, setVaccinePackages] = useState<VaccinePackage[]>([]) 
+  const [selectedVaccines, setSelectedVaccines] = useState<string[]>([])
+  const [selectedPackage, setSelectedPackage] = useState<string>("") 
+
+  useEffect(() => {
+    // Fetch all vaccines when component mounts
+    const fetchVaccines = async () => {
+      try {
+        const response = await getVaccineList()
+        setVaccines(response.data.vaccines)
+      } catch (error) {
+        console.error("Error fetching vaccines:", error)
+      }
+    }
+    fetchVaccines()
+
+    // Fetch all vaccine packages when component mounts
+    const fetchVaccinePackages = async () => {
+      try {
+        const response = await getVaccinePackages()
+        setVaccinePackages(response)
+      } catch (error) {
+        console.error("Error fetching vaccine packages:", error)
+      }
+    }
+    fetchVaccinePackages()
+  }, [])
 
   return (
     <div className="space-y-12 py-5">
@@ -96,12 +73,12 @@ export function ServiceSelection() {
 
           <div className="space-y-4">
             <Label className="text-base">
-              Select vaccine <span className="text-red-500">*</span>
+              Select vaccine {serviceType === "single" ? "" : "Package"} <span className="text-red-500">*</span>
             </Label>
 
             {serviceType === "single" ? (
               <div className="grid grid-cols-3 gap-4">
-                {singleVaccines.map((vaccine) => (
+                {vaccines.map((vaccine) => (
                   <div
                     key={vaccine.id}
                     className="group relative rounded-lg border p-4 space-y-3 transition-colors hover:border-primary hover:bg-accent/5 cursor-pointer"
@@ -125,9 +102,9 @@ export function ServiceSelection() {
                           htmlFor={vaccine.id}
                           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                         >
-                          {vaccine.name}
+                          {vaccine.vaccineName}
                         </label>
-                        <p className="text-sm text-muted-foreground mt-1">{vaccine.category}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{vaccine.description}</p>
                       </div>
                     </div>
                     <div className="text-right border-t pt-2 mt-2">
@@ -144,7 +121,11 @@ export function ServiceSelection() {
                 ))}
               </div>
             ) : (
-              <RadioGroup value={selectedPackage} onValueChange={setSelectedPackage} className="grid grid-cols-3 gap-4">
+              <RadioGroup
+                value={selectedPackage}
+                onValueChange={setSelectedPackage}
+                className="grid grid-cols-3 gap-4"
+              >
                 {vaccinePackages.map((pkg) => (
                   <div
                     key={pkg.id}
@@ -158,7 +139,7 @@ export function ServiceSelection() {
                           htmlFor={pkg.id}
                           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                         >
-                          {pkg.name}
+                          {pkg.packageName}
                         </label>
                         <p className="text-sm text-muted-foreground mt-2">{pkg.description}</p>
                       </div>
@@ -182,11 +163,10 @@ export function ServiceSelection() {
       </Card>
 
       <div className="flex justify-center pb-12">
-        <Button className="bg-[#204d94] hover:bg-[#204d94]/90 text-white px-8 py-2 rounded-md text-base" size="lg">
+        <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 rounded-md text-base" size="lg">
           Book Appointment
         </Button>
       </div>
     </div>
   )
 }
-

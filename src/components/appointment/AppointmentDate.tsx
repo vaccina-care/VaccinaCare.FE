@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { format } from "date-fns"
-import { vi } from "date-fns/locale"
+import { enUS } from "date-fns/locale"
 
 const generateTimeSlots = () => {
   const slots = []
@@ -54,10 +54,10 @@ export function DateTimePicker() {
 
             {(date || time) && (
               <div className="rounded-lg border p-4 bg-muted/50">
-                <h3 className="font-medium mb-2">Thời gian đã chọn:</h3>
+                <h3 className="font-medium mb-2">Selected time:</h3>
                 <div className="space-y-1 text-sm">
-                  {date && <p>Ngày: {format(date, "EEEE, dd/MM/yyyy", { locale: vi })}</p>}
-                  {time && <p>Giờ: {time}</p>}
+                  {date && <p>Day: {format(date, "EEEE, dd/MM/yyyy", { locale: enUS })}</p>}
+                  {time && <p>Time: {time}</p>}
                 </div>
               </div>
             )}
