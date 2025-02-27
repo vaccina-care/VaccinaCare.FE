@@ -1,5 +1,4 @@
-import type { Vaccine } from "@/api/packageVaccine"
-
+import { Vaccine } from "@/api/vaccine"
 import like from "@/assets/images/aba.png"
 
 interface PackageDetailsProps {

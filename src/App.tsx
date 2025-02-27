@@ -17,8 +17,9 @@ import UserDashboard from "./pages/UserDashboard"
 import ChildDashboard from "./pages/ChildDashboard"
 import VaccineList from "./pages/VaccineList"
 import Notifications from "./pages/Notifications"
-import VaccinePackagesLayout from "./pages/packageVaccineLayout"
+// import VaccinePackagesLayout from "./pages/packageVaccineLayout"
 import VaccineDetail from "./pages/VaccineDetail"
+import VaccinePackageDetail from "./pages/VaccinePackageDetail"
 
 // Define valid routes
 const validRoutes = [
@@ -58,7 +59,8 @@ const AppContent: React.FC = () => {
 							<Route path="/about" element={<About />} />
 							<Route path="/vaccines" element={<VaccineList />} />
 							<Route path="/vaccine/:id" element={<VaccineDetail />} />
-							<Route path="/package-vaccines" element={<VaccinePackagesLayout />} />
+							<Route path="/vaccinePackages/:packageId" element={<VaccinePackageDetail />} />
+							{/* <Route path="/vaccinePackages" element={<VaccinePackagesLayout />} /> */}
 							
 							{/* Protected routes */}
 							<Route
