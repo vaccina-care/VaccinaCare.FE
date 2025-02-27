@@ -37,7 +37,7 @@ const validRoutes = [
 
 const isValidRoute = (pathname: string) => {
 	return validRoutes.includes(pathname) || /^\/vaccine\/[^/]+$/.test(pathname)
-  }
+}
 
 const AppContent: React.FC = () => {
 	const location = useLocation()
@@ -52,14 +52,14 @@ const AppContent: React.FC = () => {
 				<AnimatePresence mode="wait">
 					<PageTransition key={location.pathname}>
 						<Routes location={location}>
+							<Route path="/" element={<Home />} />
 							<Route path="/login" element={<Login />} />
 							<Route path="/register" element={<Register />} />
-							<Route path="/" element={<Home />} />
 							<Route path="/about" element={<About />} />
 							<Route path="/vaccines" element={<VaccineList />} />
 							<Route path="/vaccine/:id" element={<VaccineDetail />} />
 							<Route path="/package-vaccines" element={<VaccinePackagesLayout />} />
-							
+
 							{/* Protected routes */}
 							<Route
 								path="/user-dashboard"
