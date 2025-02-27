@@ -19,12 +19,29 @@ export interface VaccineResponse {
 	}
 }
 
+export interface VaccineDetail {
+	id: string
+	vaccineName: string
+	description: string
+	picUrl: string | null
+	type: string
+	price: number
+	requiredDoses: number
+	doseIntervalDays: 0 
+	forBloodType: string
+	avoidChronic: boolean
+	avoidAllergy: boolean
+	hasDrugInteraction: boolean
+	hasSpecialWarning: boolean
+}
 // New interface for single vaccine response
 export interface SingleVaccineResponse {
 	isSuccess: boolean
 	message: string
-	data: Vaccine
+	data: VaccineDetail
 }
+
+
 
 // GET for VaccineSection on landing page
 export const getVaccineSection = async (params?: {

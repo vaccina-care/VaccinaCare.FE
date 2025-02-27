@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import { DatePicker } from "@/components/DatePicker"
-import { Pencil, Plus, User, Calendar, Droplet, FileText, AlertTriangle, Pill, Activity, Trash2 } from "lucide-react"
+import { Pencil, User, Calendar, Droplet, FileText, AlertTriangle, Pill, Activity, Trash2 } from "lucide-react"
 import { useChildren } from "@/hooks/useChildren"
 import { createChild, updateChild, deleteChild } from "@/api/children"
 import type { ChildData } from "@/api/children"
@@ -25,6 +25,7 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { AddChildDialog } from "./AddChildDialog"
 
 const ChildCard = ({
 	child,
@@ -291,23 +292,6 @@ const ChildCard = ({
 	)
 }
 
-// Default value when initializing a new child
-const defaultChildData: Omit<ChildData, "id"> = {
-	fullName: "New Child",
-	dateOfBirth: new Date().toISOString().split("T")[0], // Format as YYYY-MM-DD
-	gender: true,
-	medicalHistory: "",
-	bloodType: "Unknown",
-	hasChronicIllnesses: false,
-	chronicIllnessesDescription: "",
-	hasAllergies: false,
-	allergiesDescription: "",
-	hasRecentMedication: false,
-	recentMedicationDescription: "",
-	hasOtherSpecialCondition: false,
-	otherSpecialConditionDescription: "",
-}
-
 export function ChildrenProfile() {
 	const { children, loading, fetchChildren } = useChildren()
 	const [editingId, setEditingId] = useState<string | null>(null)
@@ -332,9 +316,9 @@ export function ChildrenProfile() {
 		}
 	}
 
-	const handleAddChild = async () => {
+	const handleAddChild = async (childData: Omit<ChildData, "id">) => {
 		try {
-			await createChild(defaultChildData)
+			await createChild(childData)
 			await fetchChildren()
 			toast({
 				title: "Success",
@@ -376,10 +360,7 @@ export function ChildrenProfile() {
 		<div className="space-y-6">
 			<div className="flex items-center justify-between">
 				<h2 className="text-2xl font-bold">Children Information</h2>
-				<Button onClick={handleAddChild} className="bg-blue-600 hover:bg-blue-700">
-					<Plus className="h-4 w-4 mr-2" />
-					Add Child
-				</Button>
+				<AddChildDialog onSubmit={handleAddChild} />
 			</div>
 
 			{children.length === 0 ? (

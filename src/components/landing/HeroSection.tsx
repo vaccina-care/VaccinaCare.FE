@@ -36,7 +36,7 @@ const HeroSection = () => {
             </FadeInSection>
             <FadeInSection delay={0.3}>
               <Button asChild className="bg-blue-600 hover:bg-blue-700" size="lg">
-                <Link to="/services">Our Services</Link>
+                <Link to="/vaccine-list">Our Services</Link>
               </Button>
             </FadeInSection>
           </div>

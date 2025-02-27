@@ -1,5 +1,6 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Package } from "lucide-react"
 import type { VaccinePackage } from "@/api/packageVaccine"
 
 interface VaccinePackageCardProps {
@@ -26,41 +27,48 @@ export function VaccinePackageCard({ package: vaccinePackage, onSelect }: Vaccin
     const finalPrice = vaccinePackage.price - discountAmount
 
     return (
-        <Card className="overflow-hidden hover:shadow-lg transition-shadow bg-gradient-to-br from-blue-50 to-white">
-            <CardHeader className="p-4 border-b">
-                <h3 className="text-lg font-bold text-[#1e1b4b] line-clamp-2">{vaccinePackage.packageName}</h3>
+        <Card className="overflow-hidden hover:shadow-lg transition-shadow bg-gradient-to-br from-blue-50 to-white flex flex-col h-full">
+            <CardHeader className="p-0">
+                <div className="h-48 bg-blue-100/50 flex items-center justify-center">
+                    <Package className="h-24 w-24 text-blue-600/40" />
+                </div>
             </CardHeader>
-            <CardContent className="p-4 space-y-4">
-                <div className="flex items-center gap-2">
-                    <div className="relative">
-                        <span className="text-gray-500 line-through text-sm">
+            <CardContent className="p-4 space-y-4 flex-grow">
+                <h3 className="text-lg font-bold text-[#1e1b4b] line-clamp-2">{vaccinePackage.packageName}</h3>
+                <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                        <div className="relative">
+                            <span className="text-gray-500 line-through text-sm">
+                                {new Intl.NumberFormat("vi-VN", {
+                                    style: "currency",
+                                    currency: "VND",
+                                }).format(vaccinePackage.price)}
+                            </span>
+                            <div className="absolute -right-7 -top-3">
+                                <span className="bg-red-500 text-white text-xs px-1.5 py-0.5 rounded">-{discount}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span className="text-lg font-bold text-blue-600">
                             {new Intl.NumberFormat("vi-VN", {
                                 style: "currency",
                                 currency: "VND",
-                            }).format(vaccinePackage.price)}
+                            }).format(finalPrice)}
                         </span>
-                        <div className="absolute -right-7 -top-3">
-                            <span className="bg-red-500 text-white text-xs px-1.5 py-0.5 rounded">-{discount}%</span>
-                        </div>
+                        <span className="text-xs text-gray-500">
+                            (-{new Intl.NumberFormat("vi-VN").format(discountAmount)} VND)
+                        </span>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-blue-600">
-                        {new Intl.NumberFormat("vi-VN", {
-                            style: "currency",
-                            currency: "VND",
-                        }).format(finalPrice)}
-                    </span>
-                    <span className="text-xs text-gray-500">(-{new Intl.NumberFormat("vi-VN").format(discountAmount)} VND)</span>
-                </div>
                 <div className="space-y-2">
-                    <h4 className="font-medium text-sm">Phòng bệnh:</h4>
+                    <h4 className="font-medium text-sm">Prevention:</h4>
                     <p className="text-sm text-gray-600 line-clamp-3">{vaccinePackage.description}</p>
                 </div>
             </CardContent>
-            <CardFooter className="p-4 pt-0">
+            <CardFooter className="p-4 mt-auto">
                 <Button className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90" onClick={() => onSelect(vaccinePackage.id)}>
-                    CHỌN
+                    Choose
                 </Button>
             </CardFooter>
         </Card>

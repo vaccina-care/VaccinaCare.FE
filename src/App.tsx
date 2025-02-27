@@ -31,14 +31,14 @@ const validRoutes = [
 	"/user-dashboard",
 	"/child-dashboard",
 	"/notifications",
-	"/vaccines",
-	"/vaccine/:id",	
 	"/vaccinePackage/:packageId"
+	"/vaccine-list",
+	"/vaccine/:id",
 ]
 
 const isValidRoute = (pathname: string) => {
 	return validRoutes.includes(pathname) || /^\/vaccine\/[^/]+$/.test(pathname)
-  }
+}
 
 const AppContent: React.FC = () => {
 	const location = useLocation()
@@ -53,15 +53,15 @@ const AppContent: React.FC = () => {
 				<AnimatePresence mode="wait">
 					<PageTransition key={location.pathname}>
 						<Routes location={location}>
+							<Route path="/" element={<Home />} />
 							<Route path="/login" element={<Login />} />
 							<Route path="/register" element={<Register />} />
-							<Route path="/" element={<Home />} />
 							<Route path="/about" element={<About />} />
-							<Route path="/vaccines" element={<VaccineList />} />
+							<Route path="/vaccine-list" element={<VaccineList />} />
 							<Route path="/vaccine/:id" element={<VaccineDetail />} />
 							<Route path="/vaccinePackage/:packageId" element={<VaccinePackageDetail />} />
-							{/* <Route path="/vaccinePackages" element={<VaccinePackagesLayout />} /> */}
-							
+							<Route path="/package-vaccines" element={<VaccinePackagesLayout />} />
+
 							{/* Protected routes */}
 							<Route
 								path="/user-dashboard"

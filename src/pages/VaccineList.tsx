@@ -1,15 +1,10 @@
 "use client"
 
 import { CardFooter } from "@/components/ui/card"
-
 import { CardTitle } from "@/components/ui/card"
-
 import { CardContent } from "@/components/ui/card"
-
 import { CardHeader } from "@/components/ui/card"
-
 import { Card } from "@/components/ui/card"
-
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
@@ -132,7 +127,10 @@ export default function VaccineList() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filterType !== "package" &&
                 vaccines.map((vaccine) => (
-                  <Card key={vaccine.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <Card
+                    key={vaccine.id}
+                    className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full"
+                  >
                     <CardHeader className="p-0">
                       <img
                         src={vaccine.picUrl || "/placeholder.svg?height=200&width=300"}
@@ -140,23 +138,25 @@ export default function VaccineList() {
                         className="w-full h-48 object-cover"
                       />
                     </CardHeader>
-                    <CardContent className="p-4 space-y-2">
+                    <CardContent className="p-4 space-y-4 flex-grow">
                       <CardTitle className="text-lg font-semibold line-clamp-2">{vaccine.vaccineName}</CardTitle>
-                      <p className="text-sm text-gray-500">Nguồn gốc: {vaccine.type}</p>
-                      <p className="text-sm text-gray-500 line-clamp-2">{vaccine.description}</p>
-                      <p className="text-lg font-bold text-blue-600">
-                        {new Intl.NumberFormat("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                        }).format(vaccine.price)}
-                      </p>
+                      <div className="space-y-2">
+                        <p className="text-sm text-gray-500">Origin: {vaccine.type}</p>
+                        <p className="text-sm text-gray-500 line-clamp-3">{vaccine.description}</p>
+                        <p className="text-lg font-bold text-blue-600">
+                          {new Intl.NumberFormat("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
+                          }).format(vaccine.price)}
+                        </p>
+                      </div>
                     </CardContent>
-                    <CardFooter className="p-4 pt-0">
+                    <CardFooter className="p-4 mt-auto">
                       <Button
                         className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90"
                         onClick={() => navigate(`/vaccine/${vaccine.id}`)}
                       >
-                        CHỌN
+                        Choose
                       </Button>
                     </CardFooter>
                   </Card>
@@ -179,7 +179,7 @@ export default function VaccineList() {
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <span className="text-sm">
-                Trang {currentPage} / {totalPages}
+                Page {currentPage} / {totalPages}
               </span>
               <Button
                 variant="outline"

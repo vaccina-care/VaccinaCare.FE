@@ -1,6 +1,6 @@
 import axios from "axios"
 
-// Instance to use global - using BaseURL from BE API
+// Instance to use global
 const API_URL = "https://ae-tao-fullstack-api.site/api"
 const axiosInstance = axios.create({
   baseURL: API_URL,
@@ -9,7 +9,7 @@ const axiosInstance = axios.create({
   },
 })
 
-// Add interceptor for authentication
+// Gán accessToken vào payload mỗi lần request
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken")
@@ -19,6 +19,39 @@ axiosInstance.interceptors.request.use(
     return config
   },
   (error) => {
+    return Promise.reject(error)
+  },
+)
+
+// Add response interceptor for handling 401 errors and token refresh
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config
+
+    // If the error is 401 and we haven't already tried to refresh the token
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true
+
+      try {
+        // Attempt to refresh the token
+        const refreshToken = localStorage.getItem("refreshToken")
+        const response = await axios.post(`${API_URL}/auth/refresh`, { refreshToken })
+
+        if (response.data.accessToken) {
+          localStorage.setItem("accessToken", response.data.accessToken)
+          axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${response.data.accessToken}`
+          return axiosInstance(originalRequest)
+        }
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (refreshError) {
+        localStorage.removeItem("accessToken")
+        localStorage.removeItem("refreshToken")
+        window.location.href = "/login"
+      }
+    }
+
     return Promise.reject(error)
   },
 )
