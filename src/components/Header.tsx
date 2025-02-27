@@ -83,7 +83,7 @@ const Header = () => {
 								</Link>
 							</li>
 							<li>
-								<Link to="/vaccines" className="hover:text-blue-300">
+								<Link to="/vaccine-list" className="hover:text-blue-300">
 									Vaccine List
 								</Link>
 							</li>

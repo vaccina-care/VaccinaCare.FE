@@ -30,7 +30,7 @@ const validRoutes = [
 	"/user-dashboard",
 	"/child-dashboard",
 	"/notifications",
-	"/vaccines",
+	"/vaccine-list",
 	"/vaccine/:id",
 	"/package-vaccines"
 ]
@@ -56,7 +56,7 @@ const AppContent: React.FC = () => {
 							<Route path="/login" element={<Login />} />
 							<Route path="/register" element={<Register />} />
 							<Route path="/about" element={<About />} />
-							<Route path="/vaccines" element={<VaccineList />} />
+							<Route path="/vaccine-list" element={<VaccineList />} />
 							<Route path="/vaccine/:id" element={<VaccineDetail />} />
 							<Route path="/package-vaccines" element={<VaccinePackagesLayout />} />
 
