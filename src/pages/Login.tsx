@@ -1,5 +1,9 @@
-import { useState } from "react"
-import { useNavigate, useLocation } from "react-router-dom"
+"use client"
+
+import type React from "react"
+
+import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,17 +14,26 @@ import { useAuthContext } from "@/contexts/AuthContexts"
 import { useToast } from "@/hooks/use-toast"
 
 // Import images
-const logoImage = "https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=logo.png&version_id=null"
-const loginIllustration = "https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=auth%2Flogin.png&version_id=null"
+const logoImage =
+	"https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=logo.png&version_id=null"
+const loginIllustration =
+	"https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=auth%2Flogin.png&version_id=null"
 
 const Login = () => {
 	const [email, setEmail] = useState("")
 	const [password, setPassword] = useState("")
 	const [isLoading, setIsLoading] = useState(false)
-	const { login } = useAuthContext()
+	const { login, user, isAuthenticated } = useAuthContext()
 	const navigate = useNavigate()
-	const location = useLocation()
 	const { toast } = useToast()
+
+	// Effect to handle redirection after successful login and user data is loaded
+	useEffect(() => {
+		if (isAuthenticated && user) {
+			const redirectPath = user.roleName === "Staff" ? "/staff/vaccines" : "/user-dashboard"
+			navigate(redirectPath, { replace: true })
+		}
+	}, [isAuthenticated, user, navigate])
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
@@ -34,8 +47,7 @@ const Login = () => {
 					description: "Welcome back to VaccinaCare!",
 					variant: "success",
 				})
-				const origin = location.state?.from?.pathname || "/user-dashboard"
-				navigate(origin, { replace: true })
+				// Redirection will be handled by the useEffect hook
 			} else {
 				throw new Error("Login failed")
 			}
