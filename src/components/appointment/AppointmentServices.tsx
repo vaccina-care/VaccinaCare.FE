@@ -7,6 +7,7 @@ import { getVaccinePackages, VaccinePackage } from "@/api/packageVaccine"
 import { getVaccineList, Vaccine } from "@/api/vaccine"
 import { useEffect, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import { Input } from "../ui/input"
 
 export function ServiceSelection() {
   const [serviceType, setServiceType] = useState<"single" | "package">("single")
@@ -17,7 +18,7 @@ export function ServiceSelection() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
-  // const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState("")
   const pageSize = 12
 
   useEffect(() => {
@@ -28,7 +29,7 @@ export function ServiceSelection() {
         const response = await getVaccineList({
           page: currentPage,
           pageSize,
-          // search: searchTerm,
+          search: searchTerm,
         })
         if (response.isSuccess) {
           setVaccines(response.data.vaccines)
@@ -42,7 +43,7 @@ export function ServiceSelection() {
     }
     const debounceTimer = setTimeout(fetchVaccines, 300)
     return () => clearTimeout(debounceTimer)
-  }, [currentPage])
+  }, [currentPage, searchTerm])
 
   useEffect(() => {
     // Fetch all vaccine packages when component mounts
@@ -61,19 +62,20 @@ export function ServiceSelection() {
     <div className="space-y-12 py-5">
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">SERVICE INFORMATION</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-8">
-          {/* Search and Filter Section */}
-          {/* <div className="flex flex-col sm:flex-row gap-4 md:items-center">
-            <input
+          <div className="flex justify-between items-center w-full">
+            <CardTitle className="text-lg font-semibold">SERVICE INFORMATION</CardTitle>
+            <Input
               type="search"
               placeholder="Search for vaccine..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full sm:w-[300px]"
             />
-          </div> */}
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-8">
+
           <div className="space-y-4">
             <Label className="text-base">
               Type of service to register <span className="text-red-500">*</span>

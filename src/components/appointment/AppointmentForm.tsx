@@ -12,7 +12,6 @@ export function AppointmentForm() {
   const [selectedChild, setSelectedChild] = useState<string>("")
   const [notes, setNotes] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchChildren = async () => {
@@ -24,7 +23,7 @@ export function AppointmentForm() {
           setSelectedChild(childrenData[0].id)
         }
       } catch (err) {
-        setError("Failed to fetch children data")
+        console.error("Failed to fetch children data")
       } finally {
         setLoading(false)
       }
@@ -57,8 +56,8 @@ export function AppointmentForm() {
                 <Label htmlFor="child-select">Choose Children</Label>
                 {loading ? (
                   <p>Loading children...</p>
-                ) : error ? (
-                  <p className="text-red-500">{error}</p>
+                ) : children.length === 0 ? (
+                  <p>No children found</p>
                 ) : (
                   <Select value={selectedChild} onValueChange={setSelectedChild}>
                     <SelectTrigger>
