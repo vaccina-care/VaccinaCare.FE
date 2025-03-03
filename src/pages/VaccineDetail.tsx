@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams, useNavigate, Link } from "react-router-dom"
+import { useParams, useNavigate, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -22,8 +22,10 @@ import {
 import { getVaccineById, type VaccineDetail } from "@/api/vaccine"
 
 export default function VaccineDetail() {
+    window.scrollTo(0, 0)
     const { id } = useParams<{ id: string }>()
     const navigate = useNavigate()
+    const location = useLocation()
     const [vaccine, setVaccine] = useState<VaccineDetail | null>(null)
     const [isLoading, setIsLoading] = useState(true)
 
@@ -75,11 +77,21 @@ export default function VaccineDetail() {
         )
     }
 
+    const handleBookAppointment = () => {
+        navigate("/appointments", { state: { fromVaccineDetail: true, vaccineId: id} })
+    }
+
+    const handleBackToVaccineList = () => {
+        if (!location.state?.fromVaccineDetail) {
+            navigate("/vaccine-list")
+        } 
+    }
+
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="container mx-auto py-8 px-4">
                 {/* Back Button */}
-                <Button variant="ghost" onClick={() => navigate(-1)} className="mb-8 hover:bg-gray-100">
+                <Button variant="ghost" onClick={handleBackToVaccineList} className="mb-8 hover:bg-gray-100">
                     <ArrowLeft className="mr-2 h-4 w-4" /> Back to Vaccine List
                 </Button>
 
@@ -251,13 +263,12 @@ export default function VaccineDetail() {
                                             dose
                                         </p>
                                     </div>
-
-                                    <Link to="/appointments" className="block mt-6">
-                                        <Button size="lg" className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90">
-                                            <Syringe className="mr-2 h-5 w-5" />
-                                            Book Appointment
-                                        </Button>
-                                    </Link>
+                                    =
+                                    <Button size="lg" className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90"
+                                        onClick={handleBookAppointment}>
+                                        <Syringe className="mr-2 h-5 w-5" />
+                                        Book Appointment
+                                    </Button>
                                 </div>
                             </div>
                         </CardContent>
