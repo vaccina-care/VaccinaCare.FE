@@ -10,14 +10,15 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Input } from "../ui/input"
 
 interface ServiceSelectionProps {
+  preSelectedVaccineId?: string | null;
   preSelectedPackageId?: string | null;
 }
 
-export function ServiceSelection({ preSelectedPackageId }: ServiceSelectionProps) {
+export function ServiceSelection({preSelectedVaccineId, preSelectedPackageId }: ServiceSelectionProps) {
   const [serviceType, setServiceType] = useState<"single" | "package">(preSelectedPackageId ? "package" : "single")
   const [vaccines, setVaccines] = useState<Vaccine[]>([])
   const [vaccinePackages, setVaccinePackages] = useState<VaccinePackage[]>([])
-  const [selectedVaccines, setSelectedVaccines] = useState<string[]>([])
+  const [selectedVaccines, setSelectedVaccines] = useState<string[]>(preSelectedVaccineId ? [preSelectedVaccineId] : [])
   const [selectedPackage, setSelectedPackage] = useState<string>(preSelectedPackageId || "")
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
