@@ -9,12 +9,16 @@ import { useEffect, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Input } from "../ui/input"
 
-export function ServiceSelection() {
-  const [serviceType, setServiceType] = useState<"single" | "package">("single")
+interface ServiceSelectionProps {
+  preSelectedPackageId?: string | null;
+}
+
+export function ServiceSelection({ preSelectedPackageId }: ServiceSelectionProps) {
+  const [serviceType, setServiceType] = useState<"single" | "package">(preSelectedPackageId ? "package" : "single")
   const [vaccines, setVaccines] = useState<Vaccine[]>([])
   const [vaccinePackages, setVaccinePackages] = useState<VaccinePackage[]>([])
   const [selectedVaccines, setSelectedVaccines] = useState<string[]>([])
-  const [selectedPackage, setSelectedPackage] = useState<string>("")
+  const [selectedPackage, setSelectedPackage] = useState<string>(preSelectedPackageId || "")
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
@@ -81,7 +85,7 @@ export function ServiceSelection() {
               Type of service to register <span className="text-red-500">*</span>
             </Label>
             <RadioGroup
-              defaultValue="single"
+              value={serviceType}
               className="grid grid-cols-2 gap-4"
               onValueChange={(value) => setServiceType(value as "single" | "package")}
             >

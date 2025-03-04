@@ -15,12 +15,12 @@ interface PackageDetailsProps {
 
 export function PackageDetails({ packageName, description, vaccineInfo, price }: PackageDetailsProps) {
 	window.scrollTo(0, 0)
-	const { id } = useParams<{ id: string }>()
+	const { packageId } = useParams<{ packageId: string }>()
 	const navigate = useNavigate()
 	const location = useLocation()
 
 	const handleBookAppointment = () => {
-		navigate("/appointments", { state: { fromVaccinePackageDetail: true, vaccinepackageId: id } })
+		navigate("/appointments", { state: { fromVaccinePackageDetail: true, vaccinepackageId: packageId } })
 	}
 
 	const handleBackToVaccineList = () => {

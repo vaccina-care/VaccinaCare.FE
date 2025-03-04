@@ -38,12 +38,14 @@ export function AppointmentForm() {
     fetchChildren()
   }, [])
 
+  const vaccinepackageId = location.state?.vaccinepackageId || null;
+
   const handleBack = () => {
-    const vaccineId = location.state?.vaccineId;
-    const vaccinepackageId = location.state?.vaccinepackageId;
+    const vaccineId = location.state?.vaccineId || null;
+    const vaccinepackageId = location.state?.vaccinepackageId || null;
     if (vaccineId) {
       navigate(`/vaccine/${vaccineId}`);
-    }else if (vaccinepackageId) {
+    } else if (vaccinepackageId) {
       navigate(`/vaccine-package/${vaccinepackageId}`);
     }
     else {
@@ -124,7 +126,7 @@ export function AppointmentForm() {
             </div>
           </div>
 
-          <ServiceSelection />
+          <ServiceSelection preSelectedPackageId={vaccinepackageId}/>
         </div>
       </div>
     </div>

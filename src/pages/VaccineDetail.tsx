@@ -78,7 +78,9 @@ export default function VaccineDetail() {
     }
 
     const handleBookAppointment = () => {
-        navigate("/appointments", { state: { fromVaccineDetail: true, vaccineId: id} })
+        navigate("/appointments", { state: { 
+            fromVaccineDetail: true, 
+            vaccineId: id} })
     }
 
     const handleBackToVaccineList = () => {
