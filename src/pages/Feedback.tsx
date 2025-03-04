@@ -1,4 +1,3 @@
-import type React from "react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -31,15 +30,15 @@ export default function FeedbackForm() {
   const getRatingText = (rating: number) => {
     switch (rating) {
       case 1:
-        return "Rất không hài lòng"
+        return "Very Dissatisfied"
       case 2:
-        return "Không hài lòng"
+        return "Dissatisfied"
       case 3:
-        return "Bình thường"
+        return "Neutral"
       case 4:
-        return "Hài lòng"
+        return "Satisfied"
       case 5:
-        return "Rất hài lòng"
+        return "Very Satisfied"
       default:
         return ""
     }
@@ -48,7 +47,6 @@ export default function FeedbackForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     console.log("Form submitted:", formData)
-    // Here you would typically send the data to your backend
     alert("Feedback submitted successfully!")
     setFormData({
       comment: "",
@@ -57,9 +55,10 @@ export default function FeedbackForm() {
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <div className="container mx-auto py-8 px-4">
+<Card className="w-full max-w-md mx-auto">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold">Feedback Form</CardTitle>
+        <CardTitle className="text-2xl font-bold">Vaccine Feedback</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -77,8 +76,8 @@ export default function FeedbackForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="rating">Rating (1-5)</Label>
-            <div className="flex items-center gap-1">
+            <Label htmlFor="rating">Rating</Label>
+            <div className="flex items-center gap-2">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
@@ -89,16 +88,16 @@ export default function FeedbackForm() {
                   className="focus:outline-none transition-transform duration-200 ease-in-out transform hover:scale-110"
                 >
                   <Star
-                    size={24}
+                    size={40} 
                     className={`${
                       (hoveredRating || formData.rating) >= star ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
                     } cursor-pointer`}
                   />
                 </button>
               ))}
-              <span className="ml-2 text-sm">
-                {(hoveredRating || formData.rating) > 0 && getRatingText(hoveredRating || formData.rating)}
-              </span>
+              <span className="text-sm px-3 font-medium">
+              {(hoveredRating || formData.rating) > 0 && getRatingText(hoveredRating || formData.rating)}
+            </span>
             </div>
           </div>
 
@@ -108,6 +107,6 @@ export default function FeedbackForm() {
         </form>
       </CardContent>
     </Card>
+    </div>
   )
 }
-
