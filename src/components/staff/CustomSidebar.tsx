@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Package2, Syringe, CalendarDays, BarChart3, LogOut, ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { ThemeToggle } from "./ThemeToggle"
 
 interface CustomSidebarProps {
     children: React.ReactNode
@@ -67,18 +68,18 @@ export function CustomSidebar({ children }: CustomSidebarProps) {
     }
 
     return (
-        <div className="flex h-screen overflow-hidden bg-gray-50">
+        <div className="flex h-screen overflow-hidden bg-background">
             <motion.div
                 initial={{ width: isOpen ? 280 : 80 }}
                 animate={{ width: isOpen ? 280 : 80 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="relative flex flex-col border-r bg-white shadow-sm"
+                className="relative flex flex-col border-r bg-card shadow-sm"
             >
                 {/* Toggle button */}
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute -right-3 top-6 z-10 h-6 w-6 rounded-full border bg-white shadow-md"
+                    className="absolute -right-3 top-6 z-10 h-6 w-6 rounded-full border bg-background shadow-md dark:bg-card"
                     onClick={() => setIsOpen(!isOpen)}
                 >
                     <AnimatePresence mode="wait" initial={false}>
@@ -97,7 +98,7 @@ export function CustomSidebar({ children }: CustomSidebarProps) {
                 {/* Header */}
                 <div className="flex h-16 items-center border-b px-4">
                     <Link to="/staff" className="flex items-center gap-2">
-                        <img src="/logo.png" alt="VaccinaCare" className="h-8 w-8 object-contain" />
+                        <img src="/apple-touch-icon.png" alt="VaccinaCare" className="h-8 w-8 object-contain" />
                         <AnimatePresence mode="wait" initial={false}>
                             {isOpen && (
                                 <motion.span
@@ -105,7 +106,7 @@ export function CustomSidebar({ children }: CustomSidebarProps) {
                                     animate={{ opacity: 1, width: "auto" }}
                                     exit={{ opacity: 0, width: 0 }}
                                     transition={{ duration: 0.2 }}
-                                    className="font-semibold whitespace-nowrap overflow-hidden"
+                                    className="font-semibold whitespace-nowrap overflow-hidden text-main-blue"
                                 >
                                     VaccinaCare Staff
                                 </motion.span>
@@ -143,37 +144,47 @@ export function CustomSidebar({ children }: CustomSidebarProps) {
                     </nav>
                 </div>
 
-                {/* Footer with user info */}
+                {/* Footer with user info and theme toggle */}
                 <div className="border-t p-4">
-                    <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9 flex-shrink-0">
-                            <AvatarImage src={user?.imageUrl} />
-                            <AvatarFallback>{user?.fullName?.charAt(0) || user?.email?.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <AnimatePresence mode="wait" initial={false}>
-                            {isOpen && (
-                                <motion.div
-                                    initial={{ opacity: 0, width: 0 }}
-                                    animate={{ opacity: 1, width: "auto" }}
-                                    exit={{ opacity: 0, width: 0 }}
-                                    transition={{ duration: 0.2 }}
-                                    className="flex-1 overflow-hidden"
-                                >
-                                    <p className="truncate text-sm font-medium">{user?.fullName}</p>
-                                    <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={logout}
-                            className={cn("ml-auto", !isOpen && "ml-0")}
-                            title="Logout"
-                        >
-                            <LogOut className="h-4 w-4" />
-                        </Button>
-                    </div>
+                    {isOpen ? (
+                        // Layout when sidebar is open - buttons next to avatar
+                        <div className="flex items-center gap-3">
+                            <Avatar className="h-9 w-9 flex-shrink-0">
+                                <AvatarImage src={user?.imageUrl} />
+                                <AvatarFallback>{user?.fullName?.charAt(0) || user?.email?.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <motion.div
+                                initial={{ opacity: 0, width: 0 }}
+                                animate={{ opacity: 1, width: "auto" }}
+                                exit={{ opacity: 0, width: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="flex-1 overflow-hidden"
+                            >
+                                <p className="truncate text-sm font-medium">{user?.fullName}</p>
+                                <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
+                            </motion.div>
+                            <div className="flex items-center gap-1">
+                                <ThemeToggle />
+                                <Button variant="ghost" size="icon" onClick={logout} className="ml-auto" title="Logout">
+                                    <LogOut className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        </div>
+                    ) : (
+                        // Layout when sidebar is closed - buttons above avatar
+                        <div className="flex flex-col items-center gap-3">
+                            <div className="flex items-center justify-center gap-2 w-full mb-2">
+                                <ThemeToggle />
+                                <Button variant="ghost" size="icon" onClick={logout} title="Logout">
+                                    <LogOut className="h-4 w-4" />
+                                </Button>
+                            </div>
+                            <Avatar className="h-9 w-9">
+                                <AvatarImage src={user?.imageUrl} />
+                                <AvatarFallback>{user?.fullName?.charAt(0) || user?.email?.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                        </div>
+                    )}
                 </div>
             </motion.div>
 
@@ -182,7 +193,7 @@ export function CustomSidebar({ children }: CustomSidebarProps) {
                 initial={{ marginLeft: 0 }}
                 animate={{ marginLeft: 0 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="flex-1 overflow-auto"
+                className="flex-1 overflow-auto bg-background"
             >
                 {children}
             </motion.div>

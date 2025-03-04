@@ -19,12 +19,9 @@ import {
     Trash2,
     ChevronLeft,
     ChevronRight,
-    ArrowUp,
-    ArrowDown,
 } from "lucide-react"
 import {
     getAllVaccines,
-    getVaccineById,
     createVaccine,
     updateVaccine,
     deleteVaccine,
@@ -32,6 +29,7 @@ import {
     type VaccineDetail,
     type VaccineFormData,
 } from "@/api/vaccineStaff"
+import { getVaccinePackages, type VaccinePackage } from "@/api/packageVaccine"
 import { useToast } from "@/hooks/use-toast"
 import {
     AlertDialog,
@@ -47,116 +45,117 @@ import { VaccineDetailDialog } from "@/components/staff/VaccineDetailDialog"
 
 type FilterType = "all" | "single" | "package"
 type DialogMode = "view" | "edit" | "create"
-type SortField = "vaccineName" | "type" | "price" | "requiredDoses"
-type SortDirection = "asc" | "desc"
 
 export default function VaccinesPage() {
     const [vaccines, setVaccines] = useState<VaccineBase[]>([])
+    const [packages, setPackages] = useState<VaccinePackage[]>([])
     const [totalCount, setTotalCount] = useState(0)
     const [isLoading, setIsLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState("")
     const [filterType, setFilterType] = useState<FilterType>("all")
     const [page, setPage] = useState(1)
     const [pageSize] = useState(10)
+    const [selectedVaccineId, setSelectedVaccineId] = useState<string | null>(null)
     const [selectedVaccine, setSelectedVaccine] = useState<VaccineDetail | null>(null)
     const [dialogMode, setDialogMode] = useState<DialogMode>("view")
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
-    const [sortField, setSortField] = useState<SortField>("vaccineName")
-    const [sortDirection, setSortDirection] = useState<SortDirection>("asc")
     const { toast } = useToast()
 
-    const handleSort = (field: SortField) => {
-        if (sortField === field) {
-            setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-        } else {
-            setSortField(field)
-            setSortDirection("asc")
-        }
-    }
+    // Update the dialog state management
+    const [dialogState, setDialogState] = useState<{
+        isOpen: boolean
+        mode: "view" | "edit" | "create"
+        vaccineId: string | null
+    }>({
+        isOpen: false,
+        mode: "view",
+        vaccineId: null,
+    })
 
-    const fetchVaccines = useCallback(async () => {
+    const handleCloseDialog = useCallback(() => {
+        setDialogState({
+            isOpen: false,
+            mode: "view",
+            vaccineId: null,
+        })
+    }, [])
+
+    // Fetch both vaccines and packages
+    const fetchData = useCallback(async () => {
         try {
             setIsLoading(true)
-            const response = await getAllVaccines({
-                search: searchTerm,
-                type: filterType === "all" ? undefined : filterType,
-                page,
-                pageSize,
-                sortBy: sortField,
-                isDescending: sortDirection === "desc",
-            })
+            const [vaccineResponse, packagesResponse] = await Promise.all([
+                getAllVaccines({
+                    search: searchTerm,
+                    page,
+                    pageSize,
+                }),
+                getVaccinePackages(),
+            ])
 
-            if (response.isSuccess) {
-                setVaccines(response.data.vaccines)
-                setTotalCount(response.data.totalCount)
-            } else {
-                toast({
-                    title: "Error",
-                    description: response.message || "Failed to fetch vaccines",
-                    variant: "destructive",
-                })
+            if (vaccineResponse.isSuccess) {
+                setVaccines(vaccineResponse.data.vaccines)
+                setTotalCount(vaccineResponse.data.totalCount)
             }
+
+            setPackages(packagesResponse)
         } catch (error) {
-            console.error("Error fetching vaccines:", error)
+            console.error("Error fetching data:", error)
             toast({
                 title: "Error",
-                description: "Failed to fetch vaccines",
+                description: "Failed to fetch data",
                 variant: "destructive",
             })
         } finally {
             setIsLoading(false)
         }
-    }, [searchTerm, filterType, page, pageSize, sortField, sortDirection, toast])
+    }, [searchTerm, page, pageSize, toast])
 
     useEffect(() => {
-        fetchVaccines()
-    }, [fetchVaccines])
+        fetchData()
+    }, [fetchData])
 
-    const handleView = async (vaccine: VaccineBase) => {
-        try {
-            const response = await getVaccineById(vaccine.id)
-            if (response.isSuccess) {
-                setSelectedVaccine(response.data)
-                setDialogMode("view")
-                setIsDialogOpen(true)
-            }
-        } catch (error) {
-            toast({
-                title: "Error",
-                description: "Failed to fetch vaccine details",
-                variant: "destructive",
-            })
-        }
-    }
+    // Filter data based on type
+    const filteredData =
+        filterType === "package" ? packages : filterType === "single" ? vaccines : [...vaccines, ...packages]
 
-    const handleEdit = async (vaccine: VaccineBase) => {
-        try {
-            const response = await getVaccineById(vaccine.id)
-            if (response.isSuccess) {
-                setSelectedVaccine(response.data)
-                setDialogMode("edit")
-                setIsDialogOpen(true)
-            }
-        } catch (error) {
-            toast({
-                title: "Error",
-                description: "Failed to fetch vaccine details",
-                variant: "destructive",
-            })
-        }
-    }
+    // Update the dialog open handlers
+    const handleView = useCallback((item: VaccineBase) => {
+        setDialogState({
+            isOpen: true,
+            mode: "view",
+            vaccineId: item.id,
+        })
+    }, [])
 
-    const handleDelete = async (vaccine: VaccineBase) => {
+    const handleEdit = useCallback((item: VaccineBase) => {
+        setDialogState({
+            isOpen: true,
+            mode: "edit",
+            vaccineId: item.id,
+        })
+    }, [])
+
+    const handleCreate = useCallback(() => {
+        setDialogState({
+            isOpen: true,
+            mode: "create",
+            vaccineId: null,
+        })
+    }, [])
+
+    // Handle delete action
+    const handleDelete = async (item: VaccineBase) => {
         try {
-            const response = await deleteVaccine(vaccine.id)
+            const response = await deleteVaccine(item.id)
             if (response.isSuccess) {
                 toast({
                     title: "Success",
                     description: "Vaccine deleted successfully",
                     variant: "success",
                 })
-                fetchVaccines()
+                fetchData()
             }
         } catch (error) {
             toast({
@@ -167,38 +166,29 @@ export default function VaccinesPage() {
         }
     }
 
+    // Handle save action
     const handleSave = async (data: VaccineFormData) => {
         try {
-            if (dialogMode === "create") {
+            if (dialogState.mode === "create") {
                 await createVaccine(data)
-            } else if (dialogMode === "edit" && selectedVaccine) {
-                await updateVaccine(selectedVaccine.id, data)
+            } else if (dialogState.mode === "edit" && dialogState.vaccineId) {
+                await updateVaccine(dialogState.vaccineId, data)
             }
-            fetchVaccines()
+            fetchData()
         } catch (error) {
             throw error
         }
     }
 
-    const getSortIcon = (field: SortField) => {
-        if (sortField !== field) return null
-        return sortDirection === "asc" ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />
-    }
-
     const totalPages = Math.ceil(totalCount / pageSize)
+
+    // Update the dialog close handler
 
     return (
         <div className="flex flex-col gap-6 p-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-semibold">Vaccines & Packages</h1>
-                <Button
-                    onClick={() => {
-                        setSelectedVaccine(null)
-                        setDialogMode("create")
-                        setIsDialogOpen(true)
-                    }}
-                    className="bg-blue-600 hover:bg-blue-700"
-                >
+                <Button onClick={handleCreate} className="bg-blue-600 hover:bg-blue-700">
                     <Plus className="mr-2 h-4 w-4" />
                     Add New
                 </Button>
@@ -240,48 +230,15 @@ export default function VaccinesPage() {
                 </Select>
             </div>
 
-            <div className="rounded-md border bg-white overflow-hidden">
+            <div className="rounded-md border bg-card overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
-                            <tr className="border-b bg-gray-50">
-                                <th className="w-[50px] px-4 py-3 text-left">
-                                    <input type="checkbox" className="rounded border-gray-300" />
-                                </th>
-                                <th
-                                    className="px-4 py-3 text-left cursor-pointer hover:bg-gray-100"
-                                    onClick={() => handleSort("vaccineName")}
-                                >
-                                    <div className="flex items-center gap-1">
-                                        <span>Title</span>
-                                        {getSortIcon("vaccineName")}
-                                    </div>
-                                </th>
-                                <th className="px-4 py-3 text-left cursor-pointer hover:bg-gray-100" onClick={() => handleSort("type")}>
-                                    <div className="flex items-center gap-1">
-                                        <span>Status</span>
-                                        {getSortIcon("type")}
-                                    </div>
-                                </th>
-                                <th
-                                    className="px-4 py-3 text-left cursor-pointer hover:bg-gray-100"
-                                    onClick={() => handleSort("price")}
-                                >
-                                    <div className="flex items-center gap-1">
-                                        <span>Priority</span>
-                                        {getSortIcon("price")}
-                                    </div>
-                                </th>
-                                <th
-                                    className="px-4 py-3 text-left cursor-pointer hover:bg-gray-100"
-                                    onClick={() => handleSort("requiredDoses")}
-                                >
-                                    <div className="flex items-center gap-1">
-                                        <span>Archived</span>
-                                        {getSortIcon("requiredDoses")}
-                                    </div>
-                                </th>
-                                <th className="px-4 py-3 text-left">Created At</th>
+                            <tr className="border-b bg-muted/50">
+                                <th className="px-4 py-3 text-left">Name</th>
+                                <th className="px-4 py-3 text-left">Type</th>
+                                <th className="px-4 py-3 text-left">Price</th>
+                                <th className="px-4 py-3 text-left">Required Doses</th>
                                 <th className="w-[80px] px-4 py-3 text-right">Actions</th>
                             </tr>
                         </thead>
@@ -290,67 +247,53 @@ export default function VaccinesPage() {
                                 Array.from({ length: 5 }).map((_, index) => (
                                     <tr key={`skeleton-${index}`} className="border-b animate-pulse">
                                         <td className="px-4 py-3">
-                                            <div className="h-4 w-4 bg-gray-200 rounded" />
+                                            <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
                                         </td>
                                         <td className="px-4 py-3">
-                                            <div className="h-5 bg-gray-200 rounded w-3/4" />
+                                            <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-20" />
                                         </td>
                                         <td className="px-4 py-3">
-                                            <div className="h-5 bg-gray-200 rounded w-20" />
+                                            <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-16" />
                                         </td>
                                         <td className="px-4 py-3">
-                                            <div className="h-5 bg-gray-200 rounded w-16" />
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            <div className="h-5 bg-gray-200 rounded w-12" />
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            <div className="h-5 bg-gray-200 rounded w-24" />
+                                            <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-12" />
                                         </td>
                                         <td className="px-4 py-3 text-right">
-                                            <div className="h-8 bg-gray-200 rounded w-8 ml-auto" />
+                                            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-8 ml-auto" />
                                         </td>
                                     </tr>
                                 ))
-                            ) : vaccines.length === 0 ? (
+                            ) : filteredData.length === 0 ? (
                                 <tr>
-                                    <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
-                                        No vaccines found
+                                    <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                                        No items found
                                     </td>
                                 </tr>
                             ) : (
-                                vaccines.map((vaccine) => (
-                                    <tr key={vaccine.id} className="border-b hover:bg-gray-50">
-                                        <td className="px-4 py-3">
-                                            <input type="checkbox" className="rounded border-gray-300" />
-                                        </td>
+                                filteredData.map((item) => (
+                                    <tr key={item.id} className="border-b hover:bg-muted/50">
                                         <td className="px-4 py-3 font-medium">
                                             <div className="flex items-center gap-2">
-                                                <span className="truncate max-w-[300px]">{vaccine.vaccineName}</span>
+                                                <span className="truncate max-w-[300px]">
+                                                    {"packageName" in item ? item.packageName : item.vaccineName}
+                                                </span>
                                             </div>
                                         </td>
                                         <td className="px-4 py-3">
-                                            <Badge variant="outline" className="bg-gray-100 hover:bg-gray-200 border-0">
-                                                {vaccine.type}
+                                            <Badge
+                                                variant="outline"
+                                                className="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border-0"
+                                            >
+                                                {"packageName" in item ? "Package" : item.type}
                                             </Badge>
                                         </td>
                                         <td className="px-4 py-3">
-                                            <div className="flex items-center">
-                                                {vaccine.price > 500000 ? (
-                                                    <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200 border-0">High</Badge>
-                                                ) : vaccine.price > 200000 ? (
-                                                    <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 border-0">Medium</Badge>
-                                                ) : (
-                                                    <Badge className="bg-green-100 text-green-800 hover:bg-green-200 border-0">Low</Badge>
-                                                )}
-                                            </div>
+                                            {new Intl.NumberFormat("vi-VN", {
+                                                style: "currency",
+                                                currency: "VND",
+                                            }).format(item.price)}
                                         </td>
-                                        <td className="px-4 py-3">
-                                            <Badge variant="outline" className="bg-gray-100 hover:bg-gray-200 border-0">
-                                                No
-                                            </Badge>
-                                        </td>
-                                        <td className="px-4 py-3 text-gray-500 text-sm">{new Date().toLocaleDateString()}</td>
+                                        <td className="px-4 py-3">{"packageName" in item ? "-" : item.requiredDoses}</td>
                                         <td className="px-4 py-3 text-right">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
@@ -359,24 +302,37 @@ export default function VaccinesPage() {
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem onClick={() => handleView(vaccine)}>
-                                                        <Eye className="mr-2 h-4 w-4" />
-                                                        View
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => handleEdit(vaccine)}>
-                                                        <Pencil className="mr-2 h-4 w-4" />
-                                                        Edit
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem
-                                                        onClick={() => {
-                                                            setSelectedVaccine(vaccine as VaccineDetail)
-                                                            setDeleteConfirmOpen(true)
-                                                        }}
-                                                        className="text-red-600"
-                                                    >
-                                                        <Trash2 className="mr-2 h-4 w-4" />
-                                                        Delete
-                                                    </DropdownMenuItem>
+                                                    {"packageName" in item ? (
+                                                        <DropdownMenuItem
+                                                            onClick={() => {
+                                                                /* Handle package view */
+                                                            }}
+                                                        >
+                                                            <Eye className="mr-2 h-4 w-4" />
+                                                            View Package
+                                                        </DropdownMenuItem>
+                                                    ) : (
+                                                        <>
+                                                            <DropdownMenuItem onClick={() => handleView(item)}>
+                                                                <Eye className="mr-2 h-4 w-4" />
+                                                                View
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => handleEdit(item)}>
+                                                                <Pencil className="mr-2 h-4 w-4" />
+                                                                Edit
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem
+                                                                onClick={() => {
+                                                                    setSelectedVaccine(item as VaccineDetail)
+                                                                    setDeleteConfirmOpen(true)
+                                                                }}
+                                                                className="text-red-600"
+                                                            >
+                                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                                Delete
+                                                            </DropdownMenuItem>
+                                                        </>
+                                                    )}
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </td>
@@ -392,10 +348,10 @@ export default function VaccinesPage() {
                     <div className="text-sm text-gray-500">
                         {totalCount > 0 ? (
                             <>
-                                {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, totalCount)} of {totalCount} row(s) selected.
+                                {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, totalCount)} of {totalCount} items
                             </>
                         ) : (
-                            "0 rows selected."
+                            "No items"
                         )}
                     </div>
                     <div className="flex items-center gap-2">
@@ -424,15 +380,28 @@ export default function VaccinesPage() {
                 </div>
             </div>
 
+            {/* Update the dialog component usage */}
             <VaccineDetailDialog
-                vaccine={selectedVaccine}
-                isOpen={isDialogOpen}
-                onClose={() => setIsDialogOpen(false)}
-                onSave={handleSave}
-                mode={dialogMode}
+                vaccineId={dialogState.vaccineId}
+                isOpen={dialogState.isOpen}
+                mode={dialogState.mode}
+                onClose={handleCloseDialog}
+                onSave={async (data) => {
+                    await handleSave(data)
+                    handleCloseDialog()
+                    await fetchData()
+                }}
             />
 
-            <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+            <AlertDialog
+                open={deleteConfirmOpen}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setDeleteConfirmOpen(false)
+                        setSelectedVaccine(null)
+                    }
+                }}
+            >
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you sure?</AlertDialogTitle>
