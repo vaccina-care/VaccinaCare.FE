@@ -265,7 +265,6 @@ export default function VaccineDetail() {
                                             dose
                                         </p>
                                     </div>
-                                    =
                                     <Button size="lg" className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90"
                                         onClick={handleBookAppointment}>
                                         <Syringe className="mr-2 h-5 w-5" />

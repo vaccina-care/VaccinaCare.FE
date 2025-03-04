@@ -39,6 +39,20 @@ export function ServiceSelection({preSelectedVaccineId, preSelectedPackageId }: 
         if (response.isSuccess) {
           setVaccines(response.data.vaccines)
           setTotalPages(Math.ceil(response.data.totalCount / pageSize))
+          if (preSelectedVaccineId && currentPage === 1) {
+            const allVaccines = await getVaccineList({ page: 1, pageSize: response.data.totalCount }); 
+            if (allVaccines.isSuccess) {
+              const vaccineIndex = allVaccines.data.vaccines.findIndex(
+                (vaccine) => vaccine.id === preSelectedVaccineId
+              );
+              if (vaccineIndex !== -1) {
+                const targetPage = Math.ceil((vaccineIndex + 1) / pageSize);
+                if (targetPage !== currentPage) {
+                  setCurrentPage(targetPage); 
+                }
+              }
+            }
+          }
         }
       } catch (error) {
         console.error("Error fetching vaccines:", error)
