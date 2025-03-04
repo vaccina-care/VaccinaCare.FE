@@ -97,7 +97,7 @@ export function CustomSidebar({ children }: CustomSidebarProps) {
 
                 {/* Header */}
                 <div className="flex h-16 items-center border-b px-4">
-                    <Link to="/staff" className="flex items-center gap-2">
+                    <Link to="/staff/vaccines" className="flex items-center gap-2">
                         <img src="/apple-touch-icon.png" alt="VaccinaCare" className="h-8 w-8 object-contain" />
                         <AnimatePresence mode="wait" initial={false}>
                             {isOpen && (
@@ -106,7 +106,7 @@ export function CustomSidebar({ children }: CustomSidebarProps) {
                                     animate={{ opacity: 1, width: "auto" }}
                                     exit={{ opacity: 0, width: 0 }}
                                     transition={{ duration: 0.2 }}
-                                    className="font-bold whitespace-nowrap overflow-hidden"
+                                    className="font-bold whitespace-nowrap overflow-hidde"
                                 >
                                     VACCINACARE STAFF
                                 </motion.span>

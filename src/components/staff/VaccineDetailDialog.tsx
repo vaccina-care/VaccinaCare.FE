@@ -157,6 +157,7 @@ export function VaccineDetailDialog({ vaccineId, isOpen, onClose, onSave, mode }
         >
 
             <DialogContent
+                aria-hidden="false"
                 aria-describedby="dialog-description"
                 className="max-w-4xl max-h-[90vh] overflow-y-auto p-0"
                 onPointerDownOutside={(e) => {

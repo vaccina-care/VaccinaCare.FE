@@ -44,7 +44,6 @@ import {
 import { VaccineDetailDialog } from "@/components/staff/VaccineDetailDialog"
 
 type FilterType = "all" | "single" | "package"
-type DialogMode = "view" | "edit" | "create"
 
 export default function VaccinesPage() {
     const [vaccines, setVaccines] = useState<VaccineBase[]>([])
@@ -55,10 +54,7 @@ export default function VaccinesPage() {
     const [filterType, setFilterType] = useState<FilterType>("all")
     const [page, setPage] = useState(1)
     const [pageSize] = useState(10)
-    const [selectedVaccineId, setSelectedVaccineId] = useState<string | null>(null)
     const [selectedVaccine, setSelectedVaccine] = useState<VaccineDetail | null>(null)
-    const [dialogMode, setDialogMode] = useState<DialogMode>("view")
-    const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
     const { toast } = useToast()
 
