@@ -106,9 +106,9 @@ export function CustomSidebar({ children }: CustomSidebarProps) {
                                     animate={{ opacity: 1, width: "auto" }}
                                     exit={{ opacity: 0, width: 0 }}
                                     transition={{ duration: 0.2 }}
-                                    className="font-semibold whitespace-nowrap overflow-hidden text-main-blue"
+                                    className="font-bold whitespace-nowrap overflow-hidden"
                                 >
-                                    VaccinaCare Staff
+                                    VACCINACARE STAFF
                                 </motion.span>
                             )}
                         </AnimatePresence>
