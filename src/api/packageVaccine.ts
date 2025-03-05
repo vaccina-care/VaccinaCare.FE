@@ -18,7 +18,7 @@ export interface VaccinePackage {
 export const getVaccinePackages = async (): Promise<VaccinePackage[]> => {
 	try {
 		const response = await axiosInstance.get<{ isSuccess: boolean; message: string; data: VaccinePackage[] }>(
-			"/VaccinePackage",
+			"/packages",
 		)
 		if (response.data.isSuccess) {
 			return response.data.data
@@ -34,7 +34,7 @@ export const getVaccinePackages = async (): Promise<VaccinePackage[]> => {
 export const getVaccinePackageById = async (id: string): Promise<VaccinePackage> => {
 	try {
 		const response = await axiosInstance.get<{ isSuccess: boolean; message: string; data: VaccinePackage }>(
-			`/VaccinePackage/${id}`,
+			`/packages/${id}`,
 		)
 		if (response.data.isSuccess) {
 			return response.data.data

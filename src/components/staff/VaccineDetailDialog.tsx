@@ -24,7 +24,7 @@ import {
     ShieldAlert,
     Info,
 } from "lucide-react"
-import { getVaccineById, type VaccineFormData } from "@/api/vaccineStaff"
+import { getVaccineById, type VaccineFormData } from "@/api/staff/vaccineStaff"
 import { useToast } from "@/hooks/use-toast"
 import { motion, AnimatePresence } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
@@ -41,10 +41,12 @@ interface VaccineDetailDialogProps {
 }
 
 const initialFormState: VaccineFormData = {
+    id: "",
     vaccineName: "",
     description: "",
     type: "",
     price: 0,
+    picUrl: "",
     requiredDoses: 1,
     doseIntervalDays: 0,
     forBloodType: "Unknown",
@@ -52,6 +54,7 @@ const initialFormState: VaccineFormData = {
     avoidAllergy: false,
     hasDrugInteraction: false,
     hasSpecialWarning: false,
+    vaccinePictureFile: undefined,
 }
 
 export function VaccineDetailDialog({ vaccineId, isOpen, onClose, onSave, mode }: VaccineDetailDialogProps) {
@@ -81,19 +84,12 @@ export function VaccineDetailDialog({ vaccineId, isOpen, onClose, onSave, mode }
             const response = await getVaccineById(vaccineId);
             if (response.isSuccess) {
                 setFormData({
-                    vaccineName: response.data.vaccineName,
-                    description: response.data.description,
-                    type: response.data.type,
-                    price: response.data.price,
-                    requiredDoses: response.data.requiredDoses,
-                    doseIntervalDays: response.data.doseIntervalDays,
-                    forBloodType: response.data.forBloodType || "Unknown",
-                    avoidChronic: response.data.avoidChronic,
-                    avoidAllergy: response.data.avoidAllergy,
-                    hasDrugInteraction: response.data.hasDrugInteraction,
-                    hasSpecialWarning: response.data.hasSpecialWarning,
+                    ...response.data,
+                    forBloodType: response.data.forBloodType || "Unknown", // Ensure it's always a string
+                    vaccinePictureFile: undefined, // Reset file input
                 });
-                setPreviewImage(response.data.picUrl);
+
+                setPreviewImage(response.data.picUrl); // Set preview image
             } else {
                 toast({
                     title: "Error",
@@ -113,60 +109,80 @@ export function VaccineDetailDialog({ vaccineId, isOpen, onClose, onSave, mode }
         }
     }, [vaccineId, mode, isOpen, toast, resetForm]);
 
-
-    // useEffect(() => {
-    //     if (isOpen) {
-    //         fetchVaccineData()
-    //     } else {
-    //         resetForm()
-    //     }
-    // }, [isOpen, fetchVaccineData, resetForm])
-
     useEffect(() => {
         if (isOpen && mode !== "create") {
             fetchVaccineData();
         } else {
             resetForm();
         }
-    }, [isOpen, mode, resetForm]); // Only trigger when these values change
+
+        // ✅ Always restore interactivity when modal closes
+        return () => {
+            document.body.style.pointerEvents = "auto";
+        };
+    }, [isOpen, mode, resetForm, fetchVaccineData]);
 
 
     const isViewMode = mode === "view"
     const title = mode === "create" ? "CREATE VACCINE" : mode === "edit" ? "EDIT VACCINE" : "VACCINE DETAILS"
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
+        const file = e.target.files?.[0];
+
         if (file) {
-            const reader = new FileReader()
+            const reader = new FileReader();
             reader.onloadend = () => {
-                setPreviewImage(reader.result as string)
-            }
-            reader.readAsDataURL(file)
-            setFormData({ ...formData, vaccinePictureFile: file })
+                setPreviewImage(reader.result as string); // Update preview image
+            };
+            reader.readAsDataURL(file);
+
+            setFormData((prev) => ({
+                ...prev,
+                vaccinePictureFile: file, // Attach the file
+                picUrl: prev.picUrl || "", // Retain existing image if no new file is uploaded
+            }));
         }
-    }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
+        e.preventDefault();
         try {
-            setIsLoading(true)
-            await onSave(formData)
+            setIsLoading(true);
+
+            const { picUrl, vaccinePictureFile, ...restData } = formData;
+
+            const submissionData: VaccineFormData = {
+                ...restData,
+                vaccinePictureFile,
+                picUrl
+            };
+
+            await onSave(submissionData);
+
             toast({
                 title: "Success",
                 description: `Vaccine ${mode === "create" ? "created" : "updated"} successfully.`,
                 variant: "success",
-            })
-            onClose()
+            });
+
+            // **Delay to ensure all state updates complete**
+            setTimeout(() => {
+                resetForm();
+                onClose();
+                document.body.style.pointerEvents = "auto"; // Ensure interactivity is restored
+            }, 100);
+
         } catch (error) {
             toast({
                 title: "Error",
                 description: `Failed to ${mode === "create" ? "create" : "update"} vaccine.`,
                 variant: "destructive",
-            })
+            });
         } finally {
-            setIsLoading(false)
+            setIsLoading(false);
         }
-    }
+    };
+
 
     const hasWarnings =
         formData.avoidChronic || formData.avoidAllergy || formData.hasDrugInteraction || formData.hasSpecialWarning
@@ -178,17 +194,17 @@ export function VaccineDetailDialog({ vaccineId, isOpen, onClose, onSave, mode }
                 if (!open) {
                     setIsFetching(false); // Ensure fetching is reset
                     setIsLoading(false);  // Ensure loading is reset
+                    resetForm();
                     setTimeout(() => {
                         document.body.style.pointerEvents = "auto"; // Restore interactivity
                     }, 300); // Small delay for state updates
-                    resetForm();
                     onClose();
                 }
             }}
 
         >
             <DialogContent
-                aria-hidden="false"
+                aria-hidden={false}
                 aria-describedby="dialog-description"
                 className="max-w-4xl max-h-[90vh] overflow-y-auto p-0"
                 onPointerDownOutside={(e) => {

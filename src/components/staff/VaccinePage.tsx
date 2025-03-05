@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-useless-catch */
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
@@ -28,7 +27,7 @@ import {
     type VaccineBase,
     type VaccineDetail,
     type VaccineFormData,
-} from "@/api/vaccineStaff"
+} from "@/api/staff/vaccineStaff"
 import { getVaccinePackages, type VaccinePackage } from "@/api/packageVaccine"
 import { useToast } from "@/hooks/use-toast"
 import {
@@ -165,16 +164,42 @@ export default function VaccinesPage() {
     // Handle save action
     const handleSave = async (data: VaccineFormData) => {
         try {
+            let response;
             if (dialogState.mode === "create") {
-                await createVaccine(data)
+                response = await createVaccine(data);
             } else if (dialogState.mode === "edit" && dialogState.vaccineId) {
-                await updateVaccine(dialogState.vaccineId, data)
+                response = await updateVaccine(dialogState.vaccineId, data);
             }
-            fetchData()
+
+            if (response?.isSuccess) {
+                toast({
+                    title: "Success",
+                    description: `Vaccine ${dialogState.mode === "create" ? "created" : "updated"} successfully.`,
+                    variant: "success",
+                });
+
+                // Refresh the vaccine list after create/update
+                await fetchData();
+
+                // Close the dialog properly
+                handleCloseDialog();
+            } else {
+                toast({
+                    title: "Error",
+                    description: "Something went wrong.",
+                    variant: "destructive",
+                });
+            }
         } catch (error) {
-            throw error
+            console.error("Error saving vaccine:", error);
+            toast({
+                title: "Error",
+                description: `Failed to ${dialogState.mode === "create" ? "create" : "update"} vaccine.`,
+                variant: "destructive",
+            });
         }
-    }
+    };
+
 
     const totalPages = Math.ceil(totalCount / pageSize)
 
