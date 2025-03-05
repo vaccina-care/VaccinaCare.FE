@@ -1,11 +1,8 @@
 import type { Vaccine } from "@/api/vaccine"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ArrowLeft, Info, Syringe } from "lucide-react"
-import like from "@/assets/images/aba.png"
-import { useLocation, useNavigate, useParams } from "react-router-dom"
 import { ArrowLeft, Info, Syringe, Package } from "lucide-react"
-import { Link } from "react-router-dom"
+import { useLocation, useNavigate, useParams } from "react-router-dom"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 
 interface PackageDetailsProps {
