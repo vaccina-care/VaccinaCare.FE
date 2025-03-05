@@ -52,10 +52,6 @@ const isValidRoute = (pathname: string) => {
 	)
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const isStaffRoute = (pathname: string) => {
-	return pathname.startsWith("/staff")
-}
 
 const AppContent: React.FC = () => {
 	const location = useLocation()

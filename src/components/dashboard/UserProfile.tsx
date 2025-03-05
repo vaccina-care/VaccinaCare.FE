@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast"
 import { fetchUserData, updateUserProfile, type UserData } from "@/api/user"
 import { DatePicker } from "@/components/DatePicker"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useAuthContext } from "@/contexts/AuthContexts";
+//import { useAuthContext } from "@/contexts/AuthContexts";
 
 
 // Import images
@@ -41,7 +41,7 @@ const UserProfile = () => {
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
-  const {updateUser} = useAuthContext();
+  //const {updateUser} = useAuthContext();
 
   // Handle Province and Districts select box API
   const [provinces, setProvinces] = useState<Province[]>([])
@@ -206,7 +206,7 @@ const UserProfile = () => {
                       const response = await updateUserProfile({ image: file });
 
                       // ✅ Update global context to reflect new avatar
-                      updateUser({ imageUrl: response.imageUrl });
+                      //updateUser({ imageUrl: response.imageUrl });
 
                       setUserData(response);
                       toast({
