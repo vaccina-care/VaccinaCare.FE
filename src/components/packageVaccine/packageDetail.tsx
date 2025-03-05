@@ -1,6 +1,9 @@
 import type { Vaccine } from "@/api/vaccine"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { ArrowLeft, Info, Syringe } from "lucide-react"
+import like from "@/assets/images/aba.png"
+import { useLocation, useNavigate, useParams } from "react-router-dom"
 import { ArrowLeft, Info, Syringe, Package } from "lucide-react"
 import { Link } from "react-router-dom"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
@@ -12,12 +15,28 @@ interface PackageDetailsProps {
 	price: number
 }
 
+
 export function PackageDetails({ packageName, description, vaccineInfo, price }: PackageDetailsProps) {
+	window.scrollTo(0, 0)
+	const { packageId } = useParams<{ packageId: string }>()
+	const navigate = useNavigate()
+	const location = useLocation()
+
+	const handleBookAppointment = () => {
+		navigate("/appointments", { state: { fromVaccinePackageDetail: true, vaccinepackageId: packageId } })
+	}
+
+	const handleBackToVaccineList = () => {
+		if (!location.state?.fromVaccinePackageDetail) {
+			navigate("/vaccine-list")
+		}
+	}
+
 	return (
 		<div className="min-h-screen bg-gray-50">
 			<div className="container mx-auto py-8 px-4">
 				{/* Back Button */}
-				<Button variant="ghost" onClick={() => history.back()} className="mb-8 hover:bg-gray-100">
+				<Button variant="ghost" onClick={handleBackToVaccineList} className="mb-8 hover:bg-gray-100">
 					<ArrowLeft className="mr-2 h-4 w-4" /> Back to Vaccine List
 				</Button>
 
@@ -142,12 +161,11 @@ export function PackageDetails({ packageName, description, vaccineInfo, price }:
 										<p className="text-sm">Detailed injection schedule will be advised when booking.</p>
 									</div>
 
-									<Link to="/appointments" className="block mt-6">
-										<Button size="lg" className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90">
-											<Syringe className="mr-2 h-5 w-5" />
-											Book Appointment
-										</Button>
-									</Link>
+									<Button size="lg" className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90"
+										onClick={handleBookAppointment}>
+										<Syringe className="mr-2 h-5 w-5" />
+										Book Appointment
+									</Button>
 								</div>
 							</div>
 						</CardContent>

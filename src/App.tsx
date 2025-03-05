@@ -21,6 +21,7 @@ import VaccineList from "./pages/VaccineList"
 import Notifications from "./pages/Notifications"
 import VaccineDetail from "./pages/VaccineDetail"
 import VaccinePackageDetail from "./pages/VaccinePackageDetail"
+import Feedback from "./pages/Feedback"
 import StaffPage from "./pages/staff/StaffPage"
 
 // Define valid routes
@@ -36,6 +37,7 @@ const validRoutes = [
 	"/vaccine-list",
 	"/vaccine/:id",
 	"/vaccine-package/:packageId",
+	"/feedback",
 	"/staff",
 	"/staff/vaccines",
 	"/staff/appointments",
@@ -75,6 +77,7 @@ const AppContent: React.FC = () => {
 							<Route path="/vaccine-list" element={<VaccineList />} />
 							<Route path="/vaccine/:id" element={<VaccineDetail />} />
 							<Route path="/vaccine-package/:packageId" element={<VaccinePackageDetail />} />
+							<Route path="/feedback" element={<Feedback />} />
 
 							{/* Protected user routes */}
 							<Route element={<ProtectedRoute />}>

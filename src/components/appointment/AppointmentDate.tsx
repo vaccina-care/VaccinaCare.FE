@@ -1,12 +1,10 @@
-"use client"
-
-import * as React from "react"
 import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
-import { format } from "date-fns"
-import { vi } from "date-fns/locale"
+import { format, addHours, isBefore, startOfDay, parse } from "date-fns"
+import { enUS } from "date-fns/locale"
+import { useState } from "react"
 
 const generateTimeSlots = () => {
   const slots = []
@@ -23,8 +21,23 @@ const generateTimeSlots = () => {
 const timeSlots = generateTimeSlots()
 
 export function DateTimePicker() {
-  const [date, setDate] = React.useState<Date>()
-  const [time, setTime] = React.useState<string>()
+  const [date, setDate] = useState<Date>()
+  const [time, setTime] = useState<string>()
+
+  const now = new Date()
+  const minSelectableDate = addHours(now, 24)
+
+  const isDateDisabled = (day: Date) => {
+    return isBefore(startOfDay(day), startOfDay(minSelectableDate))
+  }
+
+  const isTimeDisabled = (timeString: string) => {
+    if (!date) return true
+
+    const selectedDateTime = parse(timeString, "HH:mm", date)
+
+    return isBefore(selectedDateTime, minSelectableDate)
+  }
 
   return (
     <Card className="h-full">
@@ -33,18 +46,24 @@ export function DateTimePicker() {
       </CardHeader>
       <CardContent>
         <div className="flex gap-6">
-          <Calendar mode="single" selected={date} onSelect={setDate} className="rounded-md border" />
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={setDate}
+            className="rounded-md border"
+            disabled={isDateDisabled}
+          />
 
           <div className="space-y-4 min-w-[200px]">
             <div className="space-y-2">
               <Label htmlFor="time">Time</Label>
-              <Select value={time} onValueChange={setTime}>
+              <Select value={time} onValueChange={setTime} disabled={!date}>
                 <SelectTrigger id="time">
                   <SelectValue placeholder="Select time" />
                 </SelectTrigger>
                 <SelectContent>
                   {timeSlots.map((slot) => (
-                    <SelectItem key={slot} value={slot}>
+                    <SelectItem key={slot} value={slot} disabled={isTimeDisabled(slot)}>
                       {slot}
                     </SelectItem>
                   ))}
@@ -54,10 +73,10 @@ export function DateTimePicker() {
 
             {(date || time) && (
               <div className="rounded-lg border p-4 bg-muted/50">
-                <h3 className="font-medium mb-2">Thời gian đã chọn:</h3>
+                <h3 className="font-medium mb-2">Selected time:</h3>
                 <div className="space-y-1 text-sm">
-                  {date && <p>Ngày: {format(date, "EEEE, dd/MM/yyyy", { locale: vi })}</p>}
-                  {time && <p>Giờ: {time}</p>}
+                  {date && <p>Day: {format(date, "EEEE, dd/MM/yyyy", { locale: enUS })}</p>}
+                  {time && <p>Time: {time}</p>}
                 </div>
               </div>
             )}
@@ -67,4 +86,3 @@ export function DateTimePicker() {
     </Card>
   )
 }
-
