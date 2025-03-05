@@ -35,12 +35,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const userData = await fetchUserData()
       setUser(userData)
+      return userData
     } catch (error) {
       console.error("Error fetching user data:", error)
-      // If we can't fetch user data, we should probably log out
       Auth.logout()
       setIsAuthenticated(false)
       setUser(null)
+      throw error
     }
   }, [])
 
@@ -49,10 +50,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const token = Auth.getToken()
       if (token) {
         try {
-          // Validate bằng cách gọi request tới mới API có cần token
           await axiosInstance.get("/users/me")
           setIsAuthenticated(true)
-          // Juan thì load data
           await loadUserData()
         } catch (error) {
           console.error("Token validation failed:", error)
@@ -70,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await Auth.login({ email, password })
       if (response.isSuccess) {
         setIsAuthenticated(true)
-        // Load user data after successful login
+        // Load user data and wait for it to complete
         await loadUserData()
         return true
       }

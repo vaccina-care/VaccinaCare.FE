@@ -1,3 +1,5 @@
+"use client"
+
 import type React from "react"
 import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom"
 import { AnimatePresence } from "framer-motion"
@@ -20,6 +22,7 @@ import Notifications from "./pages/Notifications"
 import VaccineDetail from "./pages/VaccineDetail"
 import VaccinePackageDetail from "./pages/VaccinePackageDetail"
 import Feedback from "./pages/Feedback"
+import StaffPage from "./pages/staff/StaffPage"
 
 // Define valid routes
 const validRoutes = [
@@ -35,25 +38,38 @@ const validRoutes = [
 	"/vaccine/:id",
 	"/vaccine-package/:packageId",
 	"/feedback",
+	"/staff",
+	"/staff/vaccines",
+	"/staff/appointments",
+	"/staff/reports",
+	"/staff/inventory",
 ]
 
 const isValidRoute = (pathname: string) => {
-	return validRoutes.includes(pathname) || /^\/vaccine\/[^/]+$/.test(pathname) || /^\/vaccine-package\/[^/]+$/.test(pathname)
+	return (
+		validRoutes.includes(pathname) ||
+		/^\/vaccine\/[^/]+$/.test(pathname) ||
+		/^\/vaccine-package\/[^/]+$/.test(pathname) ||
+		pathname.startsWith("/staff/")
+	)
 }
+
 
 const AppContent: React.FC = () => {
 	const location = useLocation()
 	const isAuthPage = location.pathname === "/login" || location.pathname === "/register"
 	const isValid = isValidRoute(location.pathname)
-	const showHeaderFooter = isValid && !isAuthPage 
+	const isStaffPage = location.pathname.startsWith("/staff")
+	const showHeaderFooter = isValid && !isAuthPage && !isStaffPage
 
 	return (
 		<div className="min-h-screen flex flex-col">
 			{showHeaderFooter && <Header />}
-			<main className="flex-1">
+			<main className={`flex-1 ${isStaffPage ? "bg-gray-50" : ""}`}>
 				<AnimatePresence mode="wait">
 					<PageTransition key={location.pathname}>
 						<Routes location={location}>
+							{/* Public routes */}
 							<Route path="/" element={<Home />} />
 							<Route path="/login" element={<Login />} />
 							<Route path="/register" element={<Register />} />
@@ -63,42 +79,20 @@ const AppContent: React.FC = () => {
 							<Route path="/vaccine-package/:packageId" element={<VaccinePackageDetail />} />
 							<Route path="/feedback" element={<Feedback />} />
 
-							{/* Protected routes */}
-							<Route
-								path="/user-dashboard"
-								element={
-									<ProtectedRoute>
-										<UserDashboard />
-									</ProtectedRoute>
-								}
-							/>
-							<Route
-								path="/child-dashboard"
-								element={
-									<ProtectedRoute>
-										<ChildDashboard />
-									</ProtectedRoute>
-								}
-							/>
-							<Route
-								path="/notifications"
-								element={
-									<ProtectedRoute>
-										<Notifications />
-									</ProtectedRoute>
-								}
-							/>
-							<Route
-								path="/appointments"
-								element={
-									<ProtectedRoute>
-										<Appointments />
-									</ProtectedRoute>
-								}
-							/>
+							{/* Protected user routes */}
+							<Route element={<ProtectedRoute />}>
+								<Route path="/user-dashboard" element={<UserDashboard />} />
+								<Route path="/child-dashboard" element={<ChildDashboard />} />
+								<Route path="/notifications" element={<Notifications />} />
+								<Route path="/appointments" element={<Appointments />} />
+							</Route>
 
+							{/* Staff routes */}
+							<Route element={<ProtectedRoute staffOnly />}>
+								<Route path="/staff/*" element={<StaffPage />} />
+							</Route>
 
-							{/* 404 Page*/}
+							{/* 404 Page */}
 							<Route path="*" element={<NotFound />} />
 						</Routes>
 					</PageTransition>

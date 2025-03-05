@@ -11,6 +11,8 @@ import { useToast } from "@/hooks/use-toast"
 import { fetchUserData, updateUserProfile, type UserData } from "@/api/user"
 import { DatePicker } from "@/components/DatePicker"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+//import { useAuthContext } from "@/contexts/AuthContexts";
+
 
 // Import images
 import defaultAvatar from "@/assets/images/aba.png"
@@ -39,6 +41,7 @@ const UserProfile = () => {
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  //const {updateUser} = useAuthContext();
 
   // Handle Province and Districts select box API
   const [provinces, setProvinces] = useState<Province[]>([])
@@ -167,7 +170,7 @@ const UserProfile = () => {
   }
 
   if (loading) {
-    return <Loading text="Please wait, we are cooking..."/>
+    return <Loading text="Please wait, we are cooking..." />
   }
 
   if (!userData) {
@@ -191,30 +194,32 @@ const UserProfile = () => {
                 if (userData) {
                   if (isEditing) {
                     // Store the file to be uploaded with other profile data
-                    setSelectedImage(file)
+                    setSelectedImage(file);
                     toast({
                       title: "Success",
                       description: "Image selected. Click Save to update your profile.",
                       variant: "success",
-                    })
+                    });
                   } else {
                     // Immediate upload if not in editing mode
                     try {
-                      const response = await updateUserProfile({
-                        image: file,
-                      })
-                      setUserData(response)
+                      const response = await updateUserProfile({ image: file });
+
+                      // ✅ Update global context to reflect new avatar
+                      //updateUser({ imageUrl: response.imageUrl });
+
+                      setUserData(response);
                       toast({
                         title: "Success",
                         description: "Profile picture updated successfully.",
                         variant: "success",
-                      })
+                      });
                     } catch (error) {
                       toast({
                         title: "Error",
                         description: "Failed to update profile picture. Please try again.",
                         variant: "destructive",
-                      })
+                      });
                     }
                   }
                 }

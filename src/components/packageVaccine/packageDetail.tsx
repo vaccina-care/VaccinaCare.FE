@@ -4,6 +4,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ArrowLeft, Info, Syringe } from "lucide-react"
 import like from "@/assets/images/aba.png"
 import { useLocation, useNavigate, useParams } from "react-router-dom"
+import { ArrowLeft, Info, Syringe, Package } from "lucide-react"
+import { Link } from "react-router-dom"
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 
 interface PackageDetailsProps {
 	packageName: string
@@ -45,9 +48,43 @@ export function PackageDetails({ packageName, description, vaccineInfo, price }:
 						<p className="text-gray-600 mt-4">{description}</p>
 					</div>
 
-					{/* Package Image */}
-					<div className="relative h-[300px] rounded-lg overflow-hidden bg-white shadow-lg">
-						<img src={like || "/placeholder.svg"} alt="Vaccine Package" className="w-full h-full object-contain" />
+					{/* Package Image Carousel */}
+					<div className="relative rounded-lg overflow-hidden bg-white shadow-lg p-4">
+						{vaccineInfo.length > 0 ? (
+							<Carousel className="w-full">
+								<CarouselContent>
+									{vaccineInfo.map((vaccine, index) => (
+										<CarouselItem key={index} className="basis-1/3 md:basis-1/3">
+											<div className="p-1">
+												<div className="flex flex-col items-center justify-center rounded-md overflow-hidden bg-white p-2 h-[200px]">
+													{vaccine.picUrl ? (
+														<img
+															src={vaccine.picUrl || "/placeholder.svg"}
+															alt={vaccine.vaccineName}
+															className="h-[150px] w-full object-contain"
+														/>
+													) : (
+														<div className="flex items-center justify-center h-[150px] w-full bg-gray-100 rounded-md">
+															<Syringe className="h-12 w-12 text-gray-400" />
+														</div>
+													)}
+													<p className="mt-2 text-xs text-center font-medium line-clamp-2">{vaccine.vaccineName}</p>
+												</div>
+											</div>
+										</CarouselItem>
+									))}
+								</CarouselContent>
+								<CarouselPrevious className="left-2" />
+								<CarouselNext className="right-2" />
+							</Carousel>
+						) : (
+							<div className="flex items-center justify-center h-[300px]">
+								<div className="flex flex-col items-center justify-center text-gray-400">
+									<Package className="h-16 w-16 mb-2" />
+									<p>No vaccines in this package</p>
+								</div>
+							</div>
+						)}
 					</div>
 				</div>
 
@@ -61,11 +98,11 @@ export function PackageDetails({ packageName, description, vaccineInfo, price }:
 								<table className="w-full border-collapse">
 									<thead>
 										<tr className="border-b bg-gray-100">
-											<th className="text-left py-3 px-4" style={{ width: "52%" }}>
-												Disease Prevention
-											</th>
 											<th className="text-left py-3 px-4" style={{ width: "18%" }}>
 												Vaccine Name
+											</th>
+											<th className="text-left py-3 px-4" style={{ width: "52%" }}>
+												Disease Prevention
 											</th>
 											<th className="text-left py-3 px-4" style={{ width: "18%" }}>
 												Origin
@@ -79,8 +116,8 @@ export function PackageDetails({ packageName, description, vaccineInfo, price }:
 										{vaccineInfo.length > 0 ? (
 											vaccineInfo.map((info, index) => (
 												<tr key={index} className="border-b last:border-0">
-													<td className="py-3 px-4">{info.description}</td>
 													<td className="py-3 px-4">{info.vaccineName}</td>
+													<td className="py-3 px-4">{info.description}</td>
 													<td className="py-3 px-4">{info.type}</td>
 													<td className="py-3 px-4">{info.requiredDoses}</td>
 												</tr>

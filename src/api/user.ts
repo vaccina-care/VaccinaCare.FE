@@ -1,14 +1,14 @@
 import axiosInstance from "./axiosInstance"
 
 export interface UserData {
-	fullName: string
-	email: string
-	gender: boolean
-	address: string
-	dateOfBirth: string
-	imageUrl: string
-	phoneNumber: string
-	roleName: string
+    fullName: string
+    email: string
+    gender: boolean
+    address: string
+    dateOfBirth: string
+    imageUrl: string
+    phoneNumber: string
+    roleName: string
 }
 
 export interface UpdateUserData {
@@ -21,17 +21,17 @@ export interface UpdateUserData {
 }
 
 export const fetchUserData = async (): Promise<UserData> => {
-	try {
-		const response = await axiosInstance.get("/users/me")
-		if (response.data.isSuccess) {
-			return response.data.data
-		} else {
-			throw new Error(response.data.message)
-		}
-	} catch (error) {
-		console.error("Error fetching user data:", error)
-		throw error
-	}
+    try {
+        const response = await axiosInstance.get("/users/me")
+        if (response.data.isSuccess) {
+            return response.data.data
+        } else {
+            throw new Error(response.data.message)
+        }
+    } catch (error) {
+        console.error("Error fetching user data:", error)
+        throw error
+    }
 }
 
 export const updateUserProfile = async (userData: UpdateUserData): Promise<UserData> => {
@@ -41,7 +41,7 @@ export const updateUserProfile = async (userData: UpdateUserData): Promise<UserD
         Object.entries(userData).forEach(([key, value]) => {
             if (value !== null && value !== undefined) {
                 if (key === "image" && value instanceof File) {
-                    formData.append("image", value);
+                    formData.append("imageFile", value); // Ensure correct key
                 } else {
                     formData.append(key, String(value));
                 }
@@ -62,6 +62,7 @@ export const updateUserProfile = async (userData: UpdateUserData): Promise<UserD
         throw error;
     }
 };
+
 
 // export const updateUserProfile = async (userData: Partial<UserData>, image?: File): Promise<UserData> => {
 // 	try {
