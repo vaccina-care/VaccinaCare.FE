@@ -393,11 +393,17 @@ export default function VaccinesPage() {
                 open={deleteConfirmOpen}
                 onOpenChange={(open) => {
                     if (!open) {
-                        setDeleteConfirmOpen(false)
-                        setSelectedVaccine(null)
+                        setDeleteConfirmOpen(false);
+                        setSelectedVaccine(null);
+
+                        // Ensure pointer events are restored after a slight delay
+                        setTimeout(() => {
+                            document.body.style.pointerEvents = "auto";
+                        }, 300);
                     }
                 }}
             >
+
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you sure?</AlertDialogTitle>
