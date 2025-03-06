@@ -26,6 +26,7 @@ import StaffPage from "./pages/staff/StaffPage"
 
 //demo-page
 import PaymentSuccessPage from "./components/payment/payment-success"
+import PaymentFailPage from "./components/payment/payment-fail"
 
 // Define valid routes
 const validRoutes = [
@@ -83,6 +84,7 @@ const AppContent: React.FC = () => {
 							<Route path="/feedback" element={<Feedback />} />
 
 							<Route path="/payment-success" element={<PaymentSuccessPage />} />
+							<Route path="/payment-fail" element={<PaymentFailPage />} />
 
 
 							{/* Protected user routes */}
