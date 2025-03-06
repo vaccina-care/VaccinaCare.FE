@@ -24,6 +24,9 @@ import VaccinePackageDetail from "./pages/VaccinePackageDetail"
 import Feedback from "./pages/Feedback"
 import StaffPage from "./pages/staff/StaffPage"
 
+//demo-page
+import PaymentSuccessPage from "./components/payment/payment-success"
+
 // Define valid routes
 const validRoutes = [
 	"/",
@@ -78,6 +81,9 @@ const AppContent: React.FC = () => {
 							<Route path="/vaccine/:id" element={<VaccineDetail />} />
 							<Route path="/vaccine-package/:packageId" element={<VaccinePackageDetail />} />
 							<Route path="/feedback" element={<Feedback />} />
+
+							<Route path="/payment-success" element={<PaymentSuccessPage />} />
+
 
 							{/* Protected user routes */}
 							<Route element={<ProtectedRoute />}>
