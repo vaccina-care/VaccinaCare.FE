@@ -28,7 +28,14 @@ import {
     type VaccineDetail,
     type VaccineFormData,
 } from "@/api/staff/vaccineStaff"
-import { getVaccinePackages, type VaccinePackage } from "@/api/package"
+import {
+    getVaccinePackages,
+    createVaccinePackage,
+    updateVaccinePackage,
+    deleteVaccinePackage,
+    type VaccinePackage,
+    type CreatePackageRequest,
+} from "@/api/staff/packageStaff"
 import { useToast } from "@/hooks/use-toast"
 import {
     AlertDialog,
@@ -40,9 +47,12 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { VaccineDetailDialog } from "@/components/staff/VaccineDetailDialog"
+import { VaccineDetailDialog } from "@/components/staff-dashboard/VaccineDetailDialog"
+import { PackageDetailDialog } from "@/components/staff-dashboard/PackageDetailDialog"
+import { CreateSelectionDialog } from "@/components/staff-dashboard/CreateDialog"
 
 type FilterType = "all" | "single" | "package"
+type DialogMode = "view" | "edit" | "create"
 
 export default function VaccinesPage() {
     const [vaccines, setVaccines] = useState<VaccineBase[]>([])
@@ -54,13 +64,16 @@ export default function VaccinesPage() {
     const [page, setPage] = useState(1)
     const [pageSize] = useState(10)
     const [selectedVaccine, setSelectedVaccine] = useState<VaccineDetail | null>(null)
+    const [selectedPackage, setSelectedPackage] = useState<VaccinePackage | null>(null)
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+    const [isPackageDelete, setIsPackageDelete] = useState(false)
+    const [selectionDialogOpen, setSelectionDialogOpen] = useState(false)
     const { toast } = useToast()
 
     // Update the dialog state management
-    const [dialogState, setDialogState] = useState<{
+    const [vaccineDialogState, setVaccineDialogState] = useState<{
         isOpen: boolean
-        mode: "view" | "edit" | "create"
+        mode: DialogMode
         vaccineId: string | null
     }>({
         isOpen: false,
@@ -68,12 +81,34 @@ export default function VaccinesPage() {
         vaccineId: null,
     })
 
-    const handleCloseDialog = useCallback(() => {
-        setDialogState({
+    const [packageDialogState, setPackageDialogState] = useState<{
+        isOpen: boolean
+        mode: DialogMode
+        packageId: string | null
+    }>({
+        isOpen: false,
+        mode: "view",
+        packageId: null,
+    })
+
+    const handleCloseVaccineDialog = useCallback(() => {
+        setVaccineDialogState({
             isOpen: false,
             mode: "view",
             vaccineId: null,
         })
+    }, [])
+
+    const handleClosePackageDialog = useCallback(() => {
+        setPackageDialogState({
+            isOpen: false,
+            mode: "view",
+            packageId: null,
+        })
+    }, [])
+
+    const handleCloseSelectionDialog = useCallback(() => {
+        setSelectionDialogOpen(false)
     }, [])
 
     // Fetch both vaccines and packages
@@ -115,33 +150,65 @@ export default function VaccinesPage() {
     const filteredData =
         filterType === "package" ? packages : filterType === "single" ? vaccines : [...vaccines, ...packages]
 
-    // Update the dialog open handlers
-    const handleView = useCallback((item: VaccineBase) => {
-        setDialogState({
+    // Update the dialog open handlers for vaccines
+    const handleViewVaccine = useCallback((item: VaccineBase) => {
+        setVaccineDialogState({
             isOpen: true,
             mode: "view",
             vaccineId: item.id,
         })
     }, [])
 
-    const handleEdit = useCallback((item: VaccineBase) => {
-        setDialogState({
+    const handleEditVaccine = useCallback((item: VaccineBase) => {
+        setVaccineDialogState({
             isOpen: true,
             mode: "edit",
             vaccineId: item.id,
         })
     }, [])
 
-    const handleCreate = useCallback(() => {
-        setDialogState({
+    const handleCreateVaccine = useCallback(() => {
+        setVaccineDialogState({
             isOpen: true,
             mode: "create",
             vaccineId: null,
         })
+        setSelectionDialogOpen(false)
     }, [])
 
-    // Handle delete action
-    const handleDelete = async (item: VaccineBase) => {
+    // Update the dialog open handlers for packages
+    const handleViewPackage = useCallback((item: VaccinePackage) => {
+        setPackageDialogState({
+            isOpen: true,
+            mode: "view",
+            packageId: item.id,
+        })
+    }, [])
+
+    const handleEditPackage = useCallback((item: VaccinePackage) => {
+        setPackageDialogState({
+            isOpen: true,
+            mode: "edit",
+            packageId: item.id,
+        })
+    }, [])
+
+    const handleCreatePackage = useCallback(() => {
+        setPackageDialogState({
+            isOpen: true,
+            mode: "create",
+            packageId: null,
+        })
+        setSelectionDialogOpen(false)
+    }, [])
+
+    // Handle create new (open the selection dialog)
+    const handleCreateNew = useCallback(() => {
+        setSelectionDialogOpen(true)
+    }, [])
+
+    // Handle delete action for vaccine
+    const handleDeleteVaccine = async (item: VaccineBase) => {
         try {
             const response = await deleteVaccine(item.id)
             if (response.isSuccess) {
@@ -161,51 +228,104 @@ export default function VaccinesPage() {
         }
     }
 
-    // Handle save action
-    const handleSave = async (data: VaccineFormData) => {
+    // Handle delete action for package
+    const handleDeletePackage = async (item: VaccinePackage) => {
         try {
-            let response;
-            if (dialogState.mode === "create") {
-                response = await createVaccine(data);
-            } else if (dialogState.mode === "edit" && dialogState.vaccineId) {
-                response = await updateVaccine(dialogState.vaccineId, data);
+            const response = await deleteVaccinePackage(item.id)
+            if (response.isSuccess) {
+                toast({
+                    title: "Success",
+                    description: "Package deleted successfully",
+                    variant: "success",
+                })
+                fetchData()
+            }
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Failed to delete package",
+                variant: "destructive",
+            })
+        }
+    }
+
+    // Handle save action for vaccine
+    const handleSaveVaccine = async (data: VaccineFormData) => {
+        try {
+            let response
+            if (vaccineDialogState.mode === "create") {
+                response = await createVaccine(data)
+            } else if (vaccineDialogState.mode === "edit" && vaccineDialogState.vaccineId) {
+                response = await updateVaccine(vaccineDialogState.vaccineId, data)
             }
 
             if (response?.isSuccess) {
                 toast({
                     title: "Success",
-                    description: `Vaccine ${dialogState.mode === "create" ? "created" : "updated"} successfully.`,
+                    description: `Vaccine ${vaccineDialogState.mode === "create" ? "created" : "updated"} successfully.`,
                     variant: "success",
-                });
-                await fetchData();
-                handleCloseDialog();
+                })
+                await fetchData()
+                handleCloseVaccineDialog()
             } else {
                 toast({
                     title: "Error",
                     description: "Something went wrong.",
                     variant: "destructive",
-                });
+                })
             }
         } catch (error) {
-            console.error("Error saving vaccine:", error);
+            console.error("Error saving vaccine:", error)
             toast({
                 title: "Error",
-                description: `Failed to ${dialogState.mode === "create" ? "create" : "update"} vaccine.`,
+                description: `Failed to ${vaccineDialogState.mode === "create" ? "create" : "update"} vaccine.`,
                 variant: "destructive",
-            });
+            })
         }
-    };
+    }
 
+    // Handle save action for package
+    const handleSavePackage = async (data: CreatePackageRequest) => {
+        try {
+            let response
+            if (packageDialogState.mode === "create") {
+                response = await createVaccinePackage(data)
+            } else if (packageDialogState.mode === "edit" && packageDialogState.packageId) {
+                response = await updateVaccinePackage(packageDialogState.packageId, data)
+            }
+
+            if (response?.isSuccess) {
+                toast({
+                    title: "Success",
+                    description: `Package ${packageDialogState.mode === "create" ? "created" : "updated"} successfully.`,
+                    variant: "success",
+                })
+                await fetchData()
+                handleClosePackageDialog()
+            } else {
+                toast({
+                    title: "Error",
+                    description: "Something went wrong.",
+                    variant: "destructive",
+                })
+            }
+        } catch (error) {
+            console.error("Error saving package:", error)
+            toast({
+                title: "Error",
+                description: `Failed to ${packageDialogState.mode === "create" ? "create" : "update"} package.`,
+                variant: "destructive",
+            })
+        }
+    }
 
     const totalPages = Math.ceil(totalCount / pageSize)
-
-    // Update the dialog close handler
 
     return (
         <div className="flex flex-col gap-6 p-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-semibold">Vaccines & Packages</h1>
-                <Button onClick={handleCreate} className="bg-blue-600 hover:bg-blue-700">
+                <Button onClick={handleCreateNew} className="bg-blue-600 hover:bg-blue-700">
                     <Plus className="mr-2 h-4 w-4" />
                     Add New
                 </Button>
@@ -320,27 +440,41 @@ export default function VaccinesPage() {
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     {"packageName" in item ? (
-                                                        <DropdownMenuItem
-                                                            onClick={() => {
-                                                                /* Handle package view */
-                                                            }}
-                                                        >
-                                                            <Eye className="mr-2 h-4 w-4" />
-                                                            View Package
-                                                        </DropdownMenuItem>
+                                                        <>
+                                                            <DropdownMenuItem onClick={() => handleViewPackage(item)}>
+                                                                <Eye className="mr-2 h-4 w-4" />
+                                                                View Package
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => handleEditPackage(item)}>
+                                                                <Pencil className="mr-2 h-4 w-4" />
+                                                                Edit Package
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem
+                                                                onClick={() => {
+                                                                    setSelectedPackage(item)
+                                                                    setIsPackageDelete(true)
+                                                                    setDeleteConfirmOpen(true)
+                                                                }}
+                                                                className="text-red-600"
+                                                            >
+                                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                                Delete Package
+                                                            </DropdownMenuItem>
+                                                        </>
                                                     ) : (
                                                         <>
-                                                            <DropdownMenuItem onClick={() => handleView(item)}>
+                                                            <DropdownMenuItem onClick={() => handleViewVaccine(item)}>
                                                                 <Eye className="mr-2 h-4 w-4" />
                                                                 View
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => handleEdit(item)}>
+                                                            <DropdownMenuItem onClick={() => handleEditVaccine(item)}>
                                                                 <Pencil className="mr-2 h-4 w-4" />
                                                                 Edit
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem
                                                                 onClick={() => {
                                                                     setSelectedVaccine(item as VaccineDetail)
+                                                                    setIsPackageDelete(false)
                                                                     setDeleteConfirmOpen(true)
                                                                 }}
                                                                 className="text-red-600"
@@ -397,47 +531,62 @@ export default function VaccinesPage() {
                 </div>
             </div>
 
-            {/* Update the dialog component usage */}
+            {/* Selection Dialog */}
+            <CreateSelectionDialog
+                isOpen={selectionDialogOpen}
+                onClose={handleCloseSelectionDialog}
+                onSelectVaccine={handleCreateVaccine}
+                onSelectPackage={handleCreatePackage}
+            />
+
+            {/* Vaccine Dialog for View/Edit/Create */}
             <VaccineDetailDialog
-                vaccineId={dialogState.vaccineId}
-                isOpen={dialogState.isOpen}
-                mode={dialogState.mode}
-                onClose={handleCloseDialog}
-                onSave={async (data) => {
-                    await handleSave(data)
-                    handleCloseDialog()
-                    await fetchData()
-                }}
+                vaccineId={vaccineDialogState.vaccineId}
+                isOpen={vaccineDialogState.isOpen}
+                mode={vaccineDialogState.mode}
+                onClose={handleCloseVaccineDialog}
+                onSave={handleSaveVaccine}
+            />
+
+            {/* Package Dialog for View/Edit/Create */}
+            <PackageDetailDialog
+                packageId={packageDialogState.packageId}
+                isOpen={packageDialogState.isOpen}
+                mode={packageDialogState.mode}
+                onClose={handleClosePackageDialog}
+                onSave={handleSavePackage}
             />
 
             <AlertDialog
                 open={deleteConfirmOpen}
                 onOpenChange={(open) => {
                     if (!open) {
-                        setDeleteConfirmOpen(false);
-                        setSelectedVaccine(null);
+                        setDeleteConfirmOpen(false)
+                        setSelectedVaccine(null)
+                        setSelectedPackage(null)
 
                         // Ensure pointer events are restored after a slight delay
                         setTimeout(() => {
-                            document.body.style.pointerEvents = "auto";
-                        }, 300);
+                            document.body.style.pointerEvents = "auto"
+                        }, 300)
                     }
                 }}
             >
-
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete the vaccine.
+                            This action cannot be undone. This will permanently delete the {isPackageDelete ? "package" : "vaccine"}.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={() => {
-                                if (selectedVaccine) {
-                                    handleDelete(selectedVaccine)
+                                if (isPackageDelete && selectedPackage) {
+                                    handleDeletePackage(selectedPackage)
+                                } else if (!isPackageDelete && selectedVaccine) {
+                                    handleDeleteVaccine(selectedVaccine)
                                 }
                                 setDeleteConfirmOpen(false)
                             }}

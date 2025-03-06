@@ -1,3 +1,7 @@
+"use client"
+
+import type React from "react"
+
 import { useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
@@ -10,22 +14,27 @@ import { Auth } from "@/api/auth"
 import { useToast } from "@/hooks/use-toast"
 
 // Import images
-const logoImage = "https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=logo.png&version_id=null"
-const registerIllustration = "https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=auth%2Fregister.png&version_id=null"
-
+const logoImage =
+  "https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=logo.png&version_id=null"
+const registerIllustration =
+  "https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=auth%2Fregister.png&version_id=null"
 
 const Register = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
   const { toast } = useToast()
   const emailInputRef = useRef<HTMLInputElement>(null)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setError(null) // Clear previous errors
+
     if (password !== confirmPassword) {
+      setError("Passwords do not match. Please ensure your passwords match.")
       toast({
         title: "Passwords do not match",
         description: "Please ensure your passwords match.",
@@ -41,16 +50,25 @@ const Register = () => {
         toast({
           title: "Registration Successful",
           description: "Welcome to VaccinaCare!",
-          variant: "success"
+          variant: "success",
         })
         navigate("/login") // Redirect to login page after successful registration
       } else {
-        throw new Error(response.message)
+        // Handle failed registration without throwing an error
+        setError(response.message || "Registration failed. Please try again.")
+        toast({
+          title: "Registration Failed",
+          description: response.message || "Registration failed. Please try again.",
+          variant: "destructive",
+        })
       }
     } catch (error) {
+      // Handle unexpected errors
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred."
+      setError(errorMessage)
       toast({
         title: "Registration Failed",
-        description: error instanceof Error ? error.message : "An unexpected error occurred.",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
@@ -91,6 +109,11 @@ const Register = () => {
           </div>
         </CardHeader>
         <CardContent>
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm mb-4">
+              {error}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Input
@@ -101,6 +124,7 @@ const Register = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 ref={emailInputRef}
+                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -111,6 +135,7 @@ const Register = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -121,6 +146,7 @@ const Register = () => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
+                disabled={isLoading}
               />
             </div>
             <div className="text-sm">

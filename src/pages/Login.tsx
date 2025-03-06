@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
@@ -23,6 +22,7 @@ const Login = () => {
 	const [email, setEmail] = useState("")
 	const [password, setPassword] = useState("")
 	const [isLoading, setIsLoading] = useState(false)
+	const [error, setError] = useState<string | null>(null)
 	const { login, user, isAuthenticated } = useAuthContext()
 	const navigate = useNavigate()
 	const { toast } = useToast()
@@ -38,6 +38,7 @@ const Login = () => {
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		setIsLoading(true)
+		setError(null) // Clear previous errors
 
 		try {
 			const success = await login(email, password)
@@ -49,12 +50,21 @@ const Login = () => {
 				})
 				// Redirection will be handled by the useEffect hook
 			} else {
-				throw new Error("Login failed")
+				// Handle failed login without throwing an error
+				setError("Invalid email or password. Please try again.")
+				toast({
+					title: "Login Failed",
+					description: "Invalid email or password. Please try again.",
+					variant: "error",
+				})
 			}
 		} catch (error) {
+			// Handle unexpected errors
+			const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred."
+			setError(errorMessage)
 			toast({
 				title: "Login Failed",
-				description: error instanceof Error ? error.message : "An unexpected error occurred.",
+				description: errorMessage,
 				variant: "error",
 			})
 		} finally {
@@ -89,6 +99,9 @@ const Login = () => {
 					</div>
 				</CardHeader>
 				<CardContent className="space-y-4">
+					{error && (
+						<div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">{error}</div>
+					)}
 					<form onSubmit={handleSubmit} className="space-y-4">
 						<div className="space-y-2">
 							<Input
@@ -98,6 +111,7 @@ const Login = () => {
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
 								required
+								disabled={isLoading}
 							/>
 						</div>
 						<div className="space-y-2">
@@ -108,6 +122,7 @@ const Login = () => {
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 								required
+								disabled={isLoading}
 							/>
 						</div>
 						<div className="text-sm">
