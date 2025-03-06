@@ -18,11 +18,11 @@ import {
     Syringe,
     Calendar,
     Droplets,
-    DollarSign,
     Globe,
     Pill,
     ShieldAlert,
     Info,
+    Landmark,
 } from "lucide-react"
 import { getVaccineById, type VaccineFormData } from "@/api/staff/vaccineStaff"
 import { useToast } from "@/hooks/use-toast"
@@ -285,7 +285,7 @@ export function VaccineDetailDialog({ vaccineId, isOpen, onClose, onSave, mode }
                                             <p className="text-muted-foreground line-clamp-2">{formData.description}</p>
                                             <div className="flex flex-wrap gap-3 justify-center md:justify-start">
                                                 <Badge variant="secondary" className="flex items-center gap-1">
-                                                    <DollarSign className="h-3 w-3" />
+                                                    <Landmark className="h-3 w-3" />
                                                     {new Intl.NumberFormat("vi-VN", {
                                                         style: "currency",
                                                         currency: "VND",
@@ -556,7 +556,7 @@ export function VaccineDetailDialog({ vaccineId, isOpen, onClose, onSave, mode }
                                                             Price (VND)
                                                         </Label>
                                                         <div className="relative mt-1">
-                                                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                            <Landmark className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                                             <Input
                                                                 id="price"
                                                                 type="number"
