@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Loader2, Package, Syringe, Search, Trash2, ArrowUp, ArrowDown, Landmark, Info } from "lucide-react"
 import { getVaccinePackageById, type VaccineDetail } from "@/api/staff/packageStaff"
-import { getAllVaccines, type VaccineBase } from "@/api/staff/vaccineStaff"
+import { getAllVaccines, getVaccineById, type VaccineBase } from "@/api/staff/vaccineStaff"
 import { useToast } from "@/hooks/use-toast"
 import { motion, AnimatePresence } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
@@ -62,10 +62,14 @@ export function PackageDetailDialog({ packageId, isOpen, onClose, onSave, mode }
 
     // Synchronize internal state with prop
     useEffect(() => {
-        if (isOpen && !internalOpen) {
-            setInternalOpen(true)
+        if (isOpen) {
+            setInternalOpen(true);
+        } else if (!isOpen && internalOpen) {
+            // Delay state update slightly to allow smooth unmounting
+            setTimeout(() => setInternalOpen(false), 50);
         }
-    }, [isOpen, internalOpen])
+    }, [isOpen, internalOpen]);
+
 
     const resetForm = useCallback(() => {
         if (isMounted.current) {
@@ -90,21 +94,17 @@ export function PackageDetailDialog({ packageId, isOpen, onClose, onSave, mode }
             setIsFetching(true)
             const packageData = await getVaccinePackageById(packageId)
 
-            // Check if component is still mounted before updating state
             if (!isMounted.current) return
 
-            // Fetch detailed vaccine information for each vaccine in the package
+            // Extract vaccine IDs
             const vaccineIds = packageData.vaccineDetails.map((detail) => detail.vaccineId)
 
-            // Get unique vaccine IDs to avoid duplicate API calls
-            const uniqueVaccineIds = [...new Set(vaccineIds)]
-
-            // Fetch vaccine details for each unique ID
-            const vaccineDetailsPromises = uniqueVaccineIds.map(async (id) => {
+            // Fetch vaccine details for each ID in parallel
+            const vaccineDetailsPromises = vaccineIds.map(async (id) => {
                 try {
-                    const response = await getAllVaccines({ search: id })
-                    if (response.isSuccess && response.data.vaccines.length > 0) {
-                        return response.data.vaccines[0]
+                    const response = await getVaccineById(id)
+                    if (response.isSuccess) {
+                        return response.data
                     }
                     return null
                 } catch (error) {
@@ -114,25 +114,20 @@ export function PackageDetailDialog({ packageId, isOpen, onClose, onSave, mode }
             })
 
             const vaccineDetailsResults = await Promise.all(vaccineDetailsPromises)
-            const validVaccineDetails = vaccineDetailsResults.filter(Boolean) as VaccineBase[]
+            const validVaccineDetails = vaccineDetailsResults.filter(Boolean)
 
-            // Map vaccine details to include dose order
+            // Map vaccine details to include dose order from package
             const detailedVaccines = packageData.vaccineDetails
                 .map((detail) => {
-                    const vaccineInfo = validVaccineDetails.find((v) => v.id === detail.vaccineId)
-                    if (vaccineInfo) {
-                        return {
-                            ...vaccineInfo,
-                            doseOrder: detail.doseOrder,
-                        }
-                    }
-                    return null
+                    const vaccineInfo = validVaccineDetails.find((v) => v && v.id === detail.vaccineId)
+                    return vaccineInfo ? { ...vaccineInfo, doseOrder: detail.doseOrder } : null
                 })
                 .filter(Boolean) as (VaccineBase & { doseOrder: number })[]
 
-            // Sort by dose order
+            // Sort vaccines by dose order
             detailedVaccines.sort((a, b) => a.doseOrder - b.doseOrder)
 
+            // Update state with fetched data
             setVaccineDetails(detailedVaccines)
             setFormData({
                 packageName: packageData.packageName,
@@ -141,7 +136,6 @@ export function PackageDetailDialog({ packageId, isOpen, onClose, onSave, mode }
                 vaccineDetails: packageData.vaccineDetails,
             })
         } catch (error) {
-            // Check if component is still mounted before showing toast
             if (!isMounted.current) return
 
             console.error("Error fetching package:", error)
@@ -330,18 +324,17 @@ export function PackageDetailDialog({ packageId, isOpen, onClose, onSave, mode }
     }
 
     const handleClose = useCallback(() => {
-        // First set internal state to false
-        setInternalOpen(false)
+        setInternalOpen(false);
 
-        // Use a short timeout to ensure animations complete before resetting form
-        setTimeout(() => {
+        // Use requestAnimationFrame to ensure state updates before calling onClose
+        requestAnimationFrame(() => {
             if (isMounted.current) {
-                resetForm()
-                // Call the parent's onClose after our internal cleanup
-                onClose()
+                resetForm();
+                onClose(); // Ensure parent state updates properly
             }
-        }, 100)
-    }, [onClose, resetForm])
+        });
+    }, [onClose, resetForm]);
+
 
     // Calculate total price
     const totalPrice = vaccineDetails.reduce((sum, vaccine) => sum + vaccine.price, 0)
@@ -353,13 +346,14 @@ export function PackageDetailDialog({ packageId, isOpen, onClose, onSave, mode }
 
     return (
         <Dialog
-            open={isOpen}
+            open={internalOpen}
             onOpenChange={(open) => {
                 if (!open) {
-                    handleClose()
+                    handleClose();
                 }
             }}
         >
+
             <DialogContent
                 className="max-w-5xl max-h-[90vh] overflow-y-auto p-0"
                 onPointerDownOutside={(e) => {
@@ -372,8 +366,6 @@ export function PackageDetailDialog({ packageId, isOpen, onClose, onSave, mode }
                         e.preventDefault()
                     }
                 }}
-                // Force the dialog to unmount completely when closed
-                //forceMount={isOpen}
             >
                 <DialogHeader
                     className={`p-6 ${mode === "view" ? "bg-blue-50 dark:bg-blue-950/30" : mode === "edit" ? "bg-amber-50 dark:bg-amber-950/30" : "bg-green-50 dark:bg-green-950/30"}`}
@@ -806,10 +798,6 @@ export function PackageDetailDialog({ packageId, isOpen, onClose, onSave, mode }
                                                                 }).format(totalPrice)}
                                                             </p>
                                                         </div>
-                                                        <Button type="button" variant="outline" size="sm" onClick={() => setContentType("vaccine")}>
-                                                            <Syringe className="mr-2 h-4 w-4" />
-                                                            Switch to Vaccines
-                                                        </Button>
                                                     </CardFooter>
                                                 </Card>
                                             </div>
