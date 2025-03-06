@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import { getVaccinePackageById, VaccinePackage } from "@/api/packageVaccine"
+import { getVaccinePackageById, VaccinePackage } from "@/api/package"
 import { PackageDetails } from "./packageDetail"
 import { getVaccineById, Vaccine } from "@/api/vaccine"
 

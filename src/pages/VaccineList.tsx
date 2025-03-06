@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChevronLeft, ChevronRight, Syringe, Package } from "lucide-react"
 import { getVaccineList, type Vaccine } from "@/api/vaccine"
-import { getVaccinePackages, type VaccinePackage } from "@/api/packageVaccine"
+import { getVaccinePackages, type VaccinePackage } from "@/api/package"
 import { VaccinePackageCard } from "@/components/packageVaccine/packageCard"
 
 type FilterType = "all" | "single" | "package"

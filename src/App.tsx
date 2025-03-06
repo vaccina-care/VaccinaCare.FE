@@ -77,6 +77,8 @@ const AppContent: React.FC = () => {
 							<Route path="/vaccine-list" element={<VaccineList />} />
 							<Route path="/vaccine/:id" element={<VaccineDetail />} />
 							<Route path="/vaccine-package/:packageId" element={<VaccinePackageDetail />} />
+							
+							{/* TEST */}
 							<Route path="/feedback" element={<Feedback />} />
 
 							{/* Protected user routes */}

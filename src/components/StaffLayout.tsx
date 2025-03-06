@@ -1,5 +1,5 @@
 import type React from "react"
-import { CustomSidebar } from "@/components/staff/CustomSidebar"
+import { CustomSidebar } from "@/components/staff-admin-component/CustomSidebar"
 import { ThemeProvider } from "@/contexts/ThemeContext"
 
 interface StaffLayoutProps {

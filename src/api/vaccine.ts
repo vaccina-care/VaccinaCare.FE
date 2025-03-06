@@ -34,14 +34,12 @@ export interface VaccineDetail {
 	hasDrugInteraction: boolean
 	hasSpecialWarning: boolean
 }
-// New interface for single vaccine response
+
 export interface SingleVaccineResponse {
 	isSuccess: boolean
 	message: string
 	data: VaccineDetail
 }
-
-
 
 // GET for VaccineSection on landing page
 export const getVaccineSection = async (params?: {
@@ -67,7 +65,6 @@ export const getVaccineSection = async (params?: {
 	}
 }
 
-// GET for VaccineList page with filtering and search
 export const getVaccineList = async (params?: {
 	search?: string
 	type?: string
@@ -91,7 +88,6 @@ export const getVaccineList = async (params?: {
 	}
 }
 
-// GET single vaccine by ID
 export const getVaccineById = async (id: string): Promise<Vaccine> => {
 	try {
 		const response = await axiosInstance.get<SingleVaccineResponse>(`/vaccines/${id}`)

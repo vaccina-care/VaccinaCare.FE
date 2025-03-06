@@ -28,7 +28,7 @@ import {
     type VaccineDetail,
     type VaccineFormData,
 } from "@/api/staff/vaccineStaff"
-import { getVaccinePackages, type VaccinePackage } from "@/api/packageVaccine"
+import { getVaccinePackages, type VaccinePackage } from "@/api/package"
 import { useToast } from "@/hooks/use-toast"
 import {
     AlertDialog,
@@ -177,11 +177,7 @@ export default function VaccinesPage() {
                     description: `Vaccine ${dialogState.mode === "create" ? "created" : "updated"} successfully.`,
                     variant: "success",
                 });
-
-                // Refresh the vaccine list after create/update
                 await fetchData();
-
-                // Close the dialog properly
                 handleCloseDialog();
             } else {
                 toast({

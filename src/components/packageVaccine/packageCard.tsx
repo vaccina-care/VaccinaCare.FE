@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Package } from "lucide-react"
-import type { VaccinePackage } from "@/api/packageVaccine"
+import type { VaccinePackage } from "@/api/package"
 
 interface VaccinePackageCardProps {
     package: VaccinePackage
