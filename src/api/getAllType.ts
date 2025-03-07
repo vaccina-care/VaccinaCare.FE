@@ -26,7 +26,7 @@ interface GetAllTypesParams {
 // Main function to fetch all types
 export const getAllTypes = async (params: GetAllTypesParams): Promise<ApiResponse<GetAllTypesResponse>> => {
     try {
-        const response = await axiosInstance.get("/api/packages/all-types", {
+        const response = await axiosInstance.get("/packages/all-types", {
             params: {
                 searchName: params.searchName || "",
                 searchDescription: params.searchDescription || "",
