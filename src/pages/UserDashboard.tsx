@@ -1,6 +1,6 @@
 import type React from "react"
-import DashboardLayout from "@/components/dashboard/DashboardLayout"
-import UserProfile from "@/components/dashboard/UserProfile"
+import DashboardLayout from "@/components/user-dashboard/DashboardLayout"
+import UserProfile from "@/components/user-dashboard/UserProfile"
 
 const UserDashboard: React.FC = () => {
   return (

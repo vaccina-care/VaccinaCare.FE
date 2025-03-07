@@ -7,7 +7,7 @@ import { useModeAnimation, ThemeAnimationType } from "react-theme-switch-animati
 export function ThemeToggle() {
     const { ref, toggleSwitchTheme, isDarkMode } = useModeAnimation({
         animationType: ThemeAnimationType.CIRCLE,
-        duration: 750,
+        duration: 800,
         globalClassName: "dark",
     })
 

@@ -1,13 +1,7 @@
 import axiosInstance from "../axiosInstance"
+import type { ApiResponse } from "@/api/apiResponse"
 
-// Common API response type
-export interface ApiResponse<T> {
-    isSuccess: boolean
-    message: string
-    data: T
-}
-
-// Base vaccine interface with common properties
+// Base vaccine interface
 export interface VaccineBase {
     id: string
     vaccineName: string

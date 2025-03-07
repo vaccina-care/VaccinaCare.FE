@@ -37,6 +37,7 @@ export namespace Auth {
 		password: string;
 	}
 
+	//FETCH FUNCTION
 	export async function login(payload: LoginPayload): Promise<LoginResponse> {
 		const response = await axiosInstance.post<LoginResponse>(LOGIN_API, payload);
 		if (response.data.isSuccess) {

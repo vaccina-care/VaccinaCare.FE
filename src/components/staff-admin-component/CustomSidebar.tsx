@@ -108,7 +108,10 @@ export function CustomSidebar({ children }: CustomSidebarProps) {
                                     transition={{ duration: 0.2 }}
                                     className="font-bold whitespace-nowrap overflow-hidde"
                                 >
-                                    VACCINACARE STAFF
+                                    <h4 className="text-xl font-bold tracking-tight font-yeseva">
+                                        <span className="tracking-[0.1em]">VACINNA</span>
+                                        <span className="text-blue-500 tracking-[0.1em]">CARE</span>
+                                    </h4>
                                 </motion.span>
                             )}
                         </AnimatePresence>
@@ -147,7 +150,6 @@ export function CustomSidebar({ children }: CustomSidebarProps) {
                 {/* Footer with user info and theme toggle */}
                 <div className="border-t p-4">
                     {isOpen ? (
-                        // Layout when sidebar is open - buttons next to avatar
                         <div className="flex items-center gap-3">
                             <Avatar className="h-9 w-9 flex-shrink-0">
                                 <AvatarImage src={user?.imageUrl} />
@@ -171,7 +173,6 @@ export function CustomSidebar({ children }: CustomSidebarProps) {
                             </div>
                         </div>
                     ) : (
-                        // Layout when sidebar is closed - buttons above avatar
                         <div className="flex flex-col items-center gap-3">
                             <div className="flex items-center justify-center gap-2 w-full mb-2">
                                 <ThemeToggle />

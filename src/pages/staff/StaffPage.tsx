@@ -1,15 +1,15 @@
 import { Routes, Route, Navigate } from "react-router-dom"
 import { StaffLayout } from "@/components/StaffLayout"
-import VaccinesPage from "@/components/staff/VaccinePage"
-import AppointmentsPage from "@/components/staff/AppointmentPage"
-import ReportsPage from "@/components/staff/ReportPage"
-import InventoryPage from "@/components/staff/InventoryPage"
+import VaccinesPage from "@/components/staff-dashboard/VaccinePage"
+import AppointmentsPage from "@/components/staff-dashboard/AppointmentPage"
+import ReportsPage from "@/components/staff-dashboard/ReportPage"
+import InventoryPage from "@/components/staff-dashboard/InventoryPage"
 import { useAuthContext } from "@/contexts/AuthContexts"
 
 export default function StaffPage() {
     const { user } = useAuthContext()
 
-    // Add console.log for debugging
+    // Debug
     console.log("StaffPage rendering, user:", user)
 
     return (
