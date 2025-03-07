@@ -76,6 +76,7 @@ const AppContent: React.FC = () => {
 				<AnimatePresence mode="wait">
 					<PageTransition key={location.pathname}>
 						<Routes location={location}>
+
 							{/* Public routes */}
 							<Route path="/" element={<Home />} />
 							<Route path="/login" element={<Login />} />
@@ -84,10 +85,9 @@ const AppContent: React.FC = () => {
 							<Route path="/vaccine-list" element={<VaccineList />} />
 							<Route path="/vaccine/:id" element={<VaccineDetail />} />
 							<Route path="/vaccine-package/:packageId" element={<VaccinePackageDetail />} />
-							
+
 							{/* TEST */}
 							<Route path="/feedback" element={<Feedback />} />
-
 							<Route path="/payment-success" element={<PaymentSuccessPage />} />
 							<Route path="/payment-fail" element={<PaymentFailPage />} />
 
@@ -100,10 +100,12 @@ const AppContent: React.FC = () => {
 								<Route path="/appointments" element={<Appointments />} />
 							</Route>
 
+
 							{/* Staff routes */}
 							<Route element={<ProtectedRoute staffOnly />}>
 								<Route path="/staff/*" element={<StaffPage />} />
 							</Route>
+
 
 							{/* 404 Page */}
 							<Route path="*" element={<NotFound />} />

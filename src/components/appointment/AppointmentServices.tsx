@@ -2,8 +2,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Button } from "@/components/ui/button"
-import { getVaccinePackages, VaccinePackage } from "@/api/packageVaccine"
-import { Checkbox } from "@/components/ui/checkbox"
 import { getVaccinePackages, VaccinePackage } from "@/api/package"
 import { getVaccineList, Vaccine } from "@/api/vaccine"
 import { useEffect, useState } from "react"
@@ -64,7 +62,7 @@ export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }:
     }
     const debounceTimer = setTimeout(fetchVaccines, 300)
     return () => clearTimeout(debounceTimer)
-  }, [currentPage, searchTerm])
+  }, [currentPage, searchTerm, preSelectedPackageId, preSelectedVaccineId])
 
   useEffect(() => {
     // Fetch all vaccine packages when component mounts
