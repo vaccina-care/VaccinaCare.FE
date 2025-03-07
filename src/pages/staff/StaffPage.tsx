@@ -9,7 +9,7 @@ import { useAuthContext } from "@/contexts/AuthContexts"
 export default function StaffPage() {
     const { user } = useAuthContext()
 
-    // Add console.log for debugging
+    // Debug
     console.log("StaffPage rendering, user:", user)
 
     return (

@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
@@ -20,18 +19,27 @@ const registerIllustration =
   "https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=auth%2Fregister.png&version_id=null"
 
 const Register = () => {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
   const { toast } = useToast()
   const emailInputRef = useRef<HTMLInputElement>(null)
 
+  // Retrieve email from sessionStorage (if available)
+  const [email, setEmail] = useState(() => sessionStorage.getItem("registerEmail") || "")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Save email input to sessionStorage
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setEmail(value)
+    sessionStorage.setItem("registerEmail", value)
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setError(null) // Clear previous errors
+    e.preventDefault() // Prevents form reload
+    setError(null)
 
     if (password !== confirmPassword) {
       setError("Passwords do not match. Please ensure your passwords match.")
@@ -52,9 +60,9 @@ const Register = () => {
           description: "Welcome to VaccinaCare!",
           variant: "success",
         })
-        navigate("/login") // Redirect to login page after successful registration
+        sessionStorage.removeItem("registerEmail") // Clear stored email after success
+        navigate("/login") // Redirect to login page
       } else {
-        // Handle failed registration without throwing an error
         setError(response.message || "Registration failed. Please try again.")
         toast({
           title: "Registration Failed",
@@ -63,7 +71,6 @@ const Register = () => {
         })
       }
     } catch (error) {
-      // Handle unexpected errors
       const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred."
       setError(errorMessage)
       toast({
@@ -92,11 +99,7 @@ const Register = () => {
             transition={{ duration: 0.5 }}
             className="w-24 h-24"
           >
-            <img
-              src={logoImage || "/placeholder.svg"}
-              alt="VacinnaCare Logo"
-              className="w-full h-full object-contain"
-            />
+            <img src={logoImage || "/placeholder.svg"} alt="VacinnaCare Logo" className="w-full h-full object-contain" />
           </motion.div>
           <div className="space-y-1">
             <h1 className="text-3xl font-bold tracking-tight font-yeseva">
@@ -121,7 +124,7 @@ const Register = () => {
                 placeholder="Email"
                 className="h-12"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={handleEmailChange}
                 required
                 ref={emailInputRef}
                 disabled={isLoading}
@@ -155,11 +158,7 @@ const Register = () => {
                 Login
               </Link>
             </div>
-            <Button
-              type="submit"
-              className="w-full h-12 text-base bg-[#1e1b4b] hover:bg-[#1e1b4b]/90"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full h-12 text-base bg-[#1e1b4b] hover:bg-[#1e1b4b]/90" disabled={isLoading}>
               {isLoading ? "Registering..." : "Register"}
             </Button>
           </form>
@@ -170,4 +169,3 @@ const Register = () => {
 }
 
 export default Register
-
