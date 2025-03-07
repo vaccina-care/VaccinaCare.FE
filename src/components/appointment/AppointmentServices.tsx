@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Button } from "@/components/ui/button"
+import { getVaccinePackages, VaccinePackage } from "@/api/packageVaccine"
 import { Checkbox } from "@/components/ui/checkbox"
 import { getVaccinePackages, VaccinePackage } from "@/api/package"
 import { getVaccineList, Vaccine } from "@/api/vaccine"
@@ -14,11 +15,11 @@ interface ServiceSelectionProps {
   preSelectedPackageId?: string | null;
 }
 
-export function ServiceSelection({preSelectedVaccineId, preSelectedPackageId }: ServiceSelectionProps) {
+export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }: ServiceSelectionProps) {
   const [serviceType, setServiceType] = useState<"single" | "package">(preSelectedPackageId ? "package" : "single")
   const [vaccines, setVaccines] = useState<Vaccine[]>([])
   const [vaccinePackages, setVaccinePackages] = useState<VaccinePackage[]>([])
-  const [selectedVaccines, setSelectedVaccines] = useState<string[]>(preSelectedVaccineId ? [preSelectedVaccineId] : [])
+  const [selectedVaccine, setSelectedVaccine] = useState<string>(preSelectedVaccineId || "")
   const [selectedPackage, setSelectedPackage] = useState<string>(preSelectedPackageId || "")
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -39,8 +40,9 @@ export function ServiceSelection({preSelectedVaccineId, preSelectedPackageId }: 
         if (response.isSuccess) {
           setVaccines(response.data.vaccines)
           setTotalPages(Math.ceil(response.data.totalCount / pageSize))
+
           if (preSelectedVaccineId && currentPage === 1) {
-            const allVaccines = await getVaccineList({ page: 1, pageSize: response.data.totalCount }); 
+            const allVaccines = await getVaccineList({ page: 1, pageSize: response.data.totalCount });
             if (allVaccines.isSuccess) {
               const vaccineIndex = allVaccines.data.vaccines.findIndex(
                 (vaccine) => vaccine.id === preSelectedVaccineId
@@ -48,7 +50,7 @@ export function ServiceSelection({preSelectedVaccineId, preSelectedPackageId }: 
               if (vaccineIndex !== -1) {
                 const targetPage = Math.ceil((vaccineIndex + 1) / pageSize);
                 if (targetPage !== currentPage) {
-                  setCurrentPage(targetPage); 
+                  setCurrentPage(targetPage);
                 }
               }
             }
@@ -127,89 +129,81 @@ export function ServiceSelection({preSelectedVaccineId, preSelectedPackageId }: 
             </Label>
             {isLoading ? (
               <div className="text-center text-gray-500">Loading...</div>
-            ) :
-              serviceType === "single" ? (
-                <div className="grid grid-cols-3 gap-4">
-                  {vaccines.map((vaccine) => (
-                    <div
-                      key={vaccine.id}
-                      className="group relative rounded-lg border p-4 space-y-3 transition-colors hover:border-primary hover:bg-accent/5 cursor-pointer"
-                      onClick={() => {
-                        const isSelected = selectedVaccines.includes(vaccine.id)
-                        if (isSelected) {
-                          setSelectedVaccines(selectedVaccines.filter((id) => id !== vaccine.id))
-                        } else {
-                          setSelectedVaccines([...selectedVaccines, vaccine.id])
-                        }
-                      }}
-                    >
-                      <div className="flex items-start gap-3">
-                        <Checkbox
-                          id={vaccine.id}
-                          checked={selectedVaccines.includes(vaccine.id)}
-                          className="translate-y-1"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <label
-                            htmlFor={vaccine.id}
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                          >
-                            {vaccine.vaccineName}
-                          </label>
-                          <p className="text-sm text-muted-foreground mt-1">{vaccine.description}</p>
-                        </div>
-                      </div>
-                      <div className="text-right border-t pt-2 mt-2">
-                        <span className="text-base font-semibold text-primary">
-                          {new Intl.NumberFormat("en-US", {
-                            style: "currency",
-                            currency: "VND",
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 0,
-                          }).format(vaccine.price)}
-                        </span>
+            ) : serviceType === "single" ? (
+              <RadioGroup
+                value={selectedVaccine}
+                onValueChange={setSelectedVaccine}
+                className="grid grid-cols-3 gap-4"
+              >
+                {vaccines.map((vaccine) => (
+                  <div
+                    key={vaccine.id}
+                    className="group relative rounded-lg border p-4 space-y-3 transition-colors hover:border-primary hover:bg-accent/5 cursor-pointer"
+                    onClick={() => setSelectedVaccine(vaccine.id)}
+                  >
+                    <div className="flex items-start gap-3">
+                      <RadioGroupItem value={vaccine.id} id={vaccine.id} className="translate-y-1" />
+                      <div className="flex-1 min-w-0">
+                        <label
+                          htmlFor={vaccine.id}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          {vaccine.vaccineName}
+                        </label>
+                        <p className="text-sm text-muted-foreground mt-1">{vaccine.description}</p>
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <RadioGroup
-                  value={selectedPackage}
-                  onValueChange={setSelectedPackage}
-                  className="grid grid-cols-3 gap-4"
-                >
-                  {vaccinePackages.map((pkg) => (
-                    <div
-                      key={pkg.id}
-                      className="group relative rounded-lg border p-4 space-y-3 transition-colors hover:border-primary hover:bg-accent/5 cursor-pointer"
-                      onClick={() => setSelectedPackage(pkg.id)}
-                    >
-                      <div className="flex items-start gap-3">
-                        <RadioGroupItem value={pkg.id} id={pkg.id} className="translate-y-1" />
-                        <div className="flex-1 min-w-0">
-                          <label
-                            htmlFor={pkg.id}
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                          >
-                            {pkg.packageName}
-                          </label>
-                          <p className="text-sm text-muted-foreground mt-2">{pkg.description}</p>
-                        </div>
-                      </div>
-                      <div className="text-right border-t pt-2 mt-2">
-                        <span className="text-base font-semibold text-primary">
-                          {new Intl.NumberFormat("en-US", {
-                            style: "currency",
-                            currency: "VND",
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 0,
-                          }).format(pkg.price)}
-                        </span>
+                    <div className="text-right border-t pt-2 mt-2">
+                      <span className="text-base font-semibold text-primary">
+                        {new Intl.NumberFormat("en-US", {
+                          style: "currency",
+                          currency: "VND",
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }).format(vaccine.price)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </RadioGroup>
+            ) : (
+              <RadioGroup
+                value={selectedPackage}
+                onValueChange={setSelectedPackage}
+                className="grid grid-cols-3 gap-4"
+              >
+                {vaccinePackages.map((pkg) => (
+                  <div
+                    key={pkg.id}
+                    className="group relative rounded-lg border p-4 space-y-3 transition-colors hover:border-primary hover:bg-accent/5 cursor-pointer"
+                    onClick={() => setSelectedPackage(pkg.id)}
+                  >
+                    <div className="flex items-start gap-3">
+                      <RadioGroupItem value={pkg.id} id={pkg.id} className="translate-y-1" />
+                      <div className="flex-1 min-w-0">
+                        <label
+                          htmlFor={pkg.id}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          {pkg.packageName}
+                        </label>
+                        <p className="text-sm text-muted-foreground mt-2">{pkg.description}</p>
                       </div>
                     </div>
-                  ))}
-                </RadioGroup>
-              )}
+                    <div className="text-right border-t pt-2 mt-2">
+                      <span className="text-base font-semibold text-primary">
+                        {new Intl.NumberFormat("en-US", {
+                          style: "currency",
+                          currency: "VND",
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }).format(pkg.price)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </RadioGroup>
+            )}
           </div>
 
           {/* Pagination */}

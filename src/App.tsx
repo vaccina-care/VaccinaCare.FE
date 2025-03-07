@@ -24,6 +24,10 @@ import VaccinePackageDetail from "./pages/VaccinePackageDetail"
 import Feedback from "./pages/Feedback"
 import StaffPage from "./pages/staff/StaffPage"
 
+//demo-page
+import PaymentSuccessPage from "./components/payment/payment-success"
+import PaymentFailPage from "./components/payment/payment-fail"
+
 // Define valid routes
 const validRoutes = [
 	"/",
@@ -43,6 +47,9 @@ const validRoutes = [
 	"/staff/appointments",
 	"/staff/reports",
 	"/staff/inventory",
+
+	"/payment-success",
+	"/payment-fail",
 ]
 
 const isValidRoute = (pathname: string) => {
@@ -80,6 +87,10 @@ const AppContent: React.FC = () => {
 							
 							{/* TEST */}
 							<Route path="/feedback" element={<Feedback />} />
+
+							<Route path="/payment-success" element={<PaymentSuccessPage />} />
+							<Route path="/payment-fail" element={<PaymentFailPage />} />
+
 
 							{/* Protected user routes */}
 							<Route element={<ProtectedRoute />}>
