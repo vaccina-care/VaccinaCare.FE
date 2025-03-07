@@ -20,7 +20,6 @@ import {
     ChevronRight,
 } from "lucide-react"
 import {
-    getAllVaccines,
     createVaccine,
     updateVaccine,
     deleteVaccine,
@@ -29,13 +28,14 @@ import {
     type VaccineFormData,
 } from "@/api/staff/vaccineStaff"
 import {
-    getVaccinePackages,
     createVaccinePackage,
     updateVaccinePackage,
     deleteVaccinePackage,
     type VaccinePackage,
     type CreatePackageRequest,
 } from "@/api/staff/packageStaff"
+import { getAllTypes } from "@/api/getAllType"
+import { useDebounce } from "@/hooks/use-debounce"
 import { useToast } from "@/hooks/use-toast"
 import {
     AlertDialog,
@@ -54,12 +54,13 @@ import { CreateSelectionDialog } from "@/components/staff-dashboard/CreateDialog
 type FilterType = "all" | "single" | "package"
 type DialogMode = "view" | "edit" | "create"
 
-export default function VaccinesPage() {
+export default function VaccinePage() {
     const [vaccines, setVaccines] = useState<VaccineBase[]>([])
     const [packages, setPackages] = useState<VaccinePackage[]>([])
     const [totalCount, setTotalCount] = useState(0)
     const [isLoading, setIsLoading] = useState(true)
-    const [searchTerm, setSearchTerm] = useState("")
+    const [searchName, setSearchName] = useState("")
+    const [searchDescription, setSearchDescription] = useState("")
     const [filterType, setFilterType] = useState<FilterType>("all")
     const [page, setPage] = useState(1)
     const [pageSize] = useState(10)
@@ -69,6 +70,10 @@ export default function VaccinesPage() {
     const [isPackageDelete, setIsPackageDelete] = useState(false)
     const [selectionDialogOpen, setSelectionDialogOpen] = useState(false)
     const { toast } = useToast()
+
+    // Add debounced search values
+    const debouncedSearchName = useDebounce(searchName, 300)
+    const debouncedSearchDescription = useDebounce(searchDescription, 300)
 
     // Update the dialog state management
     const [vaccineDialogState, setVaccineDialogState] = useState<{
@@ -115,21 +120,32 @@ export default function VaccinesPage() {
     const fetchData = useCallback(async () => {
         try {
             setIsLoading(true)
-            const [vaccineResponse, packagesResponse] = await Promise.all([
-                getAllVaccines({
-                    search: searchTerm,
-                    page,
-                    pageSize,
-                }),
-                getVaccinePackages(),
-            ])
 
-            if (vaccineResponse.isSuccess) {
-                setVaccines(vaccineResponse.data.vaccines)
-                setTotalCount(vaccineResponse.data.totalCount)
+            // Use the combined API with debounced search values
+            const response = await getAllTypes({
+                searchName: debouncedSearchName,
+                searchDescription: debouncedSearchDescription,
+                pageNumber: page,
+                pageSize,
+            })
+
+            if (response.isSuccess) {
+                const data = response.data.items[0]
+
+                // Filter based on type
+                if (filterType === "package") {
+                    setPackages(data.vaccinePackages)
+                    setVaccines([])
+                } else if (filterType === "single") {
+                    setVaccines(data.vaccines)
+                    setPackages([])
+                } else {
+                    setVaccines(data.vaccines)
+                    setPackages(data.vaccinePackages)
+                }
+
+                setTotalCount(response.data.totalCount)
             }
-
-            setPackages(packagesResponse)
         } catch (error) {
             console.error("Error fetching data:", error)
             toast({
@@ -140,7 +156,7 @@ export default function VaccinesPage() {
         } finally {
             setIsLoading(false)
         }
-    }, [searchTerm, page, pageSize, toast])
+    }, [debouncedSearchName, debouncedSearchDescription, page, pageSize, filterType, toast])
 
     useEffect(() => {
         fetchData()
@@ -332,14 +348,25 @@ export default function VaccinesPage() {
             </div>
 
             <div className="flex flex-col md:flex-row gap-4">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                        placeholder="Filter titles..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-9"
-                    />
+                <div className="flex flex-1 gap-2">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                            placeholder="Search by name..."
+                            value={searchName}
+                            onChange={(e) => setSearchName(e.target.value)}
+                            className="pl-9"
+                        />
+                    </div>
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                            placeholder="Search by description..."
+                            value={searchDescription}
+                            onChange={(e) => setSearchDescription(e.target.value)}
+                            className="pl-9"
+                        />
+                    </div>
                 </div>
                 <Select value={filterType} onValueChange={(value: FilterType) => setFilterType(value)}>
                     <SelectTrigger className="w-[180px]">

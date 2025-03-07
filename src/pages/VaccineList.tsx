@@ -10,16 +10,19 @@ import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ChevronLeft, ChevronRight, Syringe, Package } from "lucide-react"
-import { getVaccineList, type Vaccine } from "@/api/vaccine"
-import { getVaccinePackages, type VaccinePackage } from "@/api/package"
+import { ChevronLeft, ChevronRight, Syringe, Package, Search } from "lucide-react"
+import type { Vaccine } from "@/api/vaccine"
+import type { VaccinePackage } from "@/api/package"
 import { VaccinePackageCard } from "@/components/packageVaccine/packageCard"
+import { getAllTypes } from "@/api/getAllType"
+import { useDebounce } from "@/hooks/use-debounce"
 
 type FilterType = "all" | "single" | "package"
 
 export default function VaccineList() {
   const [filterType, setFilterType] = useState<FilterType>("all")
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchName, setSearchName] = useState("")
+  const [searchDescription, setSearchDescription] = useState("")
   const [vaccines, setVaccines] = useState<Vaccine[]>([])
   const [packages, setPackages] = useState<VaccinePackage[]>([])
   const [currentPage, setCurrentPage] = useState(1)
@@ -28,28 +31,38 @@ export default function VaccineList() {
   const pageSize = 12
   const navigate = useNavigate()
 
+  // Debounce search inputs
+  const debouncedSearchName = useDebounce(searchName, 300)
+  const debouncedSearchDescription = useDebounce(searchDescription, 300)
+
   useEffect(() => {
     window.scrollTo(0, 0)
     const fetchData = async () => {
       try {
         setIsLoading(true)
-        if (filterType !== "package") {
-          const response = await getVaccineList({
-            page: currentPage,
-            pageSize,
-            search: searchTerm,
-            type: filterType === "single" ? "single" : undefined,
-          })
+        const response = await getAllTypes({
+          searchName: debouncedSearchName,
+          searchDescription: debouncedSearchDescription,
+          pageNumber: currentPage,
+          pageSize,
+        })
 
-          if (response.isSuccess) {
-            setVaccines(response.data.vaccines)
-            setTotalPages(Math.ceil(response.data.totalCount / pageSize))
+        if (response.isSuccess) {
+          const data = response.data.items[0] // Get first item from array
+
+          // Filter based on type
+          if (filterType === "package") {
+            setPackages(data.vaccinePackages)
+            setVaccines([])
+          } else if (filterType === "single") {
+            setVaccines(data.vaccines)
+            setPackages([])
+          } else {
+            setVaccines(data.vaccines)
+            setPackages(data.vaccinePackages)
           }
-        }
 
-        if (filterType === "package" || filterType === "all") {
-          const packagesResponse = await getVaccinePackages()
-          setPackages(packagesResponse)
+          setTotalPages(response.data.totalPages)
         }
       } catch (error) {
         console.error("Error fetching data:", error)
@@ -58,9 +71,8 @@ export default function VaccineList() {
       }
     }
 
-    const debounceTimer = setTimeout(fetchData, 300)
-    return () => clearTimeout(debounceTimer)
-  }, [currentPage, searchTerm, filterType])
+    fetchData()
+  }, [currentPage, debouncedSearchName, debouncedSearchDescription, filterType])
 
   const handlePackageSelect = (packageId: string) => {
     navigate(`/vaccine-package/${packageId}`)
@@ -76,7 +88,7 @@ export default function VaccineList() {
             <div className="flex flex-col sm:flex-row gap-4 md:items-center">
               <Select value={filterType} onValueChange={(value: FilterType) => setFilterType(value)}>
                 <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Hiển thị theo" />
+                  <SelectValue placeholder="Display by" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">
@@ -98,13 +110,28 @@ export default function VaccineList() {
                   </SelectItem>
                 </SelectContent>
               </Select>
-              <Input
-                type="search"
-                placeholder="Search for vaccine..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full sm:w-[300px]"
-              />
+              <div className="flex flex-col sm:flex-row gap-2">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="Search by name..."
+                    value={searchName}
+                    onChange={(e) => setSearchName(e.target.value)}
+                    className="w-full sm:w-[200px] pl-9"
+                  />
+                </div>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="Search by description..."
+                    value={searchDescription}
+                    onChange={(e) => setSearchDescription(e.target.value)}
+                    className="w-full sm:w-[200px] pl-9"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
