@@ -47,9 +47,6 @@ const validRoutes = [
 	"/staff/appointments",
 	"/staff/reports",
 	"/staff/inventory",
-
-	"/payment-success",
-	"/payment-fail",
 ]
 
 const isValidRoute = (pathname: string) => {
