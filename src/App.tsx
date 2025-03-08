@@ -25,8 +25,8 @@ import Feedback from "./pages/Feedback"
 import StaffPage from "./pages/staff/StaffPage"
 
 //demo-page
-import PaymentSuccessPage from "./components/payment/payment-success"
-import PaymentFailPage from "./components/payment/payment-fail"
+import PaymentSuccessPage from "./components/payment/paymentSuccess"
+import PaymentFailPage from "./components/payment/paymentFail"
 
 // Define valid routes
 const validRoutes = [
