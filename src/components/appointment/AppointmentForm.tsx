@@ -4,14 +4,15 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { DateTimePicker } from "./AppointmentDate"
 import { ServiceSelection } from "./AppointmentServices"
-import { getChildren, ChildData } from "@/api/children"
+import { getChildren, ChildData, createChild } from "@/api/children"
 import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "../ui/button"
 import { ArrowLeft } from "lucide-react"
+import { AddChildDialog } from "../user-dashboard/AddChildDialog"
+import { toast } from "@/hooks/use-toast"
 
 export function AppointmentForm() {
-  window.scrollTo(0, 0)
   const [children, setChildren] = useState<ChildData[]>([])
   const [selectedChild, setSelectedChild] = useState<string>("")
   const [notes, setNotes] = useState<string>("")
@@ -52,6 +53,28 @@ export function AppointmentForm() {
     }
   }
 
+  const handleAddChild = async (childData: Omit<ChildData, "id">) => {
+    try {
+      await createChild(childData)
+      const updatedChildren = await getChildren() 
+      setChildren(updatedChildren) 
+      if (updatedChildren.length > 0) {
+        setSelectedChild(updatedChildren[updatedChildren.length - 1].id) 
+      }
+      toast({
+        title: "Success",
+        description: "New child added successfully",
+      })
+    } catch (error) {
+      console.error("Failed to add new child:", error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to add new child",
+        variant: "destructive",
+      })
+    }
+  }
+
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="space-y-6">
@@ -89,8 +112,12 @@ export function AppointmentForm() {
                   {loading ? (
                     <p>Loading children...</p>
                   ) : children.length === 0 ? (
-                    <p>No children found</p>
+                    <div className="space-y-4">
+                      <p>No children found. Click the "Add Child" button to add a new child.</p>
+                      <AddChildDialog onSubmit={handleAddChild} />
+                    </div>
                   ) : (
+                    <div className="space-y-4">
                     <Select value={selectedChild} onValueChange={setSelectedChild}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a child" />
@@ -105,6 +132,8 @@ export function AppointmentForm() {
                         </SelectGroup>
                       </SelectContent>
                     </Select>
+                    <AddChildDialog onSubmit={handleAddChild} />
+                    </div>
                   )}
                 </div>
 
