@@ -23,6 +23,7 @@ import VaccineDetail from "./pages/VaccineDetail"
 import VaccinePackageDetail from "./pages/VaccinePackageDetail"
 import Feedback from "./pages/Feedback"
 import StaffPage from "./pages/staff/StaffPage"
+import AdminPage from "./pages/admin/AdminPage"
 
 //demo-page
 import PaymentSuccessPage from "./components/payment/payment-success"
@@ -47,6 +48,10 @@ const validRoutes = [
 	"/staff/appointments",
 	"/staff/reports",
 	"/staff/inventory",
+	"/admin",
+	"/admin/system-vaccine",
+	"/admin/system-user",
+	"/admin/admin-dashboard",
 ]
 
 const isValidRoute = (pathname: string) => {
@@ -54,7 +59,8 @@ const isValidRoute = (pathname: string) => {
 		validRoutes.includes(pathname) ||
 		/^\/vaccine\/[^/]+$/.test(pathname) ||
 		/^\/vaccine-package\/[^/]+$/.test(pathname) ||
-		pathname.startsWith("/staff/")
+		pathname.startsWith("/staff/") ||
+		pathname.startsWith("/admin/")
 	)
 }
 
@@ -64,12 +70,13 @@ const AppContent: React.FC = () => {
 	const isAuthPage = location.pathname === "/login" || location.pathname === "/register"
 	const isValid = isValidRoute(location.pathname)
 	const isStaffPage = location.pathname.startsWith("/staff")
-	const showHeaderFooter = isValid && !isAuthPage && !isStaffPage
+	const isAdminPage = location.pathname.startsWith("/admin")
+	const showHeaderFooter = isValid && !isAuthPage && !isStaffPage && !isAdminPage
 
 	return (
 		<div className="min-h-screen flex flex-col">
 			{showHeaderFooter && <Header />}
-			<main className={`flex-1 ${isStaffPage ? "bg-gray-50" : ""}`}>
+			<main className={`flex-1 ${isStaffPage || isAdminPage ? "bg-gray-50" : ""}`}>
 				<AnimatePresence mode="wait">
 					<PageTransition key={location.pathname}>
 						<Routes location={location}>
@@ -101,6 +108,11 @@ const AppContent: React.FC = () => {
 							{/* Staff routes */}
 							<Route element={<ProtectedRoute staffOnly />}>
 								<Route path="/staff/*" element={<StaffPage />} />
+							</Route>
+
+							{/* Admin routes */}
+							<Route element={<ProtectedRoute adminOnly />}>
+								<Route path="/admin/*" element={<AdminPage />} />
 							</Route>
 
 
