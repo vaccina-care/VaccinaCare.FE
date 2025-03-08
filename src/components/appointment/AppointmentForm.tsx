@@ -55,12 +55,9 @@ export function AppointmentForm() {
 
   const handleAddChild = async (childData: Omit<ChildData, "id">) => {
     try {
-      await createChild(childData)
-      const updatedChildren = await getChildren() 
-      setChildren(updatedChildren) 
-      if (updatedChildren.length > 0) {
-        setSelectedChild(updatedChildren[updatedChildren.length - 1].id) 
-      }
+      const newChild = await createChild(childData);
+      setChildren((prev) => [...prev, newChild]);
+      setSelectedChild(newChild.id);
       toast({
         title: "Success",
         description: "New child added successfully",
@@ -118,21 +115,21 @@ export function AppointmentForm() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                    <Select value={selectedChild} onValueChange={setSelectedChild}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a child" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {children.map((child) => (
-                            <SelectItem key={child.id} value={child.id}>
-                              {child.fullName}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    <AddChildDialog onSubmit={handleAddChild} />
+                      <Select value={selectedChild} onValueChange={setSelectedChild}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a child" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {children.map((child) => (
+                              <SelectItem key={child.id} value={child.id}>
+                                {child.fullName}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      <AddChildDialog onSubmit={handleAddChild} />
                     </div>
                   )}
                 </div>
@@ -154,7 +151,7 @@ export function AppointmentForm() {
             </div>
           </div>
 
-          <ServiceSelection preSelectedVaccineId={vaccineId} preSelectedPackageId={vaccinepackageId}/>
+          <ServiceSelection preSelectedVaccineId={vaccineId} preSelectedPackageId={vaccinepackageId} />
         </div>
       </div>
     </div>
