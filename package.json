@@ -49,6 +49,7 @@
     "react-intersection-observer": "^9.15.1",
     "react-router-dom": "^7.1.1",
     "react-theme-switch-animation": "^0.2.0",
+    "recharts": "^2.15.1",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7"
   },
