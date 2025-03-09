@@ -1,11 +1,15 @@
 import { AppointmentForm } from "@/components/appointment/AppointmentForm"
+import { AppointmentProvider } from "@/contexts/AppointmentContext"
 
 const Appointment = () => {
   return (
-    <div className="min-h-screen">
-      <AppointmentForm />
-    </div>
+    <AppointmentProvider>
+      <div className="min-h-screen">
+        <AppointmentForm />
+      </div>
+    </AppointmentProvider>
   )
 }
 
 export default Appointment
+
