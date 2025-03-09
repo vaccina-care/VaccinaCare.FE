@@ -20,7 +20,7 @@ import {
 import { Plus, Search, MoreHorizontal, Pencil, Trash2, ArrowRight, Clock, Check, X } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useDebounce } from "@/hooks/use-debounce"
-import { getAllVaccines, type VaccineBase } from "@/api/staff/vaccineStaff"
+import { getAllVaccines, getVaccineById, type VaccineBase } from "@/api/staff/vaccineStaff"
 import {
     getVaccineIntervalRules,
     createVaccineIntervalRule,
@@ -31,8 +31,14 @@ import {
 } from "@/api/staff/vaccineIntervalRules"
 import { VaccineIntervalRuleDialog } from "@/components/staff-dashboard/IntervalRules/VaccineIntervalRuleDialog"
 
+// Interface to store vaccine details with rule
+interface EnhancedVaccineIntervalRule extends VaccineIntervalRule {
+    firstVaccineDetails?: VaccineBase
+    secondVaccineDetails?: VaccineBase
+}
+
 export default function VaccineIntervalRulePage() {
-    const [rules, setRules] = useState<VaccineIntervalRule[]>([])
+    const [rules, setRules] = useState<EnhancedVaccineIntervalRule[]>([])
     const [vaccines, setVaccines] = useState<VaccineBase[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [firstVaccineSearch, setFirstVaccineSearch] = useState("")
@@ -41,11 +47,34 @@ export default function VaccineIntervalRulePage() {
     const [selectedRule, setSelectedRule] = useState<VaccineIntervalRule | null>(null)
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
     const [ruleToDelete, setRuleToDelete] = useState<VaccineIntervalRule | null>(null)
+    const [loadingVaccineDetails, setLoadingVaccineDetails] = useState(false)
     const { toast } = useToast()
 
     // Debounce search inputs
     const debouncedFirstVaccineSearch = useDebounce(firstVaccineSearch, 300)
     const debouncedSecondVaccineSearch = useDebounce(secondVaccineSearch, 300)
+
+    // Fetch vaccine details for a rule
+    const fetchVaccineDetailsForRule = useCallback(
+        async (rule: VaccineIntervalRule): Promise<EnhancedVaccineIntervalRule> => {
+            try {
+                const [firstVaccineResponse, secondVaccineResponse] = await Promise.all([
+                    getVaccineById(rule.vaccineId),
+                    getVaccineById(rule.relatedVaccineId),
+                ])
+
+                return {
+                    ...rule,
+                    firstVaccineDetails: firstVaccineResponse.isSuccess ? firstVaccineResponse.data : undefined,
+                    secondVaccineDetails: secondVaccineResponse.isSuccess ? secondVaccineResponse.data : undefined,
+                }
+            } catch (error) {
+                console.error("Error fetching vaccine details for rule:", error)
+                return rule
+            }
+        },
+        [],
+    )
 
     // Fetch vaccines and rules
     const fetchData = useCallback(async () => {
@@ -58,7 +87,11 @@ export default function VaccineIntervalRulePage() {
             }
 
             if (rulesResponse.isSuccess) {
-                setRules(rulesResponse.data)
+                // Fetch details for each rule
+                setLoadingVaccineDetails(true)
+                const rulesWithDetails = await Promise.all(rulesResponse.data.map((rule) => fetchVaccineDetailsForRule(rule)))
+                setRules(rulesWithDetails)
+                setLoadingVaccineDetails(false)
             }
         } catch (error) {
             console.error("Error fetching data:", error)
@@ -70,7 +103,7 @@ export default function VaccineIntervalRulePage() {
         } finally {
             setIsLoading(false)
         }
-    }, [toast])
+    }, [toast, fetchVaccineDetailsForRule])
 
     useEffect(() => {
         fetchData()
@@ -78,8 +111,10 @@ export default function VaccineIntervalRulePage() {
 
     // Filter rules based on search
     const filteredRules = rules.filter((rule) => {
-        const firstVaccineName = vaccines.find((v) => v.id === rule.vaccineId)?.vaccineName || ""
-        const secondVaccineName = vaccines.find((v) => v.id === rule.relatedVaccineId)?.vaccineName || ""
+        const firstVaccineName =
+            rule.firstVaccineDetails?.vaccineName || vaccines.find((v) => v.id === rule.vaccineId)?.vaccineName || ""
+        const secondVaccineName =
+            rule.secondVaccineDetails?.vaccineName || vaccines.find((v) => v.id === rule.relatedVaccineId)?.vaccineName || ""
 
         const matchesFirstSearch =
             debouncedFirstVaccineSearch === "" ||
@@ -155,10 +190,21 @@ export default function VaccineIntervalRulePage() {
         }
     }
 
-    // Get vaccine name by ID
-    const getVaccineName = (id: string) => {
-        const vaccine = vaccines.find((v) => v.id === id)
-        return vaccine ? vaccine.vaccineName : "Unknown Vaccine"
+    // Get vaccine name by ID - now uses the enhanced rule data first
+    const getVaccineName = (rule: EnhancedVaccineIntervalRule, isFirstVaccine: boolean) => {
+        if (isFirstVaccine) {
+            return (
+                rule.firstVaccineDetails?.vaccineName ||
+                vaccines.find((v) => v.id === rule.vaccineId)?.vaccineName ||
+                "Unknown Vaccine"
+            )
+        } else {
+            return (
+                rule.secondVaccineDetails?.vaccineName ||
+                vaccines.find((v) => v.id === rule.relatedVaccineId)?.vaccineName ||
+                "Unknown Vaccine"
+            )
+        }
     }
 
     return (
@@ -225,7 +271,7 @@ export default function VaccineIntervalRulePage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {isLoading ? (
+                                {isLoading || loadingVaccineDetails ? (
                                     Array.from({ length: 5 }).map((_, index) => (
                                         <TableRow key={`skeleton-${index}`} className="animate-pulse">
                                             <TableCell>
@@ -257,11 +303,11 @@ export default function VaccineIntervalRulePage() {
                                 ) : (
                                     filteredRules.map((rule) => (
                                         <TableRow key={rule.id}>
-                                            <TableCell className="font-medium">{getVaccineName(rule.vaccineId)}</TableCell>
+                                            <TableCell className="font-medium">{getVaccineName(rule, true)}</TableCell>
                                             <TableCell>
                                                 <ArrowRight className="h-4 w-4 text-muted-foreground" />
                                             </TableCell>
-                                            <TableCell className="font-medium">{getVaccineName(rule.relatedVaccineId)}</TableCell>
+                                            <TableCell className="font-medium">{getVaccineName(rule, false)}</TableCell>
                                             <TableCell>
                                                 {rule.canBeGivenTogether ? (
                                                     <Badge
@@ -334,14 +380,32 @@ export default function VaccineIntervalRulePage() {
             />
 
             {/* Delete Confirmation Dialog */}
-            <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+            <AlertDialog
+                open={deleteConfirmOpen}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setDeleteConfirmOpen(false)
+                        setRuleToDelete(null)
+
+                        // Ensure pointer events are restored after a slight delay
+                        setTimeout(() => {
+                            document.body.style.pointerEvents = "auto"
+                        }, 300)
+                    }
+                }}
+            >
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                         <AlertDialogDescription>
                             This action cannot be undone. This will permanently delete the vaccine interval rule between{" "}
-                            <span className="font-semibold">{ruleToDelete ? getVaccineName(ruleToDelete.vaccineId) : ""}</span> and{" "}
-                            <span className="font-semibold">{ruleToDelete ? getVaccineName(ruleToDelete.relatedVaccineId) : ""}</span>
+                            <span className="font-semibold">
+                                {ruleToDelete ? getVaccineName(ruleToDelete as EnhancedVaccineIntervalRule, true) : ""}
+                            </span>{" "}
+                            and{" "}
+                            <span className="font-semibold">
+                                {ruleToDelete ? getVaccineName(ruleToDelete as EnhancedVaccineIntervalRule, false) : ""}
+                            </span>
                             .
                         </AlertDialogDescription>
                     </AlertDialogHeader>

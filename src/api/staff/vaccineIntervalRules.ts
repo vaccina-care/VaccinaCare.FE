@@ -49,7 +49,7 @@ export const updateVaccineIntervalRule = async (
     data: VaccineIntervalRuleRequest,
 ): Promise<ApiResponse<null>> => {
     try {
-        const response = await axiosInstance.put(`/VaccineIntervalRules${id}`, data)
+        const response = await axiosInstance.put(`/VaccineIntervalRules/${id}`, data)
         return response.data
     } catch (error) {
         console.error("Error updating vaccine interval rule:", error)
@@ -59,7 +59,7 @@ export const updateVaccineIntervalRule = async (
 
 export const deleteVaccineIntervalRule = async (id: string): Promise<ApiResponse<null>> => {
     try {
-        const response = await axiosInstance.delete(`/VaccineIntervalRules${id}`)
+        const response = await axiosInstance.delete(`/VaccineIntervalRules/${id}`)
         return response.data
     } catch (error) {
         console.error("Error deleting vaccine interval rule:", error)
