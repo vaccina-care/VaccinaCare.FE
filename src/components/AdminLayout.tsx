@@ -9,7 +9,7 @@ interface AdminLayoutProps {
 export function AdminLayout({ children }: AdminLayoutProps) {
     return (
         <ThemeProvider>
-            <CustomSidebar role="admin">{children}</CustomSidebar>
+            <CustomSidebar>{children}</CustomSidebar>
         </ThemeProvider>
     )
 }

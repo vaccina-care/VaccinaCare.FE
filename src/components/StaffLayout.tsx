@@ -9,7 +9,7 @@ interface StaffLayoutProps {
 export function StaffLayout({ children }: StaffLayoutProps) {
     return (
         <ThemeProvider>
-            <CustomSidebar role="staff">{children}</CustomSidebar>
+            <CustomSidebar>{children}</CustomSidebar>
         </ThemeProvider>
     )
 }

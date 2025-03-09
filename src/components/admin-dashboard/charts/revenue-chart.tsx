@@ -44,7 +44,7 @@ export function RevenueChart() {
                 labelStyle={{ color: "var(--foreground)" }}
                 itemStyle={{ color: "var(--foreground)" }}
               />
-              <Legend formatter={(value, entry, index) => <span className="text-foreground">{value}</span>} />
+              <Legend formatter={(value) => <span className="text-foreground">{value}</span>} />
               <Area
                 type="monotone"
                 dataKey="revenue"

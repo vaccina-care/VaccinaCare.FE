@@ -45,7 +45,7 @@ export function UserRoleChart() {
                 itemStyle={{ color: "var(--foreground)" }}
                 labelStyle={{ color: "var(--foreground)" }}
               />
-              <Legend formatter={(value, entry, index) => <span className="text-foreground">{value}</span>} />
+              <Legend formatter={(value) => <span className="text-foreground">{value}</span>} />
             </PieChart>
           </ResponsiveContainer>
         </div>
