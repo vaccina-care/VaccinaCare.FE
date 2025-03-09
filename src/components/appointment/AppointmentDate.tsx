@@ -9,11 +9,9 @@ import { useState } from "react"
 const generateTimeSlots = () => {
   const slots = []
   for (let hour = 8; hour <= 17; hour++) {
-    for (const minute of [0, 30]) {
-      if (hour === 17 && minute === 30) continue
-      const timeString = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`
-      slots.push(timeString)
-    }
+    if (hour === 17) continue 
+    const timeString = `${hour.toString().padStart(2, "0")}:00`
+    slots.push(timeString)
   }
   return slots
 }
@@ -21,11 +19,11 @@ const generateTimeSlots = () => {
 const timeSlots = generateTimeSlots()
 
 export function DateTimePicker() {
-  const [date, setDate] = useState<Date>()
-  const [time, setTime] = useState<string>()
+  const [date, setDate] = useState<Date | undefined>()
+  const [time, setTime] = useState<string | undefined>()
 
   const now = new Date()
-  const minSelectableDate = addHours(now, 24)
+  const minSelectableDate = addHours(now, 24) 
 
   const isDateDisabled = (day: Date) => {
     return isBefore(startOfDay(day), startOfDay(minSelectableDate))
@@ -49,7 +47,10 @@ export function DateTimePicker() {
           <Calendar
             mode="single"
             selected={date}
-            onSelect={setDate}
+            onSelect={(newDate) => {
+              setDate(newDate)
+              setTime(undefined) 
+            }}
             className="rounded-md border"
             disabled={isDateDisabled}
           />
@@ -57,7 +58,12 @@ export function DateTimePicker() {
           <div className="space-y-4 min-w-[200px]">
             <div className="space-y-2">
               <Label htmlFor="time">Time</Label>
-              <Select value={time} onValueChange={setTime} disabled={!date}>
+              <Select
+                key={date?.toISOString() || "no-date"} 
+                value={time}
+                onValueChange={setTime}
+                disabled={!date}
+              >
                 <SelectTrigger id="time">
                   <SelectValue placeholder="Select time" />
                 </SelectTrigger>

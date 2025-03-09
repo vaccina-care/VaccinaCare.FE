@@ -3,18 +3,21 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts"
 
+// Sample age group vaccination coverage data
 const data = [
-  { name: "Admin", value: 5, color: "#3b82f6" },
-  { name: "Staff", value: 25, color: "#10b981" },
-  { name: "Customer", value: 120, color: "#f43f5e" },
+  { name: "0-5 years", value: 85, color: "#3b82f6" }, // Blue
+  { name: "6-18 years", value: 78, color: "#10b981" }, // Green
+  { name: "19-49 years", value: 62, color: "#f59e0b" }, // Amber
+  { name: "50-64 years", value: 70, color: "#8b5cf6" }, // Purple
+  { name: "65+ years", value: 81, color: "#ec4899" }, // Pink
 ]
 
-export function UserRoleChart() {
+export function VaccinationAgeChart() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Users by Role</CardTitle>
-        <CardDescription>Distribution of users by their role in the system</CardDescription>
+        <CardTitle>Vaccination Coverage by Age Group</CardTitle>
+        <CardDescription>Percentage of population vaccinated in each age group</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">
@@ -36,7 +39,7 @@ export function UserRoleChart() {
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value, name) => [`${value} Users (${(((value as number) / 150) * 100).toFixed(0)}%)`, name]}
+                formatter={(value) => [`${value}%`, "Coverage Rate"]}
                 contentStyle={{
                   backgroundColor: "var(--background)",
                   borderColor: "var(--border)",
@@ -53,3 +56,4 @@ export function UserRoleChart() {
     </Card>
   )
 }
+

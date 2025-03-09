@@ -1,9 +1,44 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, DollarSign, ShoppingCart, CalendarDays } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Users, CalendarDays, Syringe, AlertTriangle } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Progress } from "@/components/ui/progress"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { RevenueChart } from "./charts/revenue-chart"
 import { UserRoleChart } from "./charts/user-role-chart"
 import { AppointmentChart } from "./charts/appointment-chart"
+import { RevenueChart } from "./charts/revenue-chart"
+import { VaccinationAgeChart } from "./charts/age-group-chart"
+import { ReactionsChart } from "./charts/reaction-chart"
+
+// Sample staff performance data
+const staffPerformance = [
+  {
+    name: "Dr. Sarah Johnson",
+    role: "Physician",
+    avatar: "/placeholder.svg?height=40&width=40",
+    appointmentsCompleted: 45,
+    appointmentsTarget: 50,
+    vaccinesAdministered: 120,
+    patientSatisfaction: 98,
+  },
+  {
+    name: "Nurse Michael Chen",
+    role: "Registered Nurse",
+    avatar: "/placeholder.svg?height=40&width=40",
+    appointmentsCompleted: 38,
+    appointmentsTarget: 40,
+    vaccinesAdministered: 95,
+    patientSatisfaction: 96,
+  },
+  {
+    name: "Dr. Emily Rodriguez",
+    role: "Pediatrician",
+    avatar: "/placeholder.svg?height=40&width=40",
+    appointmentsCompleted: 42,
+    appointmentsTarget: 45,
+    vaccinesAdministered: 110,
+    patientSatisfaction: 99,
+  },
+]
 
 export function AdminDashboard() {
   return (
@@ -14,149 +49,177 @@ export function AdminDashboard() {
       <div className="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Patients</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,234</div>
+            <div className="text-2xl font-bold">12,345</div>
             <p className="text-xs text-muted-foreground">+10% from last month</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Vaccines Administered</CardTitle>
+            <Syringe className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$45,231.89</div>
-            <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+            <div className="text-2xl font-bold">8,721</div>
+            <p className="text-xs text-muted-foreground">+15.3% from last month</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed Orders</CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">2,345</div>
-            <p className="text-xs text-muted-foreground">+5% from last month</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Appointments</CardTitle>
+            <CardTitle className="text-sm font-medium">Upcoming Appointments</CardTitle>
             <CalendarDays className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">573</div>
-            <p className="text-xs text-muted-foreground">+12% since last month</p>
+            <div className="text-2xl font-bold">342</div>
+            <p className="text-xs text-muted-foreground">Next 7 days</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Adverse Reactions</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">12</div>
+            <p className="text-xs text-muted-foreground">This month (0.14% rate)</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Charts Section */}
-      <div className="grid gap-6 mb-8 md:grid-cols-2 lg:grid-cols-3">
+      {/* Coverage and Demographics Section */}
+      <div className="grid gap-6 mb-8 md:grid-cols-2">
+        <VaccinationAgeChart />
         <UserRoleChart />
+      </div>
+
+      {/* Trends Section */}
+      <div className="grid gap-6 mb-8 md:grid-cols-1">
+        <ReactionsChart />
+        <RevenueChart />
         <AppointmentChart />
-        <div className="md:col-span-2 lg:col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center">
-                  <div className="ml-4 space-y-1">
-                    <p className="text-sm font-medium leading-none">New user registered</p>
-                    <p className="text-sm text-muted-foreground">John Doe (john@example.com)</p>
-                  </div>
-                  <div className="ml-auto text-xs text-muted-foreground">5 min ago</div>
+      </div>
+
+      {/* Staff Section */}
+      <Card className="mt-8">
+      <CardHeader>
+        <CardTitle>Staff Performance</CardTitle>
+        <CardDescription>Weekly performance metrics for top staff members</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          {staffPerformance.map((staff) => (
+            <div key={staff.name} className="space-y-2">
+              <div className="flex items-center gap-4">
+                <Avatar>
+                  <AvatarImage src={staff.avatar} alt={staff.name} />
+                  <AvatarFallback>
+                    {staff.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h4 className="font-medium">{staff.name}</h4>
+                  <p className="text-sm text-muted-foreground">{staff.role}</p>
                 </div>
-                <div className="flex items-center">
-                  <div className="ml-4 space-y-1">
-                    <p className="text-sm font-medium leading-none">Appointment completed</p>
-                    <p className="text-sm text-muted-foreground">Jane Smith with Dr. Johnson</p>
-                  </div>
-                  <div className="ml-auto text-xs text-muted-foreground">15 min ago</div>
-                </div>
-                <div className="flex items-center">
-                  <div className="ml-4 space-y-1">
-                    <p className="text-sm font-medium leading-none">New order placed</p>
-                    <p className="text-sm text-muted-foreground">Order #12350 - $230.00</p>
-                  </div>
-                  <div className="ml-auto text-xs text-muted-foreground">35 min ago</div>
-                </div>
-                <div className="flex items-center">
-                  <div className="ml-4 space-y-1">
-                    <p className="text-sm font-medium leading-none">Inventory updated</p>
-                    <p className="text-sm text-muted-foreground">20 items added to stock</p>
-                  </div>
-                  <div className="ml-auto text-xs text-muted-foreground">1 hour ago</div>
+                <div className="ml-auto text-right">
+                  <p className="text-sm font-medium">
+                    {staff.appointmentsCompleted}/{staff.appointmentsTarget} Appointments
+                  </p>
+                  <p className="text-xs text-muted-foreground">{staff.vaccinesAdministered} Vaccines Administered</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span>Appointments Target</span>
+                  <span>{Math.round((staff.appointmentsCompleted / staff.appointmentsTarget) * 100)}%</span>
+                </div>
+                <Progress value={(staff.appointmentsCompleted / staff.appointmentsTarget) * 100} className="h-1" />
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span>Patient Satisfaction</span>
+                  <span>{staff.patientSatisfaction}%</span>
+                </div>
+                <Progress value={staff.patientSatisfaction} className="h-1" indicatorClassName="bg-green-500" />
+              </div>
+            </div>
+          ))}
         </div>
-      </div>
+      </CardContent>
+    </Card>
 
-      {/* Revenue Chart - Full Width */}
-      <div className="mb-8">
-        <RevenueChart />
-      </div>
-
-      {/* Recent Orders Table */}
+      {/* Recent Vaccinations Table */}
       <Card className="mt-8">
         <CardHeader>
-          <CardTitle>Recent Orders</CardTitle>
+          <CardTitle>Recent Vaccinations</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Order ID</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Product</TableHead>
+                <TableHead>Patient ID</TableHead>
+                <TableHead>Patient Name</TableHead>
+                <TableHead>Vaccine</TableHead>
                 <TableHead>Date</TableHead>
+                <TableHead>Administered By</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               <TableRow>
-                <TableCell>#12345</TableCell>
-                <TableCell>John Doe</TableCell>
-                <TableCell>Premium Package</TableCell>
-                <TableCell>2023-06-01</TableCell>
+                <TableCell>P-12345</TableCell>
+                <TableCell>John Smith</TableCell>
+                <TableCell>Influenza</TableCell>
+                <TableCell>2023-11-28</TableCell>
+                <TableCell>Dr. Sarah Johnson</TableCell>
                 <TableCell>
                   <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400">
                     Completed
                   </span>
                 </TableCell>
-                <TableCell className="text-right">$199.00</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>#12346</TableCell>
-                <TableCell>Jane Smith</TableCell>
-                <TableCell>Basic Checkup</TableCell>
-                <TableCell>2023-06-02</TableCell>
+                <TableCell>P-12346</TableCell>
+                <TableCell>Emma Davis</TableCell>
+                <TableCell>COVID-19 Booster</TableCell>
+                <TableCell>2023-11-28</TableCell>
+                <TableCell>Nurse Michael Chen</TableCell>
+                <TableCell>
+                  <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400">
+                    Completed
+                  </span>
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>P-12347</TableCell>
+                <TableCell>Sophia Martinez</TableCell>
+                <TableCell>HPV</TableCell>
+                <TableCell>2023-11-27</TableCell>
+                <TableCell>Dr. Emily Rodriguez</TableCell>
                 <TableCell>
                   <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-400">
-                    Processing
+                    Follow-up Scheduled
                   </span>
                 </TableCell>
-                <TableCell className="text-right">$89.00</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>#12347</TableCell>
-                <TableCell>Bob Johnson</TableCell>
-                <TableCell>Consultation</TableCell>
-                <TableCell>2023-06-03</TableCell>
+                <TableCell>P-12348</TableCell>
+                <TableCell>James Wilson</TableCell>
+                <TableCell>Tetanus</TableCell>
+                <TableCell>2023-11-27</TableCell>
+                <TableCell>Nurse Michael Chen</TableCell>
                 <TableCell>
                   <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-400">
-                    Pending
+                    Mild Reaction
                   </span>
                 </TableCell>
-                <TableCell className="text-right">$129.00</TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -165,4 +228,5 @@ export function AdminDashboard() {
     </div>
   )
 }
+
 
