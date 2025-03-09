@@ -10,17 +10,16 @@ import { useEffect, useState } from "react"
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
 import { Input } from "../ui/input"
 import { useAppointmentContext } from "@/contexts/AppointmentContext"
-import { bookSingleVaccine } from "@/api/appointment"
-import { getPaymentCheckoutUrl } from "@/api/payment"
-import { useToast } from "@/hooks/use-toast"
-import { format, parse } from "date-fns"
 
+// Add the onProceed prop to the interface
 interface ServiceSelectionProps {
   preSelectedVaccineId?: string | null
   preSelectedPackageId?: string | null
+  onProceed?: () => void
 }
 
-export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }: ServiceSelectionProps) {
+// Update the component to accept the onProceed prop
+export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId, onProceed }: ServiceSelectionProps) {
   const {
     serviceType,
     setServiceType,
@@ -28,12 +27,8 @@ export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }:
     setSelectedVaccine,
     selectedPackage,
     setSelectedPackage,
-    selectedChild,
-    appointmentDate,
-    appointmentTime,
     isSubmitting,
     setIsSubmitting,
-    resetAppointmentState,
   } = useAppointmentContext()
 
   const [vaccines, setVaccines] = useState<Vaccine[]>([])
@@ -45,7 +40,6 @@ export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }:
   const [targetVaccineFound, setTargetVaccineFound] = useState(false)
   const [initialPageSet, setInitialPageSet] = useState(false)
   const pageSize = 12
-  const { toast } = useToast()
 
   // Reset isSubmitting state when component mounts
   useEffect(() => {
@@ -157,119 +151,14 @@ export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }:
     fetchVaccinePackages()
   }, [preSelectedPackageId, setSelectedPackage])
 
-  const handleBookAppointment = async () => {
-    // Validate form
-    if (!selectedChild) {
-      toast({
-        title: "Missing information",
-        description: "Please select a child for the appointment",
-        variant: "destructive",
-      })
-      return
-    }
-
-    if (!appointmentDate || !appointmentTime) {
-      toast({
-        title: "Missing information",
-        description: "Please select a date and time for the appointment",
-        variant: "destructive",
-      })
-      return
-    }
-
-    if (serviceType === "single" && !selectedVaccine) {
-      toast({
-        title: "Missing information",
-        description: "Please select a vaccine",
-        variant: "destructive",
-      })
-      return
-    }
-
-    if (serviceType === "package" && !selectedPackage) {
-      toast({
-        title: "Missing information",
-        description: "Please select a vaccine package",
-        variant: "destructive",
-      })
-      return
-    }
-
-    try {
-      setIsSubmitting(true)
-
-      // Format date and time for API
-      const timeObj = parse(appointmentTime, "HH:mm", new Date())
-      const appointmentDateTime = new Date(appointmentDate)
-      appointmentDateTime.setHours(timeObj.getHours())
-      appointmentDateTime.setMinutes(timeObj.getMinutes())
-
-      const formattedDate = format(appointmentDateTime, "yyyy-MM-dd'T'HH:mm:ss")
-
-      if (serviceType === "single") {
-        // Book single vaccine appointment
-        const bookingData = {
-          vaccineId: selectedVaccine,
-          childId: selectedChild,
-          startDate: formattedDate,
-        }
-
-        const response = await bookSingleVaccine(bookingData)
-
-        if (response.isSuccess && response.data.length > 0) {
-          // Get the first appointment ID (there should be only one for single vaccine)
-          const appointmentId = response.data[0].appointmentId
-
-          // Get payment checkout URL
-          const paymentResponse = await getPaymentCheckoutUrl(appointmentId)
-
-          if (paymentResponse.isSuccess) {
-            // Reset state before redirecting
-            resetAppointmentState()
-
-            // Clear navigation state
-            if (window.history.replaceState) {
-              window.history.replaceState({}, "", window.location.pathname)
-            }
-
-            // Redirect to payment page
-            window.location.href = paymentResponse.data
-          } else {
-            toast({
-              title: "Payment Error",
-              description: "Failed to get payment link. Please try again.",
-              variant: "destructive",
-            })
-            setIsSubmitting(false)
-          }
-        } else {
-          toast({
-            title: "Booking Error",
-            description: "Failed to book appointment. Please try again.",
-            variant: "destructive",
-          })
-          setIsSubmitting(false)
-        }
-      } else {
-        // Package booking is not implemented yet
-        toast({
-          title: "Not Implemented",
-          description: "Package booking is not available yet.",
-          variant: "destructive",
-        })
-        setIsSubmitting(false)
-      }
-    } catch (error) {
-      console.error("Error booking appointment:", error)
-      toast({
-        title: "Booking Error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive",
-      })
-      setIsSubmitting(false)
+  // Replace the handleBookAppointment function with this:
+  const handleProceedToConfirmation = () => {
+    if (onProceed) {
+      onProceed()
     }
   }
 
+  // Replace the button at the bottom with this:
   return (
     <div className="space-y-12 py-5">
       <Card>
@@ -435,7 +324,7 @@ export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }:
         <Button
           className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 rounded-md text-base"
           size="lg"
-          onClick={handleBookAppointment}
+          onClick={handleProceedToConfirmation}
           disabled={isSubmitting}
         >
           {isSubmitting ? (
@@ -444,7 +333,7 @@ export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }:
               Processing...
             </>
           ) : (
-            "Book Appointment"
+            "Review & Confirm"
           )}
         </Button>
       </div>
