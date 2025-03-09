@@ -1,5 +1,5 @@
 import DashboardLayout from "@/components/user-dashboard/DashboardLayout"
-import NotificationsSection from "@/components/user-dashboard/NotificationsSection"
+import NotificationsSection from "@/components/user-dashboard/notification/NotificationsSection"
 
 const Notifications = () => {
     return (

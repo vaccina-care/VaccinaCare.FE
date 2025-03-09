@@ -13,7 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { User, Calendar, Droplet, FileText, AlertTriangle, Pill, Activity, Plus } from "lucide-react"
 import type { ChildData } from "@/api/children"
-import { DateInput } from "../ui/date-input"
+import { DateInput } from "@/components/ui/date-input"
 
 
 interface AddChildDialogProps {
@@ -61,16 +61,6 @@ export function AddChildDialog({ onSubmit }: AddChildDialogProps) {
     const handleInputChange = (field: keyof Omit<ChildData, "id">, value: string | boolean) => {
         setFormData((prev) => ({ ...prev, [field]: value }))
     }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    // const handleDateChange = (newDate: Date | undefined) => {
-    //     if (newDate) {
-    //         setDateOfBirth(newDate)
-    //         // Format date as YYYY-MM-DD
-    //         const formattedDate = newDate.toISOString().split("T")[0]
-    //         handleInputChange("dateOfBirth", formattedDate)
-    //     }
-    // }
 
     const handleDateChange = (newDate: Date | undefined) => {
         setDateOfBirth(newDate)

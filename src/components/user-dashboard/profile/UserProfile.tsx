@@ -16,8 +16,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 // Import images
 import defaultAvatar from "@/assets/images/aba.png"
-import { ImageUpload } from "../ImageUpload"
-import { Loading } from "../ui/loading"
+import { ImageUpload } from "@/components/ImageUpload"
+import { Loading } from "@/components/ui/loading"
 
 interface Province {
   code: string

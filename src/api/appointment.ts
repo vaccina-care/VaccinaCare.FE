@@ -33,3 +33,27 @@ export const bookSingleVaccine = async (
     }
 }
 
+// Get all appointments for a child
+export const getChildAppointments = async (childId: string): Promise<ApiResponse<AppointmentResponse[]>> => {
+    try {
+        const response = await axiosInstance.get(`/appointments`, {
+            params: { childId },
+        })
+        return response.data
+    } catch (error) {
+        console.error("Error fetching child appointments:", error)
+        throw error
+    }
+}
+
+// Get appointment details
+export const getAppointmentDetails = async (appointmentId: string): Promise<ApiResponse<AppointmentResponse>> => {
+    try {
+        const response = await axiosInstance.get(`/appointments/${appointmentId}`)
+        return response.data
+    } catch (error) {
+        console.error("Error fetching appointment details:", error)
+        throw error
+    }
+}
+

@@ -27,7 +27,7 @@ export default function PaymentSuccessPage() {
     // Handle navigation while preserving auth state but clearing appointment state
     const handleFinish = () => {
         // Navigate to home page without forcing a page reload, but with a clean state
-        navigate("/", {
+        navigate("/appointments-dashboard", {
             replace: true,
             state: {}, // Empty state to clear any previous state
         })

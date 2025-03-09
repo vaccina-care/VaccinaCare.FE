@@ -23,6 +23,7 @@ import VaccineDetail from "./pages/VaccineDetail"
 import VaccinePackageDetail from "./pages/VaccinePackageDetail"
 import Feedback from "./pages/Feedback"
 import StaffPage from "./pages/staff/StaffPage"
+import AppointmentDashboard from "./pages/AppointmentDashboard"
 
 //demo-page
 import PaymentSuccessPage from "./components/payment/paymentSuccess"
@@ -44,7 +45,8 @@ const validRoutes = [
 	"/feedback",
 	"/staff",
 	"/staff/vaccines",
-	"/staff/vaccine-interval-rules"
+	"/staff/vaccine-interval-rules",
+	"/appointments-dashboard", // Add the new route
 ]
 
 const isValidRoute = (pathname: string) => {
@@ -55,7 +57,6 @@ const isValidRoute = (pathname: string) => {
 		pathname.startsWith("/staff/")
 	)
 }
-
 
 const AppContent: React.FC = () => {
 	const location = useLocation()
@@ -71,7 +72,6 @@ const AppContent: React.FC = () => {
 				<AnimatePresence mode="wait">
 					<PageTransition key={location.pathname}>
 						<Routes location={location}>
-
 							{/* Public routes */}
 							<Route path="/" element={<Home />} />
 							<Route path="/login" element={<Login />} />
@@ -86,21 +86,19 @@ const AppContent: React.FC = () => {
 							<Route path="/payment-success" element={<PaymentSuccessPage />} />
 							<Route path="/payment-fail" element={<PaymentFailPage />} />
 
-
 							{/* Protected user routes */}
 							<Route element={<ProtectedRoute />}>
 								<Route path="/user-dashboard" element={<UserDashboard />} />
 								<Route path="/child-dashboard" element={<ChildDashboard />} />
+								<Route path="/appointments-dashboard" element={<AppointmentDashboard />} />
 								<Route path="/notifications" element={<Notifications />} />
 								<Route path="/appointments" element={<Appointments />} />
 							</Route>
-
 
 							{/* Staff routes */}
 							<Route element={<ProtectedRoute staffOnly />}>
 								<Route path="/staff/*" element={<StaffPage />} />
 							</Route>
-
 
 							{/* 404 Page */}
 							<Route path="*" element={<NotFound />} />
