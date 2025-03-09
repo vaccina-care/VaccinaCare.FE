@@ -1,23 +1,33 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+"use client"
+
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { DateTimePicker } from "./AppointmentDate"
 import { ServiceSelection } from "./AppointmentServices"
-import { getChildren, ChildData } from "@/api/children"
+import { getChildren, type ChildData } from "@/api/children"
 import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "../ui/button"
 import { ArrowLeft } from "lucide-react"
+import { useAppointmentContext } from "@/contexts/AppointmentContext"
 
 export function AppointmentForm() {
-  window.scrollTo(0, 0)
   const [children, setChildren] = useState<ChildData[]>([])
-  const [selectedChild, setSelectedChild] = useState<string>("")
-  const [notes, setNotes] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(true)
   const navigate = useNavigate()
   const location = useLocation()
+
+  const { selectedChild, setSelectedChild, notes, setNotes, isSubmitting, resetAppointmentState } =
+    useAppointmentContext()
+
+  // Reset appointment state when component mounts
+  useEffect(() => {
+    resetAppointmentState()
+    window.scrollTo(0, 0)
+  }, [resetAppointmentState])
 
   useEffect(() => {
     const fetchChildren = async () => {
@@ -25,7 +35,7 @@ export function AppointmentForm() {
         setLoading(true)
         const childrenData = await getChildren()
         setChildren(childrenData)
-        if (childrenData.length > 0) {
+        if (childrenData.length > 0 && !selectedChild) {
           setSelectedChild(childrenData[0].id)
         }
       } catch (err) {
@@ -36,19 +46,18 @@ export function AppointmentForm() {
     }
 
     fetchChildren()
-  }, [])
+  }, [setSelectedChild, selectedChild])
 
-  const vaccineId = location.state?.vaccineId || null;
-  const vaccinepackageId = location.state?.vaccinepackageId || null;
+  const vaccineId = location.state?.vaccineId || null
+  const vaccinepackageId = location.state?.vaccinepackageId || null
 
   const handleBack = () => {
     if (vaccineId) {
-      navigate(`/vaccine/${vaccineId}`);
+      navigate(`/vaccine/${vaccineId}`)
     } else if (vaccinepackageId) {
-      navigate(`/vaccine-package/${vaccinepackageId}`);
-    }
-    else {
-      navigate(-1);
+      navigate(`/vaccine-package/${vaccinepackageId}`)
+    } else {
+      navigate(-1)
     }
   }
 
@@ -57,11 +66,7 @@ export function AppointmentForm() {
       <div className="space-y-6">
         {/* Back Button */}
         {(location.state?.fromVaccineDetail || location.state?.fromVaccinePackageDetail) && (
-          <Button
-            variant="ghost"
-            onClick={handleBack}
-            className="hover:bg-gray-100"
-          >
+          <Button variant="ghost" onClick={handleBack} className="hover:bg-gray-100" disabled={isSubmitting}>
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Vaccine Page
           </Button>
         )}
@@ -91,7 +96,7 @@ export function AppointmentForm() {
                   ) : children.length === 0 ? (
                     <p>No children found</p>
                   ) : (
-                    <Select value={selectedChild} onValueChange={setSelectedChild}>
+                    <Select value={selectedChild} onValueChange={setSelectedChild} disabled={isSubmitting}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a child" />
                       </SelectTrigger>
@@ -116,6 +121,7 @@ export function AppointmentForm() {
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Enter any additional notes here..."
                     className="min-h-[100px]"
+                    disabled={isSubmitting}
                   />
                 </div>
               </CardContent>
@@ -125,9 +131,10 @@ export function AppointmentForm() {
             </div>
           </div>
 
-          <ServiceSelection preSelectedVaccineId={vaccineId} preSelectedPackageId={vaccinepackageId}/>
+          <ServiceSelection preSelectedVaccineId={vaccineId} preSelectedPackageId={vaccinepackageId} />
         </div>
       </div>
     </div>
   )
 }
+

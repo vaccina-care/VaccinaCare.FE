@@ -3,11 +3,37 @@
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { XCircle } from "lucide-react"
-import { Link } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
+import { useEffect } from "react"
 
-const failImg = "https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=payment%2Ffail.jpg&version_id=null"
+const failImg =
+    "https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=payment%2Ffail.jpg&version_id=null"
 
 export default function PaymentFailPage() {
+    const navigate = useNavigate()
+
+    // Ensure we scroll to top when component mounts
+    useEffect(() => {
+        window.scrollTo(0, 0)
+
+        // Clear any URL parameters that might be causing issues
+        if (window.history.replaceState) {
+            const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname
+            window.history.replaceState({ path: cleanUrl }, "", cleanUrl)
+        }
+    }, [])
+
+    // Handle navigation while preserving auth state
+    const handleTryAgain = () => {
+        // Navigate back to appointments page
+        navigate("/appointments", { replace: false })
+    }
+
+    const handleReturnHome = () => {
+        // Navigate to home page without forcing a page reload
+        navigate("/", { replace: true })
+    }
+
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100">
             <main className="flex-1 flex flex-col items-center justify-center px-4 py-12 text-center">
@@ -66,7 +92,7 @@ export default function PaymentFailPage() {
                         className="mb-8 w-full"
                     >
                         <img
-                            src={failImg}
+                            src={failImg || "/placeholder.svg"}
                             alt="Payment Error Illustration"
                             width={300}
                             height={200}
@@ -80,16 +106,19 @@ export default function PaymentFailPage() {
                         transition={{ delay: 0.5 }}
                         className="w-full space-y-4"
                     >
-                        <Link to="/payment-fail" className="w-full block">
-                            <Button className="w-full py-6 text-lg bg-[#1e1b4b] hover:bg-[#1e1b4b]/90 rounded-xl shadow-lg shadow-blue-200 transition-all duration-300 hover:shadow-blue-300 hover:-translate-y-1">
-                                Try Again
-                            </Button>
-                        </Link>
-                        <Link to="/" className="block">
-                            <Button variant="outline" className="w-full py-6 text-lg border-gray-200 text-[#1e1b4b] hover:bg-gray-50">
-                                Return Home
-                            </Button>
-                        </Link>
+                        <Button
+                            onClick={handleTryAgain}
+                            className="w-full py-6 text-lg bg-[#1e1b4b] hover:bg-[#1e1b4b]/90 rounded-xl shadow-lg shadow-blue-200 transition-all duration-300 hover:shadow-blue-300 hover:-translate-y-1"
+                        >
+                            Try Again
+                        </Button>
+                        <Button
+                            variant="outline"
+                            onClick={handleReturnHome}
+                            className="w-full py-6 text-lg border-gray-200 text-[#1e1b4b] hover:bg-gray-50"
+                        >
+                            Return Home
+                        </Button>
                     </motion.div>
 
                     <motion.div
@@ -136,15 +165,15 @@ export default function PaymentFailPage() {
                             </svg>
                             Need help?
                         </span>
-                        <Link to="/about" className="text-[#1e1b4b] hover:text-[#1e1b4b]/80 font-medium">
+                        <button onClick={() => navigate("/about")} className="text-[#1e1b4b] hover:text-[#1e1b4b]/80 font-medium">
                             Contact Support
-                        </Link>
+                        </button>
                     </div>
                     <span className="flex items-center justify-center gap-1">
                         Powered by <strong className="font-medium">VACCINACARE TEAM</strong> |{" "}
-                        <Link to="/policy" className="underline hover:text-[#1e1b4b] transition-colors">
+                        <button onClick={() => navigate("/policy")} className="underline hover:text-[#1e1b4b] transition-colors">
                             Policy
-                        </Link>
+                        </button>
                     </span>
                 </div>
             </main>
