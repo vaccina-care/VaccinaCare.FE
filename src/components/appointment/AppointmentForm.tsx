@@ -15,13 +15,19 @@ import { ArrowLeft } from "lucide-react"
 import { useAppointmentContext } from "@/contexts/AppointmentContext"
 
 export function AppointmentForm() {
-  window.scrollTo(0, 0)
   const [children, setChildren] = useState<ChildData[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const navigate = useNavigate()
   const location = useLocation()
 
-  const { selectedChild, setSelectedChild, notes, setNotes, isSubmitting } = useAppointmentContext()
+  const { selectedChild, setSelectedChild, notes, setNotes, isSubmitting, resetAppointmentState } =
+    useAppointmentContext()
+
+  // Reset appointment state when component mounts
+  useEffect(() => {
+    resetAppointmentState()
+    window.scrollTo(0, 0)
+  }, [resetAppointmentState])
 
   useEffect(() => {
     const fetchChildren = async () => {
@@ -29,7 +35,7 @@ export function AppointmentForm() {
         setLoading(true)
         const childrenData = await getChildren()
         setChildren(childrenData)
-        if (childrenData.length > 0) {
+        if (childrenData.length > 0 && !selectedChild) {
           setSelectedChild(childrenData[0].id)
         }
       } catch (err) {
@@ -40,7 +46,7 @@ export function AppointmentForm() {
     }
 
     fetchChildren()
-  }, [setSelectedChild])
+  }, [setSelectedChild, selectedChild])
 
   const vaccineId = location.state?.vaccineId || null
   const vaccinepackageId = location.state?.vaccinepackageId || null

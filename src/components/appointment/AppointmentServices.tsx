@@ -33,6 +33,7 @@ export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }:
     appointmentTime,
     isSubmitting,
     setIsSubmitting,
+    resetAppointmentState,
   } = useAppointmentContext()
 
   const [vaccines, setVaccines] = useState<Vaccine[]>([])
@@ -43,6 +44,11 @@ export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }:
   const [searchTerm, setSearchTerm] = useState("")
   const pageSize = 12
   const { toast } = useToast()
+
+  // Reset isSubmitting state when component mounts
+  useEffect(() => {
+    setIsSubmitting(false)
+  }, [setIsSubmitting])
 
   useEffect(() => {
     // Set initial service type based on preselected IDs
@@ -172,6 +178,9 @@ export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }:
           const paymentResponse = await getPaymentCheckoutUrl(appointmentId)
 
           if (paymentResponse.isSuccess) {
+            // Reset state before redirecting
+            resetAppointmentState()
+
             // Redirect to payment page
             window.location.href = paymentResponse.data
           } else {
@@ -180,6 +189,7 @@ export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }:
               description: "Failed to get payment link. Please try again.",
               variant: "destructive",
             })
+            setIsSubmitting(false)
           }
         } else {
           toast({
@@ -187,6 +197,7 @@ export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }:
             description: "Failed to book appointment. Please try again.",
             variant: "destructive",
           })
+          setIsSubmitting(false)
         }
       } else {
         // Package booking is not implemented yet
@@ -195,6 +206,7 @@ export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }:
           description: "Package booking is not available yet.",
           variant: "destructive",
         })
+        setIsSubmitting(false)
       }
     } catch (error) {
       console.error("Error booking appointment:", error)
@@ -203,7 +215,6 @@ export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }:
         description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       })
-    } finally {
       setIsSubmitting(false)
     }
   }

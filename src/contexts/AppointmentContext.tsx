@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, type ReactNode } from "react"
+import { createContext, useContext, useState, type ReactNode, useCallback } from "react"
 
 interface AppointmentContextType {
     selectedChild: string
@@ -19,6 +19,7 @@ interface AppointmentContextType {
     setSelectedPackage: (id: string) => void
     isSubmitting: boolean
     setIsSubmitting: (isSubmitting: boolean) => void
+    resetAppointmentState: () => void // New reset function
 }
 
 const AppointmentContext = createContext<AppointmentContextType | undefined>(undefined)
@@ -32,6 +33,18 @@ export function AppointmentProvider({ children }: { children: ReactNode }) {
     const [selectedVaccine, setSelectedVaccine] = useState<string>("")
     const [selectedPackage, setSelectedPackage] = useState<string>("")
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+
+    // Add a function to reset all appointment state
+    const resetAppointmentState = useCallback(() => {
+        setNotes("")
+        setAppointmentDate(undefined)
+        setAppointmentTime(undefined)
+        setServiceType("single")
+        setSelectedVaccine("")
+        setSelectedPackage("")
+        setIsSubmitting(false)
+        // Note: We don't reset selectedChild as that's a user preference that should persist
+    }, [])
 
     return (
         <AppointmentContext.Provider
@@ -52,6 +65,7 @@ export function AppointmentProvider({ children }: { children: ReactNode }) {
                 setSelectedPackage,
                 isSubmitting,
                 setIsSubmitting,
+                resetAppointmentState,
             }}
         >
             {children}
@@ -59,6 +73,7 @@ export function AppointmentProvider({ children }: { children: ReactNode }) {
     )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAppointmentContext() {
     const context = useContext(AppointmentContext)
     if (context === undefined) {
