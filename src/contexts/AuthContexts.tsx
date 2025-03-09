@@ -13,6 +13,7 @@ interface AuthContextType {
   user: UserData | null
   login: (email: string, password: string) => Promise<boolean>
   logout: () => void
+  refreshUserData: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -42,6 +43,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsAuthenticated(false)
       setUser(null)
       throw error
+    }
+  }, [])
+
+  // Add a function to refresh user data without logging out on error
+  const refreshUserData = useCallback(async () => {
+    try {
+      const userData = await fetchUserData()
+      setUser(userData)
+    } catch (error) {
+      console.error("Error refreshing user data:", error)
+      // Don't log out on refresh errors
     }
   }, [])
 
@@ -91,7 +103,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, user, login, logout }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        isLoading,
+        user,
+        login,
+        logout,
+        refreshUserData,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
   )
 }
 

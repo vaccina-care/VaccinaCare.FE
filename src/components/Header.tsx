@@ -1,17 +1,19 @@
+"use client"
+
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
-import { Phone, Clock, MapPin, LogOut, User, Bell, NotepadText } from "lucide-react"
+import { Phone, Clock, MapPin, LogOut, User, Bell, NotepadText, HelpCircle, Mail, UserCircle } from "lucide-react"
 import { useAuthContext } from "@/contexts/AuthContexts"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
 
 import avtImage from "@/assets/images/aba.png"
 
 const Header = () => {
 	const { isAuthenticated, logout, user } = useAuthContext()
 
-	// This would typically come from your notification context or API
 	const unreadNotifications = 3 // Replace with actual unread notifications count
 
 	const handleLogout = () => {
@@ -49,7 +51,7 @@ const Header = () => {
 							</div>
 							<div>
 								<p className="text-sm font-medium">WORK HOUR</p>
-								<p className="text-blue-600">05:00 - 24:00 Everyday</p>
+								<p className="text-blue-600">08:00 - 17:00 Everyday</p>
 							</div>
 						</div>
 
@@ -90,13 +92,63 @@ const Header = () => {
 						</ul>
 						{isAuthenticated ? (
 							<div className="flex items-center gap-4">
-								<Button asChild className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg shadow-lg transition-all">
+								{/* Staff Contact Info Popup */}
+								<Popover>
+									<PopoverTrigger asChild>
+										<Button variant="ghost" size="icon" className="text-white hover:bg-white/10 transition-colors">
+											<HelpCircle className="h-6 w-6" />
+										</Button>
+									</PopoverTrigger>
+									<PopoverContent className="w-80 p-0">
+										<div className="bg-[#1e1b4b] text-white p-3 rounded-t-md">
+											<h3 className="font-semibold text-lg">Contact Our Staff</h3>
+											<p className="text-sm text-blue-200">We are here to assist you choose the best vaccine for your child.</p>
+										</div>
+										<div className="p-4 space-y-4">
+											<div className="flex items-start gap-3">
+												<Phone className="h-5 w-5 text-[#1e1b4b] mt-0.5" />
+												<div>
+													<p className="font-medium">Customer Support</p>
+													<p className="text-sm text-gray-600">+84 123 456 789</p>
+													<p className="text-sm text-gray-600">Available 24/7</p>
+												</div>
+											</div>
+
+											<Separator />
+
+											<div className="flex items-start gap-3">
+												<Mail className="h-5 w-5 text-[#1e1b4b] mt-0.5" />
+												<div>
+													<p className="font-medium">Email Support</p>
+													<p className="text-sm text-gray-600">support@vaccinacare.com</p>
+													<p className="text-sm text-gray-600">Response within 24 hours</p>
+												</div>
+											</div>
+
+											<Separator />
+
+											<div className="flex items-start gap-3">
+												<UserCircle className="h-5 w-5 text-[#1e1b4b] mt-0.5" />
+												<div>
+													<p className="font-medium">Medical Consultation</p>
+													<p className="text-sm text-gray-600">Dr. Uyle</p>
+													<p className="text-sm text-gray-600">+84 987 654 321</p>
+												</div>
+											</div>
+										</div>
+									</PopoverContent>
+								</Popover>
+
+								<Button
+									asChild
+									className="bg-[#1e1b4b] hover:bg-[#1e1b4b]/80 text-white font-bold px-6 py-2 rounded-lg border border-white/20 shadow-lg transition-all"
+								>
 									<Link to="/appointments">Appointment</Link>
 								</Button>
 
 								{/* Notification Bell */}
 								<Link to="/notifications" className="relative">
-									<Button variant="ghost" size="icon" className="text-white hover:bg-white transition-colors">
+									<Button variant="ghost" size="icon" className="text-white hover:bg-white/10 transition-colors">
 										<Bell className="h-6 w-6" />
 										{unreadNotifications > 0 && (
 											<Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center rounded-full bg-red-500 text-white text-xs p-0 border-2 border-[#1e1b4b]">
@@ -133,9 +185,64 @@ const Header = () => {
 								</Popover>
 							</div>
 						) : (
-							<Button className="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700" asChild>
-								<Link to="/Login">Login</Link>
-							</Button>
+							<div className="flex items-center gap-4">
+								{/* Staff Contact Info Popup*/}
+								<Popover>
+									<PopoverTrigger asChild>
+										<Button variant="ghost" size="icon" className="text-white hover:bg-white/10 transition-colors">
+											<HelpCircle className="h-6 w-6" />
+										</Button>
+									</PopoverTrigger>
+									<PopoverContent className="w-80 p-0">
+										<div className="bg-[#1e1b4b] text-white p-3 rounded-t-md">
+											<h3 className="font-semibold text-lg">Contact Our Staff</h3>
+											<p className="text-sm text-blue-200">We are here to assist you choose the best vaccine for your child.</p>
+										</div>
+										<div className="p-4 space-y-4">
+											<div className="flex items-start gap-3">
+												<Phone className="h-5 w-5 text-[#1e1b4b] mt-0.5" />
+												<div>
+													<p className="font-medium">Customer Support</p>
+													<p className="text-sm text-gray-600">+84 123 456 789</p>
+													<p className="text-sm text-gray-600">Available 24/7</p>
+												</div>
+											</div>
+
+											<Separator />
+
+											<div className="flex items-start gap-3">
+												<Mail className="h-5 w-5 text-[#1e1b4b] mt-0.5" />
+												<div>
+													<p className="font-medium">Email Support</p>
+													<p className="text-sm text-gray-600">support@vaccinacare.com</p>
+													<p className="text-sm text-gray-600">Response within 24 hours</p>
+												</div>
+											</div>
+
+											<Separator />
+
+											<div className="flex items-start gap-3">
+												<UserCircle className="h-5 w-5 text-[#1e1b4b] mt-0.5" />
+												<div>
+													<p className="font-medium">Medical Consultation</p>
+													<p className="text-sm text-gray-600">Dr. Nguyen Van A</p>
+													<p className="text-sm text-gray-600">+84 987 654 321</p>
+												</div>
+											</div>
+
+											<Button className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90 mt-2">
+												<Link to="/about" className="w-full">
+													Contact Us
+												</Link>
+											</Button>
+										</div>
+									</PopoverContent>
+								</Popover>
+
+								<Button className="mt-4 md:mt-0 bg-[#1e1b4b] hover:bg-[#1e1b4b]/80 border border-white/20" asChild>
+									<Link to="/Login">Login</Link>
+								</Button>
+							</div>
 						)}
 					</div>
 				</div>

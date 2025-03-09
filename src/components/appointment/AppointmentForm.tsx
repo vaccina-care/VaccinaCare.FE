@@ -1,24 +1,45 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+"use client"
+
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { DateTimePicker } from "./AppointmentDate"
 import { ServiceSelection } from "./AppointmentServices"
-import { getChildren, ChildData, createChild } from "@/api/children"
+import { getChildren, type ChildData } from "@/api/children"
 import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "../ui/button"
 import { ArrowLeft } from "lucide-react"
-import { AddChildDialog } from "../user-dashboard/AddChildDialog"
-import { toast } from "@/hooks/use-toast"
+import { useAppointmentContext } from "@/contexts/AppointmentContext"
 
 export function AppointmentForm() {
   const [children, setChildren] = useState<ChildData[]>([])
-  const [selectedChild, setSelectedChild] = useState<string>("")
-  const [notes, setNotes] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(true)
   const navigate = useNavigate()
   const location = useLocation()
+
+  const { selectedChild, setSelectedChild, notes, setNotes, isSubmitting, resetAppointmentState } =
+    useAppointmentContext()
+
+  // Extract state from location directly - don't modify it
+  const vaccineId = location.state?.vaccineId || null
+  const vaccinepackageId = location.state?.vaccinepackageId || null
+  const fromVaccineDetail = location.state?.fromVaccineDetail || false
+  const fromVaccinePackageDetail = location.state?.fromVaccinePackageDetail || false
+
+  // Reset appointment state when component mounts
+  useEffect(() => {
+    // Reset the appointment state first
+    resetAppointmentState()
+
+    // Scroll to top
+  window.scrollTo(0, 0)
+
+    // DO NOT modify the location state here as it causes the vaccineId to be lost
+    // We'll only clean up state when navigating away
+  }, [resetAppointmentState])
 
   useEffect(() => {
     const fetchChildren = async () => {
@@ -26,7 +47,7 @@ export function AppointmentForm() {
         setLoading(true)
         const childrenData = await getChildren()
         setChildren(childrenData)
-        if (childrenData.length > 0) {
+        if (childrenData.length > 0 && !selectedChild) {
           setSelectedChild(childrenData[0].id)
         }
       } catch (err) {
@@ -37,38 +58,15 @@ export function AppointmentForm() {
     }
 
     fetchChildren()
-  }, [])
-
-  const vaccineId = location.state?.vaccineId || null;
-  const vaccinepackageId = location.state?.vaccinepackageId || null;
+  }, [setSelectedChild, selectedChild])
 
   const handleBack = () => {
     if (vaccineId) {
-      navigate(`/vaccine/${vaccineId}`);
+      navigate(`/vaccine/${vaccineId}`)
     } else if (vaccinepackageId) {
-      navigate(`/vaccine-package/${vaccinepackageId}`);
-    }
-    else {
-      navigate(-1);
-    }
-  }
-
-  const handleAddChild = async (childData: Omit<ChildData, "id">) => {
-    try {
-      const newChild = await createChild(childData);
-      setChildren((prev) => [...prev, newChild]);
-      setSelectedChild(newChild.id);
-      toast({
-        title: "Success",
-        description: "New child added successfully",
-      })
-    } catch (error) {
-      console.error("Failed to add new child:", error)
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to add new child",
-        variant: "destructive",
-      })
+      navigate(`/vaccine-package/${vaccinepackageId}`)
+    } else {
+      navigate(-1)
     }
   }
 
@@ -76,12 +74,8 @@ export function AppointmentForm() {
     <div className="container mx-auto py-8 px-4">
       <div className="space-y-6">
         {/* Back Button */}
-        {(location.state?.fromVaccineDetail || location.state?.fromVaccinePackageDetail) && (
-          <Button
-            variant="ghost"
-            onClick={handleBack}
-            className="hover:bg-gray-100"
-          >
+        {(fromVaccineDetail || fromVaccinePackageDetail) && (
+          <Button variant="ghost" onClick={handleBack} className="hover:bg-gray-100" disabled={isSubmitting}>
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Vaccine Page
           </Button>
         )}
@@ -109,28 +103,22 @@ export function AppointmentForm() {
                   {loading ? (
                     <p>Loading children...</p>
                   ) : children.length === 0 ? (
-                    <div className="space-y-4">
-                      <p>No children found. Click the "Add Child" button to add a new child.</p>
-                      <AddChildDialog onSubmit={handleAddChild} />
-                    </div>
+                    <p>No children found</p>
                   ) : (
-                    <div className="space-y-4">
-                      <Select value={selectedChild} onValueChange={setSelectedChild}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a child" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            {children.map((child) => (
-                              <SelectItem key={child.id} value={child.id}>
-                                {child.fullName}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                      <AddChildDialog onSubmit={handleAddChild} />
-                    </div>
+                    <Select value={selectedChild} onValueChange={setSelectedChild} disabled={isSubmitting}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a child" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {children.map((child) => (
+                            <SelectItem key={child.id} value={child.id}>
+                              {child.fullName}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                   )}
                 </div>
 
@@ -142,6 +130,7 @@ export function AppointmentForm() {
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Enter any additional notes here..."
                     className="min-h-[100px]"
+                    disabled={isSubmitting}
                   />
                 </div>
               </CardContent>
@@ -157,3 +146,4 @@ export function AppointmentForm() {
     </div>
   )
 }
+
