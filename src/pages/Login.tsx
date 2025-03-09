@@ -32,7 +32,10 @@ const Login = () => {
 	// Effect to handle redirection after successful login
 	useEffect(() => {
 		if (isAuthenticated && user) {
-			const redirectPath = user.roleName === "Staff" ? "/staff/vaccines" : "/user-dashboard"
+			const redirectPath = 
+			user.roleName === "Admin" ? "/admin/admin-dashboard" :
+			user.roleName === "Staff" ? "/staff/vaccines" : 
+			"/user-dashboard"
 			if (window.location.pathname !== redirectPath) {
 				navigate(redirectPath, { replace: true })
 			}
