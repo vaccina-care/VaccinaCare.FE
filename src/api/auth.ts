@@ -52,16 +52,15 @@ export namespace Auth {
 		return response.data;
 	}
 
-	// // Cần bỏ accessToken param sau khi API sửa - ko cần truyền access 1 lần nữa
-	// export async function refreshToken(): Promise<LoginResponse> {
-	// 	const accessToken = localStorage.getItem("accessToken")	
-	// 	const refreshToken = localStorage.getItem("refreshToken")
-	// 	if (!refreshToken && !accessToken) throw new Error("No refresh token available")
-	// 	const response = await axiosInstance.post<LoginResponse>("/auth/refresh-token", {
-	// 		refreshToken
-	// 	})
-	// 	return response.data
-	// }
+	// Cần bỏ accessToken param sau khi API sửa - ko cần truyền access 1 lần nữa
+	export async function refreshToken(): Promise<LoginResponse> {
+		const refreshToken = localStorage.getItem("refreshToken")
+		if (!refreshToken) throw new Error("No refresh token available")
+		const response = await axiosInstance.post<LoginResponse>("/auth/refresh-token", {
+			refreshToken
+		})
+		return response.data
+	}
 
 	export function logout(): void {
 		localStorage.removeItem("accessToken")
