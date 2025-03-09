@@ -39,8 +39,8 @@ export function CustomSidebar({ children, role }: CustomSidebarProps) {
 
     const navigation = role === "admin" ? [
         { name: "Dashboard", href: "/admin/admin-dashboard", icon: LayoutDashboard, match: ["/admin/admin-dashboard"] },
-        { name: "System Users", href: "/admin/system-user", icon: Users, match: ["/admin/system-user"] },
-        { name: "System Vaccines", href: "/admin/system-vaccine", icon: Syringe, match: ["/admin/system-vaccine"] },
+        { name: "User Management", href: "/admin/users-management", icon: Users, match: ["/admin/users-management"] },
+        { name: "Policy Management", href: "/admin/policy-management", icon: Syringe, match: ["/admin/policy-management"] },
     ] : [
         { name: "Vaccines & Packages", href: "/staff/vaccines", icon: Syringe, match: ["/staff/vaccines", "/staff/packages"] },
         { name: "Appointments", href: "/staff/appointments", icon: CalendarDays, match: ["/staff/appointments"] },

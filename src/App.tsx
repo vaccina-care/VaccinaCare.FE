@@ -49,8 +49,8 @@ const validRoutes = [
 	"/staff/reports",
 	"/staff/inventory",
 	"/admin",
-	"/admin/system-vaccine",
-	"/admin/system-user",
+	"/admin/policy-management",
+	"/admin/users-management",
 	"/admin/admin-dashboard",
 ]
 
