@@ -42,6 +42,8 @@ export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }:
   const [totalPages, setTotalPages] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
+  const [targetVaccineFound, setTargetVaccineFound] = useState(false)
+  const [initialPageSet, setInitialPageSet] = useState(false)
   const pageSize = 12
   const { toast } = useToast()
 
@@ -50,8 +52,10 @@ export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }:
     setIsSubmitting(false)
   }, [setIsSubmitting])
 
+  // Set initial service type and selection based on preselected IDs
   useEffect(() => {
-    // Set initial service type based on preselected IDs
+    console.log("Preselected IDs:", { preSelectedVaccineId, preSelectedPackageId })
+
     if (preSelectedPackageId) {
       setServiceType("package")
       setSelectedPackage(preSelectedPackageId)
@@ -61,8 +65,47 @@ export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }:
     }
   }, [preSelectedVaccineId, preSelectedPackageId, setServiceType, setSelectedPackage, setSelectedVaccine])
 
+  // Find the page containing the preselected vaccine
   useEffect(() => {
-    // Fetch all vaccines when component mounts
+    const findVaccinePage = async () => {
+      if (!preSelectedVaccineId || serviceType !== "single" || initialPageSet) return
+
+      try {
+        setIsLoading(true)
+        console.log("Searching for vaccine ID:", preSelectedVaccineId)
+
+        // Get all vaccines to find the index of the preselected one
+        const allVaccinesResponse = await getVaccineList({
+          page: 1,
+          pageSize: 1000, // Large number to get all vaccines
+          search: "",
+        })
+
+        if (allVaccinesResponse.isSuccess) {
+          const vaccineIndex = allVaccinesResponse.data.vaccines.findIndex((v) => v.id === preSelectedVaccineId)
+
+          console.log("Vaccine index:", vaccineIndex)
+
+          if (vaccineIndex !== -1) {
+            // Calculate which page this vaccine is on
+            const targetPage = Math.floor(vaccineIndex / pageSize) + 1
+            console.log("Setting page to:", targetPage)
+            setCurrentPage(targetPage)
+            setInitialPageSet(true)
+          }
+        }
+      } catch (error) {
+        console.error("Error finding vaccine page:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    findVaccinePage()
+  }, [preSelectedVaccineId, serviceType, pageSize, initialPageSet])
+
+  // Fetch vaccines for the current page and handle preselection
+  useEffect(() => {
     const fetchVaccines = async () => {
       try {
         setIsLoading(true)
@@ -75,16 +118,13 @@ export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }:
           setVaccines(response.data.vaccines)
           setTotalPages(Math.ceil(response.data.totalCount / pageSize))
 
-          if (preSelectedVaccineId && currentPage === 1) {
-            const allVaccines = await getVaccineList({ page: 1, pageSize: response.data.totalCount })
-            if (allVaccines.isSuccess) {
-              const vaccineIndex = allVaccines.data.vaccines.findIndex((vaccine) => vaccine.id === preSelectedVaccineId)
-              if (vaccineIndex !== -1) {
-                const targetPage = Math.ceil((vaccineIndex + 1) / pageSize)
-                if (targetPage !== currentPage) {
-                  setCurrentPage(targetPage)
-                }
-              }
+          // Check if our target vaccine is in this page
+          if (preSelectedVaccineId && !targetVaccineFound) {
+            const found = response.data.vaccines.some((v) => v.id === preSelectedVaccineId)
+            if (found) {
+              setTargetVaccineFound(true)
+              setSelectedVaccine(preSelectedVaccineId) // Ensure the vaccine is selected
+              console.log("Target vaccine found and selected on page", currentPage)
             }
           }
         }
@@ -94,22 +134,28 @@ export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }:
         setIsLoading(false)
       }
     }
+
     const debounceTimer = setTimeout(fetchVaccines, 300)
     return () => clearTimeout(debounceTimer)
-  }, [currentPage, searchTerm, preSelectedPackageId, preSelectedVaccineId])
+  }, [currentPage, searchTerm, pageSize, preSelectedVaccineId, targetVaccineFound, setSelectedVaccine])
 
+  // Fetch packages and handle preselection
   useEffect(() => {
-    // Fetch all vaccine packages when component mounts
     const fetchVaccinePackages = async () => {
       try {
         const response = await getVaccinePackages()
         setVaccinePackages(response)
+
+        // If we have a preselected package, ensure it's selected
+        if (preSelectedPackageId) {
+          setSelectedPackage(preSelectedPackageId)
+        }
       } catch (error) {
         console.error("Error fetching vaccine packages:", error)
       }
     }
     fetchVaccinePackages()
-  }, [])
+  }, [preSelectedPackageId, setSelectedPackage])
 
   const handleBookAppointment = async () => {
     // Validate form
@@ -180,6 +226,11 @@ export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }:
           if (paymentResponse.isSuccess) {
             // Reset state before redirecting
             resetAppointmentState()
+
+            // Clear navigation state
+            if (window.history.replaceState) {
+              window.history.replaceState({}, "", window.location.pathname)
+            }
 
             // Redirect to payment page
             window.location.href = paymentResponse.data
@@ -276,11 +327,13 @@ export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }:
                 onValueChange={setSelectedVaccine}
                 className="grid grid-cols-3 gap-4"
                 disabled={isSubmitting}
+                defaultValue={preSelectedVaccineId || undefined}
               >
                 {vaccines.map((vaccine) => (
                   <div
                     key={vaccine.id}
-                    className={`group relative rounded-lg border p-4 space-y-3 transition-colors hover:border-primary hover:bg-accent/5 cursor-pointer ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
+                    className={`group relative rounded-lg border p-4 space-y-3 transition-colors hover:border-primary hover:bg-accent/5 cursor-pointer ${vaccine.id === selectedVaccine ? "border-primary bg-accent/10" : ""
+                      } ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
                     onClick={() => !isSubmitting && setSelectedVaccine(vaccine.id)}
                   >
                     <div className="flex items-start gap-3">
@@ -314,11 +367,13 @@ export function ServiceSelection({ preSelectedVaccineId, preSelectedPackageId }:
                 onValueChange={setSelectedPackage}
                 className="grid grid-cols-3 gap-4"
                 disabled={isSubmitting}
+                defaultValue={preSelectedPackageId || undefined}
               >
                 {vaccinePackages.map((pkg) => (
                   <div
                     key={pkg.id}
-                    className={`group relative rounded-lg border p-4 space-y-3 transition-colors hover:border-primary hover:bg-accent/5 cursor-pointer ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
+                    className={`group relative rounded-lg border p-4 space-y-3 transition-colors hover:border-primary hover:bg-accent/5 cursor-pointer ${pkg.id === preSelectedPackageId ? "border-primary bg-accent/10" : ""
+                      } ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
                     onClick={() => !isSubmitting && setSelectedPackage(pkg.id)}
                   >
                     <div className="flex items-start gap-3">

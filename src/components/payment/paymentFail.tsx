@@ -12,26 +12,32 @@ const failImg =
 export default function PaymentFailPage() {
     const navigate = useNavigate()
 
-    // Ensure we scroll to top when component mounts
+    // Ensure we scroll to top when component mounts and clear any state
     useEffect(() => {
         window.scrollTo(0, 0)
 
-        // Clear any URL parameters that might be causing issues
+        // Clear any URL parameters and state that might be causing issues
         if (window.history.replaceState) {
             const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname
-            window.history.replaceState({ path: cleanUrl }, "", cleanUrl)
+            window.history.replaceState({}, "", cleanUrl)
         }
     }, [])
 
-    // Handle navigation while preserving auth state
+    // Handle navigation while preserving auth state but clearing appointment state
     const handleTryAgain = () => {
-        // Navigate back to appointments page
-        navigate("/appointments", { replace: false })
+        // Navigate back to appointments page with clean state
+        navigate("/appointments", {
+            replace: false,
+            state: {}, // Empty state to clear any previous state
+        })
     }
 
     const handleReturnHome = () => {
-        // Navigate to home page without forcing a page reload
-        navigate("/", { replace: true })
+        // Navigate to home page without forcing a page reload, but with a clean state
+        navigate("/", {
+            replace: true,
+            state: {}, // Empty state to clear any previous state
+        })
     }
 
     return (
@@ -165,13 +171,19 @@ export default function PaymentFailPage() {
                             </svg>
                             Need help?
                         </span>
-                        <button onClick={() => navigate("/about")} className="text-[#1e1b4b] hover:text-[#1e1b4b]/80 font-medium">
+                        <button
+                            onClick={() => navigate("/about", { state: {} })}
+                            className="text-[#1e1b4b] hover:text-[#1e1b4b]/80 font-medium"
+                        >
                             Contact Support
                         </button>
                     </div>
                     <span className="flex items-center justify-center gap-1">
                         Powered by <strong className="font-medium">VACCINACARE TEAM</strong> |{" "}
-                        <button onClick={() => navigate("/policy")} className="underline hover:text-[#1e1b4b] transition-colors">
+                        <button
+                            onClick={() => navigate("/policy", { state: {} })}
+                            className="underline hover:text-[#1e1b4b] transition-colors"
+                        >
                             Policy
                         </button>
                     </span>

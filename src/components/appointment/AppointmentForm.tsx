@@ -23,10 +23,22 @@ export function AppointmentForm() {
   const { selectedChild, setSelectedChild, notes, setNotes, isSubmitting, resetAppointmentState } =
     useAppointmentContext()
 
+  // Extract state from location directly - don't modify it
+  const vaccineId = location.state?.vaccineId || null
+  const vaccinepackageId = location.state?.vaccinepackageId || null
+  const fromVaccineDetail = location.state?.fromVaccineDetail || false
+  const fromVaccinePackageDetail = location.state?.fromVaccinePackageDetail || false
+
   // Reset appointment state when component mounts
   useEffect(() => {
+    // Reset the appointment state first
     resetAppointmentState()
-    window.scrollTo(0, 0)
+
+    // Scroll to top
+  window.scrollTo(0, 0)
+
+    // DO NOT modify the location state here as it causes the vaccineId to be lost
+    // We'll only clean up state when navigating away
   }, [resetAppointmentState])
 
   useEffect(() => {
@@ -48,9 +60,6 @@ export function AppointmentForm() {
     fetchChildren()
   }, [setSelectedChild, selectedChild])
 
-  const vaccineId = location.state?.vaccineId || null
-  const vaccinepackageId = location.state?.vaccinepackageId || null
-
   const handleBack = () => {
     if (vaccineId) {
       navigate(`/vaccine/${vaccineId}`)
@@ -65,7 +74,7 @@ export function AppointmentForm() {
     <div className="container mx-auto py-8 px-4">
       <div className="space-y-6">
         {/* Back Button */}
-        {(location.state?.fromVaccineDetail || location.state?.fromVaccinePackageDetail) && (
+        {(fromVaccineDetail || fromVaccinePackageDetail) && (
           <Button variant="ghost" onClick={handleBack} className="hover:bg-gray-100" disabled={isSubmitting}>
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Vaccine Page
           </Button>
