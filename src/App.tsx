@@ -44,9 +44,7 @@ const validRoutes = [
 	"/feedback",
 	"/staff",
 	"/staff/vaccines",
-	"/staff/appointments",
-	"/staff/reports",
-	"/staff/inventory",
+	"/staff/vaccine-interval-rules"
 ]
 
 const isValidRoute = (pathname: string) => {

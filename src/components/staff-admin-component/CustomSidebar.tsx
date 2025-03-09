@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useAuthContext } from "@/contexts/AuthContexts"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Package2, Syringe, CalendarDays, BarChart3, LogOut, ChevronLeft, ChevronRight } from "lucide-react"
+import { Syringe, CalendarDays, BarChart3, LogOut, ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ThemeToggle } from "./ThemeToggle"
 
@@ -44,22 +44,16 @@ export function CustomSidebar({ children }: CustomSidebarProps) {
             match: ["/staff/vaccines", "/staff/packages"],
         },
         {
-            name: "Appointments",
-            href: "/staff/appointments",
+            name: "Vaccine Interval Rules",
+            href: "/staff/vaccine-interval-rules",
             icon: CalendarDays,
-            match: ["/staff/appointments"],
+            match: ["/staff/vaccine-interval-rules"],
         },
         {
             name: "Reports",
             href: "/staff/reports",
             icon: BarChart3,
             match: ["/staff/reports"],
-        },
-        {
-            name: "Inventory",
-            href: "/staff/inventory",
-            icon: Package2,
-            match: ["/staff/inventory"],
         },
     ]
 
