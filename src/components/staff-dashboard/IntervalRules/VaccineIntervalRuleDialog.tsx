@@ -53,6 +53,8 @@ export function VaccineIntervalRuleDialog({
 
     // Reset form when dialog opens/closes or selected rule changes
     useEffect(() => {
+        document.body.style.pointerEvents = "auto";
+        document.body.style.overflow = "";
         if (isOpen) {
             setTimeout(() => {
                 if (selectedRule) {
@@ -111,6 +113,8 @@ export function VaccineIntervalRuleDialog({
                 // Restore pointer events when dialog is open
                 document.body.style.pointerEvents = "auto"
             }, 50)
+        } else {
+            document.body.style.pointerEvents = "";
         }
     }, [isOpen, selectedRule, toast])
 
@@ -208,6 +212,7 @@ export function VaccineIntervalRuleDialog({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
+        
         // Validation
         if (formData.vaccineId === formData.relatedVaccineId) {
             toast({
@@ -234,6 +239,15 @@ export function VaccineIntervalRuleDialog({
                 variant: "destructive",
             })
             return
+        }
+
+        if (!selectedRule?.id) {
+            toast({
+                title: "Error",
+                description: "Missing rule ID for update",
+                variant: "destructive",
+            });
+            return;
         }
 
         try {

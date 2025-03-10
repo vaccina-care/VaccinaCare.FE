@@ -53,7 +53,7 @@ export const updateVaccineIntervalRule = async (
         return response.data
     } catch (error) {
         console.error("Error updating vaccine interval rule:", error)
-        throw error
+        throw error 
     }
 }
 
