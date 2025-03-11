@@ -63,7 +63,6 @@ interface UserType {
   avatar?: string
 }
 
-// Mock user data
 const mockUsers: UserType[] = Array.from({ length: 50 }, (_, i) => ({
   id: `user-${i + 1}`,
   name: `User ${i + 1}`,
@@ -91,104 +90,77 @@ export function UsersManagement() {
   const [pageSize] = useState(10)
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [dialogMode, setDialogMode] = useState<DialogMode>("view")
+  const [isSaving, setIsSaving] = useState(false)
   const { toast } = useToast()
 
-  // Add debounced search values
   const debouncedSearchName = useDebounce(searchName, 300)
   const debouncedSearchEmail = useDebounce(searchEmail, 300)
 
-  // Dialog state management
-  const [userDialogState, setUserDialogState] = useState<{
-    isOpen: boolean
-    mode: DialogMode
-    userId: string | null
-  }>({
-    isOpen: false,
-    mode: "view",
-    userId: null,
-  })
-
-  const handleCloseUserDialog = useCallback(() => {
-    setUserDialogState({
-      isOpen: false,
-      mode: "view",
-      userId: null,
-    })
-  }, [])
-
-  // Fetch users with filtering and pagination
   const fetchUsers = useCallback(() => {
     setIsLoading(true)
-
-    // Simulate API call with filtering
     setTimeout(() => {
       let filteredUsers = [...mockUsers]
-
-      // Apply filters
       if (debouncedSearchName) {
         filteredUsers = filteredUsers.filter((user) =>
           user.name.toLowerCase().includes(debouncedSearchName.toLowerCase()),
         )
       }
-
       if (debouncedSearchEmail) {
         filteredUsers = filteredUsers.filter((user) =>
           user.email.toLowerCase().includes(debouncedSearchEmail.toLowerCase()),
         )
       }
-
       if (filterRole !== "all") {
         filteredUsers = filteredUsers.filter((user) => user.role === filterRole)
       }
-
       if (filterStatus !== "all") {
         filteredUsers = filteredUsers.filter((user) => user.status === filterStatus)
       }
-
-      // Set total count for pagination
       setTotalCount(filteredUsers.length)
-
-      // Apply pagination
       const start = (page - 1) * pageSize
       const paginatedUsers = filteredUsers.slice(start, start + pageSize)
-
       setUsers(paginatedUsers)
       setIsLoading(false)
-    }, 500) // Simulate network delay
+    }, 500)
   }, [debouncedSearchName, debouncedSearchEmail, filterRole, filterStatus, page, pageSize])
 
   useEffect(() => {
     fetchUsers()
+    return () => {
+      document.body.style.pointerEvents = "auto" // Cleanup khi component unmount
+    }
   }, [fetchUsers])
 
-  // Dialog handlers
-  const handleViewUser = useCallback((user: UserType) => {
+  const openDialog = useCallback((mode: DialogMode, user: UserType | null = null) => {
+    setDialogMode(mode)
     setSelectedUser(user)
-    setUserDialogState({
-      isOpen: true,
-      mode: "view",
-      userId: user.id,
-    })
+    setDialogOpen(true)
   }, [])
+
+  const closeDialog = useCallback(() => {
+    setDialogOpen(false)
+    setTimeout(() => {
+      setSelectedUser(null)
+      setDialogMode("view")
+      setIsSaving(false)
+      document.body.style.pointerEvents = "auto" // Khôi phục tương tác
+    }, 300)
+  }, [])
+
+  const handleViewUser = useCallback((user: UserType) => {
+    openDialog("view", user)
+  }, [openDialog])
 
   const handleEditUser = useCallback((user: UserType) => {
-    setSelectedUser(user)
-    setUserDialogState({
-      isOpen: true,
-      mode: "edit",
-      userId: user.id,
-    })
-  }, [])
+    openDialog("edit", user)
+  }, [openDialog])
 
   const handleCreateUser = useCallback(() => {
-    setUserDialogState({
-      isOpen: true,
-      mode: "create",
-      userId: null,
-    })
-  }, [])
+    openDialog("create")
+  }, [openDialog])
 
-  // Delete user handler
   const handleDeleteUser = useCallback((user: UserType) => {
     setSelectedUser(user)
     setDeleteConfirmOpen(true)
@@ -196,28 +168,24 @@ export function UsersManagement() {
 
   const confirmDeleteUser = useCallback(() => {
     if (!selectedUser) return
-
-    // Simulate API call
     setTimeout(() => {
       setUsers((prev) => prev.filter((user) => user.id !== selectedUser.id))
       setTotalCount((prev) => prev - 1)
-
       toast({
         title: "User deleted",
         description: `${selectedUser.name} has been deleted successfully.`,
       })
-
       setDeleteConfirmOpen(false)
       setSelectedUser(null)
+      document.body.style.pointerEvents = "auto" // Khôi phục tương tác
     }, 500)
   }, [selectedUser, toast])
 
-  // Save user handler
   const handleSaveUser = useCallback(
     (formData: any) => {
-      // Simulate API call
+      setIsSaving(true)
       setTimeout(() => {
-        if (userDialogState.mode === "create") {
+        if (dialogMode === "create") {
           const newUser: UserType = {
             id: `user-${Date.now()}`,
             name: formData.name,
@@ -229,15 +197,13 @@ export function UsersManagement() {
             createdAt: new Date().toISOString().split("T")[0],
             avatar: undefined,
           }
-
           setUsers((prev) => [...prev, newUser])
           setTotalCount((prev) => prev + 1)
-
           toast({
             title: "User created",
             description: `${newUser.name} has been created successfully.`,
           })
-        } else if (userDialogState.mode === "edit" && selectedUser) {
+        } else if (dialogMode === "edit" && selectedUser) {
           const updatedUser = {
             ...selectedUser,
             name: formData.name,
@@ -247,48 +213,35 @@ export function UsersManagement() {
             phone: formData.phone,
             dateOfBirth: formData.dateOfBirth,
           }
-
           setUsers((prev) => prev.map((user) => (user.id === selectedUser.id ? updatedUser : user)))
-
           toast({
             title: "User updated",
             description: `${updatedUser.name} has been updated successfully.`,
           })
         }
-
-        handleCloseUserDialog()
+        closeDialog()
       }, 500)
     },
-    [userDialogState.mode, selectedUser, toast, handleCloseUserDialog],
+    [dialogMode, selectedUser, toast, closeDialog],
   )
 
   const totalPages = Math.ceil(totalCount / pageSize)
 
-  // Helper function to get role badge variant
   const getRoleBadgeVariant = (role: UserRole) => {
     switch (role) {
-      case "admin":
-        return "bg-purple-100 text-purple-800 dark:bg-purple-500/20 dark:text-purple-400"
-      case "staff":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-400"
-      case "patient":
-        return "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400"
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-500/20 dark:text-gray-400"
+      case "admin": return "bg-purple-100 text-purple-800 dark:bg-purple-500/20 dark:text-purple-400"
+      case "staff": return "bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-400"
+      case "patient": return "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400"
+      default: return "bg-gray-100 text-gray-800 dark:bg-gray-500/20 dark:text-gray-400"
     }
   }
 
-  // Helper function to get status badge variant
   const getStatusBadgeVariant = (status: UserStatus) => {
     switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400"
-      case "inactive":
-        return "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-400"
-      case "pending":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-400"
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-500/20 dark:text-gray-400"
+      case "active": return "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400"
+      case "inactive": return "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-400"
+      case "pending": return "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-400"
+      default: return "bg-gray-100 text-gray-800 dark:bg-gray-500/20 dark:text-gray-400"
     }
   }
 
@@ -302,6 +255,7 @@ export function UsersManagement() {
         </Button>
       </div>
 
+      {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="flex flex-1 gap-2">
           <div className="relative flex-1">
@@ -330,27 +284,11 @@ export function UsersManagement() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Roles</SelectItem>
-              <SelectItem value="admin">
-                <div className="flex items-center gap-2">
-                  <Shield className="h-4 w-4" />
-                  <span>Admin</span>
-                </div>
-              </SelectItem>
-              <SelectItem value="staff">
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  <span>Staff</span>
-                </div>
-              </SelectItem>
-              <SelectItem value="patient">
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  <span>Patient</span>
-                </div>
-              </SelectItem>
+              <SelectItem value="admin"><Shield className="inline mr-2 h-4 w-4" />Admin</SelectItem>
+              <SelectItem value="staff"><User className="inline mr-2 h-4 w-4" />Staff</SelectItem>
+              <SelectItem value="patient"><User className="inline mr-2 h-4 w-4" />Patient</SelectItem>
             </SelectContent>
           </Select>
-
           <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="Status" />
@@ -365,6 +303,7 @@ export function UsersManagement() {
         </div>
       </div>
 
+      {/* Table */}
       <div className="rounded-md border bg-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -382,35 +321,16 @@ export function UsersManagement() {
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, index) => (
                   <tr key={`skeleton-${index}`} className="border-b animate-pulse">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700" />
-                        <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-32" />
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-40" />
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-16" />
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-16" />
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-24" />
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-8 ml-auto" />
-                    </td>
+                    <td className="px-4 py-3"><div className="flex items-center gap-3"><div className="h-8 w-8 rounded-full bg-gray-200" /><div className="h-5 bg-gray-200 rounded w-32" /></div></td>
+                    <td className="px-4 py-3"><div className="h-5 bg-gray-200 rounded w-40" /></td>
+                    <td className="px-4 py-3"><div className="h-5 bg-gray-200 rounded w-16" /></td>
+                    <td className="px-4 py-3"><div className="h-5 bg-gray-200 rounded w-16" /></td>
+                    <td className="px-4 py-3"><div className="h-5 bg-gray-200 rounded w-24" /></td>
+                    <td className="px-4 py-3 text-right"><div className="h-8 bg-gray-200 rounded w-8 ml-auto" /></td>
                   </tr>
                 ))
               ) : users.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
-                    No users found
-                  </td>
-                </tr>
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-500">No users found</td></tr>
               ) : (
                 users.map((user) => (
                   <tr key={user.id} className="border-b hover:bg-muted/50">
@@ -424,16 +344,8 @@ export function UsersManagement() {
                       </div>
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
-                    <td className="px-4 py-3">
-                      <Badge variant="outline" className={`${getRoleBadgeVariant(user.role)} border-0`}>
-                        {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge variant="outline" className={`${getStatusBadgeVariant(user.status)} border-0`}>
-                        {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-                      </Badge>
-                    </td>
+                    <td className="px-4 py-3"><Badge variant="outline" className={`${getRoleBadgeVariant(user.role)} border-0`}>{user.role.charAt(0).toUpperCase() + user.role.slice(1)}</Badge></td>
+                    <td className="px-4 py-3"><Badge variant="outline" className={`${getStatusBadgeVariant(user.status)} border-0`}>{user.status.charAt(0).toUpperCase() + user.status.slice(1)}</Badge></td>
                     <td className="px-4 py-3 text-muted-foreground">{user.createdAt}</td>
                     <td className="px-4 py-3 text-right">
                       <DropdownMenu>
@@ -444,16 +356,13 @@ export function UsersManagement() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => handleViewUser(user)}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Details
+                            <Eye className="mr-2 h-4 w-4" /> View Details
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleEditUser(user)}>
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Edit User
+                            <Pencil className="mr-2 h-4 w-4" /> Edit User
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleDeleteUser(user)} className="text-red-600">
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete User
+                            <Trash2 className="mr-2 h-4 w-4" /> Delete User
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -464,70 +373,38 @@ export function UsersManagement() {
             </tbody>
           </table>
         </div>
-
-        {/* Pagination */}
         <div className="flex items-center justify-between px-4 py-3 border-t">
           <div className="text-sm text-gray-500">
-            {totalCount > 0 ? (
-              <>
-                {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, totalCount)} of {totalCount} users
-              </>
-            ) : (
-              "No users"
-            )}
+            {totalCount > 0 ? `${(page - 1) * pageSize + 1}-${Math.min(page * pageSize, totalCount)} of ${totalCount} users` : "No users"}
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">
-              Page {page} of {totalPages}
-            </span>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-              disabled={page === 1}
-              className="h-8 w-8"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={page >= totalPages}
-              className="h-8 w-8"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+            <span className="text-sm text-gray-500">Page {page} of {totalPages}</span>
+            <Button variant="outline" size="icon" onClick={() => setPage((prev) => Math.max(prev - 1, 1))} disabled={page === 1} className="h-8 w-8"><ChevronLeft className="h-4 w-4" /></Button>
+            <Button variant="outline" size="icon" onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))} disabled={page >= totalPages} className="h-8 w-8"><ChevronRight className="h-4 w-4" /></Button>
           </div>
         </div>
       </div>
 
-      {/* User Detail Dialog */}
+      {/* User Dialog */}
       <Dialog
-        open={userDialogState.isOpen}
+        open={dialogOpen}
         onOpenChange={(open) => {
-          if (!open) handleCloseUserDialog()
+          if (!open && !isSaving) { // Chỉ đóng khi không đang lưu
+            closeDialog()
+          }
         }}
       >
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>
-              {userDialogState.mode === "view"
-                ? "User Details"
-                : userDialogState.mode === "edit"
-                  ? "Edit User"
-                  : "Create New User"}
+              {dialogMode === "view" ? "User Details" : dialogMode === "edit" ? "Edit User" : "Create New User"}
             </DialogTitle>
             <DialogDescription>
-              {userDialogState.mode === "view"
-                ? "View user information"
-                : userDialogState.mode === "edit"
-                  ? "Make changes to user information"
-                  : "Add a new user to the system"}
+              {dialogMode === "view" ? "View user information" : dialogMode === "edit" ? "Make changes to user information" : "Add a new user to the system"}
             </DialogDescription>
           </DialogHeader>
 
-          {userDialogState.mode === "view" && selectedUser ? (
+          {dialogMode === "view" && selectedUser ? (
             <div className="space-y-6">
               <div className="flex flex-col items-center gap-4 sm:flex-row">
                 <Avatar className="h-20 w-20">
@@ -537,16 +414,11 @@ export function UsersManagement() {
                 <div className="space-y-1 text-center sm:text-left">
                   <h3 className="text-2xl font-semibold">{selectedUser.name}</h3>
                   <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
-                    <Badge variant="outline" className={`${getRoleBadgeVariant(selectedUser.role)} border-0`}>
-                      {selectedUser.role.charAt(0).toUpperCase() + selectedUser.role.slice(1)}
-                    </Badge>
-                    <Badge variant="outline" className={`${getStatusBadgeVariant(selectedUser.status)} border-0`}>
-                      {selectedUser.status.charAt(0).toUpperCase() + selectedUser.status.slice(1)}
-                    </Badge>
+                    <Badge variant="outline" className={`${getRoleBadgeVariant(selectedUser.role)} border-0`}>{selectedUser.role.charAt(0).toUpperCase() + selectedUser.role.slice(1)}</Badge>
+                    <Badge variant="outline" className={`${getStatusBadgeVariant(selectedUser.status)} border-0`}>{selectedUser.status.charAt(0).toUpperCase() + selectedUser.status.slice(1)}</Badge>
                   </div>
                 </div>
               </div>
-
               <Tabs defaultValue="details">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="details">User Details</TabsTrigger>
@@ -554,63 +426,23 @@ export function UsersManagement() {
                 </TabsList>
                 <TabsContent value="details" className="space-y-4 pt-4">
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">Email</Label>
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                        <span>{selectedUser.email}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">Phone</Label>
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span>{selectedUser.phone || "Not provided"}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">Date of Birth</Label>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span>{selectedUser.dateOfBirth || "Not provided"}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">User ID</Label>
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-muted-foreground" />
-                        <span>{selectedUser.id}</span>
-                      </div>
-                    </div>
+                    <div className="space-y-2"><Label className="text-muted-foreground">Email</Label><div className="flex items-center gap-2"><Mail className="h-4 w-4 text-muted-foreground" /><span>{selectedUser.email}</span></div></div>
+                    <div className="space-y-2"><Label className="text-muted-foreground">Phone</Label><div className="flex items-center gap-2"><Phone className="h-4 w-4 text-muted-foreground" /><span>{selectedUser.phone || "Not provided"}</span></div></div>
+                    <div className="space-y-2"><Label className="text-muted-foreground">Date of Birth</Label><div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /><span>{selectedUser.dateOfBirth || "Not provided"}</span></div></div>
+                    <div className="space-y-2"><Label className="text-muted-foreground">User ID</Label><div className="flex items-center gap-2"><User className="h-4 w-4 text-muted-foreground" /><span>{selectedUser.id}</span></div></div>
                   </div>
                 </TabsContent>
                 <TabsContent value="activity" className="space-y-4 pt-4">
                   <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">Account Created</Label>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span>{selectedUser.createdAt}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">Last Login</Label>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span>{selectedUser.lastLogin || "Never"}</span>
-                      </div>
-                    </div>
-                    <Card>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-sm text-muted-foreground">No recent activity to display.</div>
-                      </CardContent>
-                    </Card>
+                    <div className="space-y-2"><Label className="text-muted-foreground">Account Created</Label><div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /><span>{selectedUser.createdAt}</span></div></div>
+                    <div className="space-y-2"><Label className="text-muted-foreground">Last Login</Label><div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /><span>{selectedUser.lastLogin || "Never"}</span></div></div>
+                    <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Recent Activity</CardTitle></CardHeader><CardContent><div className="text-sm text-muted-foreground">No recent activity to display.</div></CardContent></Card>
                   </div>
                 </TabsContent>
               </Tabs>
+              <DialogFooter>
+                <Button variant="outline" onClick={closeDialog}>Close</Button>
+              </DialogFooter>
             </div>
           ) : (
             <form
@@ -630,20 +462,12 @@ export function UsersManagement() {
               }}
             >
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" name="name" defaultValue={selectedUser?.name || ""} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" defaultValue={selectedUser?.email || ""} required />
-                </div>
+                <div className="space-y-2"><Label htmlFor="name">Full Name</Label><Input id="name" name="name" defaultValue={selectedUser?.name || ""} required /></div>
+                <div className="space-y-2"><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" defaultValue={selectedUser?.email || ""} required /></div>
                 <div className="space-y-2">
                   <Label htmlFor="role">Role</Label>
                   <Select name="role" defaultValue={selectedUser?.role || "patient"}>
-                    <SelectTrigger id="role">
-                      <SelectValue placeholder="Select role" />
-                    </SelectTrigger>
+                    <SelectTrigger id="role"><SelectValue placeholder="Select role" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="admin">Admin</SelectItem>
                       <SelectItem value="staff">Staff</SelectItem>
@@ -651,13 +475,11 @@ export function UsersManagement() {
                     </SelectContent>
                   </Select>
                 </div>
-                {userDialogState.mode === "edit" && (
+                {dialogMode === "edit" && (
                   <div className="space-y-2">
                     <Label htmlFor="status">Status</Label>
                     <Select name="status" defaultValue={selectedUser?.status || "active"}>
-                      <SelectTrigger id="status">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
+                      <SelectTrigger id="status"><SelectValue placeholder="Select status" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="active">Active</SelectItem>
                         <SelectItem value="inactive">Inactive</SelectItem>
@@ -666,25 +488,16 @@ export function UsersManagement() {
                     </Select>
                   </div>
                 )}
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input id="phone" name="phone" defaultValue={selectedUser?.phone || ""} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                  <Input
-                    id="dateOfBirth"
-                    name="dateOfBirth"
-                    type="date"
-                    defaultValue={selectedUser?.dateOfBirth || ""}
-                  />
-                </div>
+                <div className="space-y-2"><Label htmlFor="phone">Phone Number</Label><Input id="phone" name="phone" defaultValue={selectedUser?.phone || ""} /></div>
+                <div className="space-y-2"><Label htmlFor="dateOfBirth">Date of Birth</Label><Input id="dateOfBirth" name="dateOfBirth" type="date" defaultValue={selectedUser?.dateOfBirth || ""} /></div>
               </div>
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={handleCloseUserDialog}>
+                <Button type="button" variant="outline" onClick={closeDialog} disabled={isSaving}>
                   Cancel
                 </Button>
-                <Button type="submit">{userDialogState.mode === "create" ? "Create User" : "Save Changes"}</Button>
+                <Button type="submit" disabled={isSaving}>
+                  {dialogMode === "create" ? "Create User" : "Save Changes"}
+                </Button>
               </DialogFooter>
             </form>
           )}
@@ -712,4 +525,3 @@ export function UsersManagement() {
     </div>
   )
 }
-
