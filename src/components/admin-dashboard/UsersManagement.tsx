@@ -45,10 +45,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
+import { fetchAllUsers, GetUserData, UserRole, UserStatus } from "@/api/user"
 
-// Mock user types
-type UserRole = "admin" | "staff" | "patient"
-type UserStatus = "active" | "inactive" | "pending"
 
 interface UserType {
   id: string
@@ -63,19 +61,6 @@ interface UserType {
   avatar?: string
 }
 
-const mockUsers: UserType[] = Array.from({ length: 50 }, (_, i) => ({
-  id: `user-${i + 1}`,
-  name: `User ${i + 1}`,
-  email: `user${i + 1}@example.com`,
-  role: i % 10 === 0 ? "admin" : i % 3 === 0 ? "staff" : "patient",
-  status: i % 7 === 0 ? "inactive" : i % 5 === 0 ? "pending" : "active",
-  phone: `+1 (555) ${100 + i}-${1000 + i}`,
-  dateOfBirth: i % 2 === 0 ? `1990-${(i % 12) + 1}-${(i % 28) + 1}` : undefined,
-  createdAt: `2023-${(i % 12) + 1}-${(i % 28) + 1}`,
-  lastLogin: i % 3 === 0 ? `2023-${(i % 12) + 1}-${(i % 28) + 1}` : undefined,
-  avatar: i % 5 === 0 ? undefined : `/placeholder.svg?height=40&width=40`,
-}))
-
 type DialogMode = "view" | "edit" | "create"
 
 export function UsersManagement() {
@@ -84,8 +69,8 @@ export function UsersManagement() {
   const [isLoading, setIsLoading] = useState(true)
   const [searchName, setSearchName] = useState("")
   const [searchEmail, setSearchEmail] = useState("")
-  const [filterRole, setFilterRole] = useState<string>("all")
-  const [filterStatus, setFilterStatus] = useState<string>("all")
+  const [filterRole, setFilterRole] = useState<UserRole | "all">("all")  
+  const [filterStatus, setFilterStatus] = useState<UserStatus | "all">("all")
   const [page, setPage] = useState(1)
   const [pageSize] = useState(10)
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null)
@@ -98,40 +83,51 @@ export function UsersManagement() {
   const debouncedSearchName = useDebounce(searchName, 300)
   const debouncedSearchEmail = useDebounce(searchEmail, 300)
 
-  const fetchUsers = useCallback(() => {
+  const fetchUsers = useCallback(async () => {
     setIsLoading(true)
-    setTimeout(() => {
-      let filteredUsers = [...mockUsers]
-      if (debouncedSearchName) {
-        filteredUsers = filteredUsers.filter((user) =>
-          user.name.toLowerCase().includes(debouncedSearchName.toLowerCase()),
-        )
-      }
-      if (debouncedSearchEmail) {
-        filteredUsers = filteredUsers.filter((user) =>
-          user.email.toLowerCase().includes(debouncedSearchEmail.toLowerCase()),
-        )
-      }
-      if (filterRole !== "all") {
-        filteredUsers = filteredUsers.filter((user) => user.role === filterRole)
-      }
-      if (filterStatus !== "all") {
-        filteredUsers = filteredUsers.filter((user) => user.status === filterStatus)
-      }
-      setTotalCount(filteredUsers.length)
-      const start = (page - 1) * pageSize
-      const paginatedUsers = filteredUsers.slice(start, start + pageSize)
-      setUsers(paginatedUsers)
-      setIsLoading(false)
-    }, 500)
-  }, [debouncedSearchName, debouncedSearchEmail, filterRole, filterStatus, page, pageSize])
+    try {
+      const { users: fetchedUsers, totalCount: count } = await fetchAllUsers(
+        page,
+        pageSize,
+        debouncedSearchName,
+        debouncedSearchEmail,
+        filterRole,
+        filterStatus
+      );
 
-  useEffect(() => {
-    fetchUsers()
-    return () => {
-      document.body.style.pointerEvents = "auto" // Cleanup khi component unmount
+      // Map backend data to match frontend UserType
+      const mappedUsers: UserType[] = fetchedUsers.map((user, index) => ({
+        id: user.id || `user-${index}`,
+        name: user.fullName,
+        email: user.email,
+        role: user.roleName,
+        status: user.status || "active",
+        phone: user.phoneNumber || "Not provided",
+        dateOfBirth: user.dateOfBirth?.split("T")[0],
+        createdAt: user.createdAt || new Date().toISOString().split('T')[0],
+        lastLogin: user.lastLogin || undefined,
+        avatar: user.imageUrl || undefined,
+      }));
+
+      setUsers(mappedUsers);
+      setTotalCount(count);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch users",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
     }
-  }, [fetchUsers])
+  }, [debouncedSearchName, debouncedSearchEmail, filterRole, filterStatus, page, pageSize, toast]);
+  
+  useEffect(() => {
+    fetchUsers();
+    return () => {
+      document.body.style.pointerEvents = "auto";
+    };
+  }, [fetchUsers]);
 
   const openDialog = useCallback((mode: DialogMode, user: UserType | null = null) => {
     setDialogMode(mode)
@@ -231,7 +227,7 @@ export function UsersManagement() {
     switch (role) {
       case "admin": return "bg-purple-100 text-purple-800 dark:bg-purple-500/20 dark:text-purple-400"
       case "staff": return "bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-400"
-      case "patient": return "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400"
+      case "customer": return "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400"
       default: return "bg-gray-100 text-gray-800 dark:bg-gray-500/20 dark:text-gray-400"
     }
   }
@@ -244,6 +240,15 @@ export function UsersManagement() {
       default: return "bg-gray-100 text-gray-800 dark:bg-gray-500/20 dark:text-gray-400"
     }
   }
+
+  const handleRoleChange = (value: string) => {
+    setFilterRole(value as UserRole | "all"); // Ép kiểu an toàn
+  };
+
+  // Hàm xử lý khi thay đổi filterStatus
+  const handleStatusChange = (value: string) => {
+    setFilterStatus(value as UserStatus | "all"); // Ép kiểu an toàn
+  };
 
   return (
     <div className="p-6">
@@ -278,7 +283,7 @@ export function UsersManagement() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Select value={filterRole} onValueChange={setFilterRole}>
+          <Select value={filterRole} onValueChange={handleRoleChange}>
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="Role" />
             </SelectTrigger>
@@ -289,7 +294,7 @@ export function UsersManagement() {
               <SelectItem value="patient"><User className="inline mr-2 h-4 w-4" />Patient</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <Select value={filterStatus} onValueChange={handleStatusChange}>
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
