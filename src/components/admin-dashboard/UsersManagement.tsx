@@ -45,8 +45,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
-import { fetchAllUsers, GetUserData, UserRole, UserStatus } from "@/api/user"
-
+import { getAllUsers, UserRole, UserStatus } from "@/api/admin/admin-user"
 
 interface UserType {
   id: string
@@ -86,36 +85,43 @@ export function UsersManagement() {
   const fetchUsers = useCallback(async () => {
     setIsLoading(true)
     try {
-      const { users: fetchedUsers, totalCount: count } = await fetchAllUsers(
+      const response = await getAllUsers({
         page,
         pageSize,
-        debouncedSearchName,
-        debouncedSearchEmail,
-        filterRole,
-        filterStatus
-      );
+        searchName: debouncedSearchName,
+        searchEmail: debouncedSearchEmail,
+        role: filterRole,
+        status: filterStatus,
+      });
 
-      // Map backend data to match frontend UserType
-      const mappedUsers: UserType[] = fetchedUsers.map((user, index) => ({
-        id: user.id || `user-${index}`,
-        name: user.fullName,
-        email: user.email,
-        role: user.roleName,
-        status: user.status || "active",
-        phone: user.phoneNumber || "Not provided",
-        dateOfBirth: user.dateOfBirth?.split("T")[0],
-        createdAt: user.createdAt || new Date().toISOString().split('T')[0],
-        lastLogin: user.lastLogin || undefined,
-        avatar: user.imageUrl || undefined,
-      }));
+      if (response.isSuccess) {
+        const mappedUsers: UserType[] = response.data.users.map((user, index) => ({
+          id: user.id || `user-${index}`,
+          name: user.fullName,
+          email: user.email,
+          role: user.roleName,
+          status: user.status || "active",
+          phone: user.phoneNumber || "Not provided",
+          dateOfBirth: user.dateOfBirth || undefined,
+          createdAt: user.createdAt || new Date().toISOString().split('T')[0],
+          lastLogin: user.lastLogin || undefined,
+          avatar: user.imageUrl || undefined,
+        }));
 
-      setUsers(mappedUsers);
-      setTotalCount(count);
+        setUsers(mappedUsers);
+        setTotalCount(response.data.totalCount);
+      } else {
+        toast({
+          title: "Error",
+          description: response.message || "Failed to fetch users",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to fetch users",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -141,7 +147,7 @@ export function UsersManagement() {
       setSelectedUser(null)
       setDialogMode("view")
       setIsSaving(false)
-      document.body.style.pointerEvents = "auto" // Khôi phục tương tác
+      document.body.style.pointerEvents = "auto"
     }, 300)
   }, [])
 
@@ -173,7 +179,7 @@ export function UsersManagement() {
       })
       setDeleteConfirmOpen(false)
       setSelectedUser(null)
-      document.body.style.pointerEvents = "auto" // Khôi phục tương tác
+      document.body.style.pointerEvents = "auto" 
     }, 500)
   }, [selectedUser, toast])
 
@@ -242,12 +248,11 @@ export function UsersManagement() {
   }
 
   const handleRoleChange = (value: string) => {
-    setFilterRole(value as UserRole | "all"); // Ép kiểu an toàn
+    setFilterRole(value as UserRole | "all"); 
   };
 
-  // Hàm xử lý khi thay đổi filterStatus
   const handleStatusChange = (value: string) => {
-    setFilterStatus(value as UserStatus | "all"); // Ép kiểu an toàn
+    setFilterStatus(value as UserStatus | "all"); 
   };
 
   return (
@@ -291,7 +296,7 @@ export function UsersManagement() {
               <SelectItem value="all">All Roles</SelectItem>
               <SelectItem value="admin"><Shield className="inline mr-2 h-4 w-4" />Admin</SelectItem>
               <SelectItem value="staff"><User className="inline mr-2 h-4 w-4" />Staff</SelectItem>
-              <SelectItem value="patient"><User className="inline mr-2 h-4 w-4" />Patient</SelectItem>
+              <SelectItem value="customer"><User className="inline mr-2 h-4 w-4" />Customer</SelectItem>
             </SelectContent>
           </Select>
           <Select value={filterStatus} onValueChange={handleStatusChange}>
@@ -394,7 +399,7 @@ export function UsersManagement() {
       <Dialog
         open={dialogOpen}
         onOpenChange={(open) => {
-          if (!open && !isSaving) { // Chỉ đóng khi không đang lưu
+          if (!open && !isSaving) { 
             closeDialog()
           }
         }}
@@ -471,12 +476,12 @@ export function UsersManagement() {
                 <div className="space-y-2"><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" defaultValue={selectedUser?.email || ""} required /></div>
                 <div className="space-y-2">
                   <Label htmlFor="role">Role</Label>
-                  <Select name="role" defaultValue={selectedUser?.role || "patient"}>
+                  <Select name="role" defaultValue={selectedUser?.role || "customer"}>
                     <SelectTrigger id="role"><SelectValue placeholder="Select role" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="admin">Admin</SelectItem>
                       <SelectItem value="staff">Staff</SelectItem>
-                      <SelectItem value="patient">Patient</SelectItem>
+                      <SelectItem value="customer">Customer</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
