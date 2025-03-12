@@ -22,6 +22,13 @@ export interface GetPoliciesParams {
     pageSize?: number
 }
 
+export interface CreatePolicyData {
+    policyName: string
+    description: string
+    cancellationDeadline: number
+    penaltyFee: number
+}
+
 export const getAllPolicies = async (params: GetPoliciesParams): Promise<ApiResponse<PolicyBase[]>> => {
     try {
         const response = await axiosInstance.get("/policies", { params })
@@ -42,7 +49,7 @@ export const getPolicyById = async (id: string): Promise<ApiResponse<PolicyBase>
     }
 }
 
-export const createPolicy = async (data: PolicyBase): Promise<ApiResponse<PolicyBase>> => {
+export const createPolicy = async (data: CreatePolicyData): Promise<ApiResponse<PolicyBase>> => {
     try {
         const response = await axiosInstance.post("/policies", data)
         return response.data

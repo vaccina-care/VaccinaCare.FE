@@ -42,7 +42,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { getAllPolicies, type PolicyBase } from "@/api/admin/policy" // Import từ policyStaff
+import { createPolicy, CreatePolicyData, getAllPolicies, type PolicyBase } from "@/api/admin/policy" // Import từ policyStaff
 
 type DialogMode = "view" | "edit" | "create"
 
@@ -163,29 +163,36 @@ export function PolicyManagement() {
   }, [selectedPolicy, toast, closeDeleteDialog])
 
   const handleSavePolicy = useCallback(
-    (formData: any) => {
-      setTimeout(() => {
-        const currentDate = new Date().toISOString().split("T")[0]
-
+    async (formData: any) => {
+      try {
+        const policyData: CreatePolicyData = {
+          policyName: formData.policyName,
+          description: formData.description,
+          cancellationDeadline: Number.parseInt(formData.cancellationDeadline),
+          penaltyFee: Number.parseFloat(formData.penaltyFee),
+        }
+  
         if (dialogMode === "create") {
-          const newPolicy: PolicyBase = {
-            policyId: `temp-${Date.now()}`, // Temporary ID, sẽ được thay bằng ID từ backend
-            policyName: formData.policyName,
-            description: formData.description,
-            cancellationDeadline: Number.parseInt(formData.cancellationDeadline),
-            penaltyFee: Number.parseFloat(formData.penaltyFee),
-            createdAt: currentDate,
-            updatedAt: currentDate,
+          const response = await createPolicy(policyData)
+          if (response.isSuccess) {
+            const newPolicy = response.data 
+            setPolicies((prev) => [...prev, newPolicy])
+            setTotalCount((prev) => prev + 1)
+            toast({
+              title: "Policy created",
+              description: `${newPolicy.policyName} has been created successfully.`,
+              variant: "success",
+            })
+            closeDialog()
+          } else {
+            toast({
+              title: "Error",
+              description: "Failed to create policy: " + (response.message || "Unknown error"),
+              variant: "destructive",
+            })
           }
-
-          setPolicies((prev) => [...prev, newPolicy])
-          setTotalCount((prev) => prev + 1)
-
-          toast({
-            title: "Policy created",
-            description: `${newPolicy.policyName} has been created successfully.`,
-          })
         } else if (dialogMode === "edit" && selectedPolicy) {
+          const currentDate = new Date().toISOString().split("T")[0]
           const updatedPolicy = {
             ...selectedPolicy,
             policyName: formData.policyName,
@@ -194,21 +201,25 @@ export function PolicyManagement() {
             penaltyFee: Number.parseFloat(formData.penaltyFee),
             updatedAt: currentDate,
           }
-
           setPolicies((prev) =>
             prev.map((policy) => (policy.policyId === selectedPolicy.policyId ? updatedPolicy : policy)),
           )
-
           toast({
             title: "Policy updated",
             description: `${updatedPolicy.policyName} has been updated successfully.`,
           })
+          closeDialog()
         }
-
-        closeDialog()
-      }, 500)
+      } catch (error) {
+        console.error("Error saving policy:", error)
+        toast({
+          title: "Error",
+          description: "Failed to save policy. Please try again.",
+          variant: "destructive",
+        })
+      }
     },
-    [dialogMode, selectedPolicy, toast, closeDialog]
+    [dialogMode, selectedPolicy, toast, closeDialog] 
   )
 
   const totalPages = Math.ceil(totalCount / pageSize)
