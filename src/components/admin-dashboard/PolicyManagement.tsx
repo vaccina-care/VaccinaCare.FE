@@ -42,7 +42,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { createPolicy, CreatePolicyData, getAllPolicies, type PolicyBase } from "@/api/admin/policy" // Import từ policyStaff
+import { createPolicy, CreatePolicyData, deletePolicy, getAllPolicies, getPolicyById, updatePolicy, type PolicyBase } from "@/api/admin/policy" // Import từ policyStaff
 
 type DialogMode = "view" | "edit" | "create"
 
@@ -101,7 +101,7 @@ export function PolicyManagement() {
       })
       console.log("API Response:", response)
       if (response.isSuccess) {
-        const policiesData = response.data || [] 
+        const policiesData = response.data || []
         setPolicies(policiesData)
         setTotalCount(policiesData.length)
       } else {
@@ -133,9 +133,28 @@ export function PolicyManagement() {
   }, [fetchPolicies])
 
   // Dialog handlers
-  const handleViewPolicy = useCallback((policy: PolicyBase) => {
-    openDialog("view", policy)
-  }, [openDialog])
+  const handleViewPolicy = useCallback(async (policy: PolicyBase) => {
+    try {
+      const response = await getPolicyById(policy.policyId)
+      if (response.isSuccess) {
+        setSelectedPolicy(response.data)
+        openDialog("view", response.data)
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to fetch policy details",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Error fetching policy details:", error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch policy details",
+        variant: "destructive",
+      })
+    }
+  }, [openDialog, toast])
 
   const handleEditPolicy = useCallback((policy: PolicyBase) => {
     openDialog("edit", policy)
@@ -149,17 +168,34 @@ export function PolicyManagement() {
     openDeleteDialog(policy)
   }, [openDeleteDialog])
 
-  const confirmDeletePolicy = useCallback(() => {
+  const confirmDeletePolicy = useCallback(async () => {
     if (!selectedPolicy) return
-    setTimeout(() => {
-      setPolicies((prev) => prev.filter((policy) => policy.policyId !== selectedPolicy.policyId))
-      setTotalCount((prev) => prev - 1)
+    try {
+      const response = await deletePolicy(selectedPolicy.policyId)
+      if (response.isSuccess) {
+        setPolicies((prev) => prev.filter((policy) => policy.policyId !== selectedPolicy.policyId))
+        setTotalCount((prev) => prev - 1)
+        toast({
+          title: "Policy deleted",
+          description: `${selectedPolicy.policyName} has been deleted successfully.`,
+          variant: "success",
+        })
+        closeDeleteDialog()
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to delete policy: " + (response.message || "Unknown error"),
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Error deleting policy:", error)
       toast({
-        title: "Policy deleted",
-        description: `${selectedPolicy.policyName} has been deleted successfully.`,
+        title: "Error",
+        description: "Failed to delete policy",
+        variant: "destructive",
       })
-      closeDeleteDialog()
-    }, 500)
+    }
   }, [selectedPolicy, toast, closeDeleteDialog])
 
   const handleSavePolicy = useCallback(
@@ -171,11 +207,11 @@ export function PolicyManagement() {
           cancellationDeadline: Number.parseInt(formData.cancellationDeadline),
           penaltyFee: Number.parseFloat(formData.penaltyFee),
         }
-  
+
         if (dialogMode === "create") {
           const response = await createPolicy(policyData)
           if (response.isSuccess) {
-            const newPolicy = response.data 
+            const newPolicy = response.data
             setPolicies((prev) => [...prev, newPolicy])
             setTotalCount((prev) => prev + 1)
             toast({
@@ -192,34 +228,43 @@ export function PolicyManagement() {
             })
           }
         } else if (dialogMode === "edit" && selectedPolicy) {
-          const currentDate = new Date().toISOString().split("T")[0]
-          const updatedPolicy = {
+          const updatedPolicy: PolicyBase = {
             ...selectedPolicy,
             policyName: formData.policyName,
             description: formData.description,
             cancellationDeadline: Number.parseInt(formData.cancellationDeadline),
             penaltyFee: Number.parseFloat(formData.penaltyFee),
-            updatedAt: currentDate,
+            updatedAt: new Date().toISOString().split("T")[0],
           }
-          setPolicies((prev) =>
-            prev.map((policy) => (policy.policyId === selectedPolicy.policyId ? updatedPolicy : policy)),
-          )
-          toast({
-            title: "Policy updated",
-            description: `${updatedPolicy.policyName} has been updated successfully.`,
-          })
-          closeDialog()
+          const response = await updatePolicy(selectedPolicy.policyId, updatedPolicy)
+          if (response.isSuccess) {
+            setPolicies((prev) =>
+              prev.map((policy) => (policy.policyId === selectedPolicy.policyId ? response.data : policy))
+            )
+            toast({
+              title: "Policy updated",
+              description: `${response.data.policyName} has been updated successfully.`,
+              variant: "success",
+            })
+            closeDialog()
+          } else {
+            toast({
+              title: "Error",
+              description: "Failed to update policy: " + (response.message || "Unknown error"),
+              variant: "destructive",
+            })
+          }
         }
       } catch (error) {
         console.error("Error saving policy:", error)
         toast({
           title: "Error",
-          description: "Failed to save policy. Please try again.",
+          description: `Failed to ${dialogMode === "create" ? "create" : "update"} policy.`,
           variant: "destructive",
         })
       }
     },
-    [dialogMode, selectedPolicy, toast, closeDialog] 
+    [dialogMode, selectedPolicy, toast, closeDialog]
   )
 
   const totalPages = Math.ceil(totalCount / pageSize)
