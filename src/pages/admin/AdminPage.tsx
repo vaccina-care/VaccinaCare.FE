@@ -1,5 +1,5 @@
 import { AdminDashboard } from "@/components/admin-dashboard/Dashboard"
-import PolicyManagement from "@/components/admin-dashboard/PolicyManagement"
+import { PolicyManagement } from "@/components/admin-dashboard/PolicyManagement"
 import { UsersManagement } from "@/components/admin-dashboard/UsersManagement"
 import { AdminLayout } from "@/components/AdminLayout"
 import { useAuthContext } from "@/contexts/AuthContexts"
