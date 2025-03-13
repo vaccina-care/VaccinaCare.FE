@@ -51,7 +51,7 @@ export function PolicyManagement() {
   const [totalCount, setTotalCount] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [searchName, setSearchName] = useState("")
-  const [page, setPage] = useState(1)
+  const [pageIndex, setPage] = useState(1)
   const [pageSize] = useState(10)
   const [selectedPolicy, setSelectedPolicy] = useState<PolicyBase | null>(null)
   const { toast } = useToast()
@@ -96,14 +96,16 @@ export function PolicyManagement() {
       setIsLoading(true)
       const response = await getAllPolicies({
         search: debouncedSearchName,
-        page,
+        pageIndex, // Gửi pageIndex thay vì page
         pageSize,
       })
       console.log("API Response:", response)
       if (response.isSuccess) {
-        const policiesData = response.data || []
+        const policiesData = response.data.items || response.data || [] // Xử lý cả trường hợp mảng trực tiếp
+        const total = response.data.totalCount !== undefined ? response.data.totalCount : policiesData.length
         setPolicies(policiesData)
-        setTotalCount(policiesData.length)
+        setTotalCount(total)
+        console.log("PageIndex:", pageIndex, "Policies:", policiesData, "TotalCount:", total)
       } else {
         console.error("API call failed:", response)
         setPolicies([])
@@ -126,7 +128,7 @@ export function PolicyManagement() {
     } finally {
       setIsLoading(false)
     }
-  }, [debouncedSearchName, page, pageSize, toast])
+  }, [debouncedSearchName, pageIndex, pageSize, toast])
 
   useEffect(() => {
     fetchPolicies()
@@ -220,6 +222,7 @@ export function PolicyManagement() {
               variant: "success",
             })
             closeDialog()
+            await fetchPolicies()
           } else {
             toast({
               title: "Error",
@@ -247,6 +250,7 @@ export function PolicyManagement() {
               variant: "success",
             })
             closeDialog()
+            await fetchPolicies()
           } else {
             toast({
               title: "Error",
@@ -281,7 +285,7 @@ export function PolicyManagement() {
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="flex flex-1 gap-2">
-          <div className="relative flex-1">
+          <div className="relative w-1/4">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search policies..."
@@ -377,7 +381,7 @@ export function PolicyManagement() {
           <div className="text-sm text-gray-500">
             {totalCount > 0 ? (
               <>
-                {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, totalCount)} of {totalCount} policies
+                {(pageIndex - 1) * pageSize + 1}-{Math.min(pageIndex * pageSize, totalCount)} of {totalCount} policies
               </>
             ) : (
               "No policies"
@@ -385,13 +389,13 @@ export function PolicyManagement() {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500">
-              Page {page} of {totalPages}
+              Page {pageIndex} of {totalPages}
             </span>
             <Button
               variant="outline"
               size="icon"
               onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-              disabled={page === 1}
+              disabled={pageIndex === 1}
               className="h-8 w-8"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -400,7 +404,7 @@ export function PolicyManagement() {
               variant="outline"
               size="icon"
               onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={page >= totalPages}
+              disabled={pageIndex >= totalPages}
               className="h-8 w-8"
             >
               <ChevronRight className="h-4 w-4" />

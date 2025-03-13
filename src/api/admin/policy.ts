@@ -12,13 +12,15 @@ export interface PolicyBase {
 }
 
 export interface PolicyListResponse {
-    // totalCount: number
-    // policies: PolicyBase[]
+    items: PolicyBase[]
+    totalCount: number
+    pageIndex: number
+    pageSize: number
 }
 
 export interface GetPoliciesParams {
     search?: string
-    page?: number
+    pageIndex?: number
     pageSize?: number
 }
 
@@ -29,7 +31,7 @@ export interface CreatePolicyData {
     penaltyFee: number
 }
 
-export const getAllPolicies = async (params: GetPoliciesParams): Promise<ApiResponse<PolicyBase[]>> => {
+export const getAllPolicies = async (params: GetPoliciesParams): Promise<ApiResponse<PolicyListResponse>> => {
     try {
         const response = await axiosInstance.get("/policies", { params })
         return response.data

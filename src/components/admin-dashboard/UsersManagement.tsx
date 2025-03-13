@@ -20,6 +20,7 @@ import {
   Mail,
   Calendar,
   Phone,
+  MapPin,
 } from "lucide-react"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useToast } from "@/hooks/use-toast"
@@ -42,10 +43,19 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
 import { getAllUsers, UserBase } from "@/api/admin/adminUser"
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  })
+}
 
 type UserRole = "Admin" | "Staff" | "Customer"
 type DialogMode = "view" | "edit" | "create"
@@ -60,7 +70,6 @@ export function UsersManagement() {
   const [page, setPage] = useState(1)
   const [pageSize] = useState(10)
   const [selectedUser, setSelectedUser] = useState<UserBase | null>(null)
-  // const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const { toast } = useToast()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogMode, setDialogMode] = useState<DialogMode>("view")
@@ -68,16 +77,6 @@ export function UsersManagement() {
 
   const debouncedSearchName = useDebounce(searchName, 300)
   const debouncedSearchEmail = useDebounce(searchEmail, 300)
-
-  const [userDialogState, setUserDialogState] = useState<{
-    isOpen: boolean
-    mode: DialogMode
-    userId: string | null
-  }>({
-    isOpen: false,
-    mode: "view",
-    userId: null,
-  })
 
   const openDialog = useCallback((mode: DialogMode, user: UserBase | null = null) => {
     setDialogMode(mode)
@@ -90,19 +89,9 @@ export function UsersManagement() {
     setTimeout(() => {
       setSelectedUser(null)
       setDialogMode("view")
-      // setIsSaving(false)
       document.body.style.pointerEvents = "auto"
     }, 300)
   }, [])
-
-  // const handleCloseUserDialog = useCallback(() => {
-  //   setUserDialogState({
-  //     isOpen: false,
-  //     mode: "view",
-  //     userId: null,
-  //   })
-  //   setSelectedUser(null)
-  // }, [])
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -144,15 +133,15 @@ export function UsersManagement() {
   }, [fetchUsers])
 
   const handleViewUser = useCallback((user: UserBase) => {
-    openDialog("view", user) // Dùng openDialog thay vì set state thủ công
+    openDialog("view", user)
   }, [openDialog])
 
   const handleEditUser = useCallback((user: UserBase) => {
-    openDialog("edit", user) // Dùng openDialog
+    openDialog("edit", user)
   }, [openDialog])
 
   const handleCreateUser = useCallback(() => {
-    openDialog("create", null) // Dùng openDialog
+    openDialog("create", null)
   }, [openDialog])
 
   const openDeleteDialog = useCallback((user: UserBase) => {
@@ -174,8 +163,6 @@ export function UsersManagement() {
 
   const confirmDeleteUser = useCallback(() => {
     if (!selectedUser) return
-
-    // Simulate API call
     setTimeout(() => {
       setUsers((prev) => prev.filter((user) => user.id !== selectedUser.id))
       setTotalCount((prev) => prev - 1)
@@ -324,7 +311,6 @@ export function UsersManagement() {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <Avatar>
-                          <AvatarImage src={user.imageUrl} alt={user.fullName || "User"} />
                           <AvatarFallback>{user.fullName?.charAt(0) || "U"}</AvatarFallback>
                         </Avatar>
                         <span className="font-medium">{user.fullName || "Unnamed User"}</span>
@@ -336,7 +322,7 @@ export function UsersManagement() {
                         {user.roleName}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">{user.createdAt}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{formatDate(user.createdAt)}</td>
                     <td className="px-4 py-3 text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -415,26 +401,25 @@ export function UsersManagement() {
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>
-              {userDialogState.mode === "view"
+              {dialogMode === "view"
                 ? "User Details"
-                : userDialogState.mode === "edit"
+                : dialogMode === "edit"
                   ? "Edit User"
                   : "Create New User"}
             </DialogTitle>
             <DialogDescription>
-              {userDialogState.mode === "view"
+              {dialogMode === "view"
                 ? "View user information"
-                : userDialogState.mode === "edit"
+                : dialogMode === "edit"
                   ? "Make changes to user information"
                   : "Add a new user to the system"}
             </DialogDescription>
           </DialogHeader>
 
-          {userDialogState.mode === "view" && selectedUser ? (
+          {dialogMode === "view" && selectedUser ? (
             <div className="space-y-6">
               <div className="flex flex-col items-center gap-4 sm:flex-row">
                 <Avatar className="h-20 w-20">
-                  <AvatarImage src={selectedUser.imageUrl} alt={selectedUser.fullName || "User"} />
                   <AvatarFallback className="text-2xl">{selectedUser.fullName?.charAt(0) || "U"}</AvatarFallback>
                 </Avatar>
                 <div className="space-y-1 text-center sm:text-left">
@@ -469,6 +454,13 @@ export function UsersManagement() {
                       </div>
                     </div>
                     <div className="space-y-2">
+                      <Label className="text-muted-foreground">Address</Label>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <span>{selectedUser.address || "Not provided"}</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
                       <Label className="text-muted-foreground">Date of Birth</Label>
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -490,7 +482,7 @@ export function UsersManagement() {
                       <Label className="text-muted-foreground">Account Created</Label>
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span>{selectedUser.createdAt}</span>
+                        <span>{formatDate(selectedUser.createdAt)}</span>
                       </div>
                     </div>
                     <Card>
@@ -516,6 +508,7 @@ export function UsersManagement() {
                   email: formData.get("email") as string,
                   role: formData.get("role") as UserRole,
                   phone: formData.get("phone") as string,
+                  address: formData.get("address") as string,
                   dateOfBirth: formData.get("dateOfBirth") as string,
                 }
                 handleSaveUser(data)
@@ -548,6 +541,10 @@ export function UsersManagement() {
                   <Input id="phone" name="phone" defaultValue={selectedUser?.phoneNumber || ""} />
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="address">Address</Label>
+                  <Input id="address" name="address" defaultValue={selectedUser?.address || ""} />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="dateOfBirth">Date of Birth</Label>
                   <Input
                     id="dateOfBirth"
@@ -561,7 +558,7 @@ export function UsersManagement() {
                 <Button type="button" variant="outline" onClick={closeDialog}>
                   Cancel
                 </Button>
-                <Button type="submit">{userDialogState.mode === "create" ? "Create User" : "Save Changes"}</Button>
+                <Button type="submit">{dialogMode === "create" ? "Create User" : "Save Changes"}</Button>
               </DialogFooter>
             </form>
           )}
