@@ -2,7 +2,7 @@ import axiosInstance from "../axiosInstance"
 import type { ApiResponse } from "@/api/apiResponse"
 
 export interface UserBase {
-    id: string
+    userId: string
     fullName?: string
     email?: string 
     address?: string
@@ -41,17 +41,6 @@ export const getAllUsers = async (params: GetUsersParams): Promise<ApiResponse<U
         return response.data
     } catch (error) {
         console.error("Error fetching users:", error)
-        throw error
-    }
-}
-
-// API lấy user theo ID
-export const getUserById = async (id: string): Promise<ApiResponse<UserBase>> => {
-    try {
-        const response = await axiosInstance.get(`/admin/users/${id}`)
-        return response.data
-    } catch (error) {
-        console.error("Error fetching user:", error)
         throw error
     }
 }

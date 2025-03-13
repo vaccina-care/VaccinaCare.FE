@@ -46,7 +46,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
-import { createUser, getAllUsers, UserBase } from "@/api/admin/adminUser"
+import { createUser, deleteUser, getAllUsers, UserBase } from "@/api/admin/adminUser"
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString)
@@ -161,20 +161,34 @@ export function UsersManagement() {
     openDeleteDialog(user)
   }, [openDeleteDialog])
 
-  const confirmDeleteUser = useCallback(() => {
+  const confirmDeleteUser = useCallback(async () => {
     if (!selectedUser) return
-    setTimeout(() => {
-      setUsers((prev) => prev.filter((user) => user.id !== selectedUser.id))
-      setTotalCount((prev) => prev - 1)
-
-      toast({
-        title: "User deleted",
-        description: `${selectedUser.fullName || "Unnamed User"} has been deleted successfully.`,
-      })
-
-      closeDeleteDialog()
-    }, 500)
-  }, [selectedUser, toast, closeDeleteDialog])
+    try {
+        const response = await deleteUser(selectedUser.userId)
+        if (response.isSuccess) {
+            setUsers((prev) => prev.filter((user) => user.userId !== selectedUser.userId))
+            setTotalCount((prev) => prev - 1)
+            toast({
+                title: "Success",
+                description: `${selectedUser.fullName || "Unnamed User"} has been deleted successfully.`,
+            })
+            closeDeleteDialog()
+        } else {
+            toast({
+                title: "Error",
+                description: `Failed to delete user: ${response.message || "Unknown error"}`,
+                variant: "destructive",
+            })
+        }
+    } catch (error: any) {
+        console.error("Error deleting user:", error.response?.data || error.message)
+        toast({
+            title: "Error",
+            description: error.response?.data?.message || "An error occurred while deleting the user",
+            variant: "destructive",
+        })
+    }
+}, [selectedUser, toast, closeDeleteDialog])
 
   const handleSaveUser = useCallback(
     async (formData: any) => {
@@ -193,7 +207,7 @@ export function UsersManagement() {
           if (response.isSuccess) {
             const newUser: UserBase = {
               ...response.data,
-              id: response.data.id || crypto.randomUUID(),
+              userId: response.data.userId || crypto.randomUUID(),
               roleName: response.data.roleName || "Staff", 
               createdAt: response.data.createdAt || new Date().toISOString(),
             }
@@ -351,7 +365,7 @@ export function UsersManagement() {
                 </tr>
               ) : (
                 users.map((user) => (
-                  <tr key={user.id} className="border-b hover:bg-muted/50">
+                  <tr key={user.userId} className="border-b hover:bg-muted/50">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <Avatar>
@@ -511,13 +525,6 @@ export function UsersManagement() {
                         <span>{selectedUser.dateOfBirth || "Not provided"}</span>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">User ID</Label>
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-muted-foreground" />
-                        <span>{selectedUser.id}</span>
-                      </div>
-                    </div>
                   </div>
                 </TabsContent>
                 <TabsContent value="activity" className="space-y-4 pt-4">
@@ -617,7 +624,7 @@ export function UsersManagement() {
                 <Button type="button" variant="outline" onClick={closeDialog}>
                   Cancel
                 </Button>
-                <Button type="submit">{dialogMode === "create" ? "Create User" : "Save Changes"}</Button>
+                <Button type="submit">{dialogMode === "create" ? "Create Staff" : "Save Changes"}</Button>
               </DialogFooter>
             </form>
           )}
