@@ -46,7 +46,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
-import { getAllUsers, UserBase } from "@/api/admin/adminUser"
+import { createUser, getAllUsers, UserBase } from "@/api/admin/adminUser"
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString)
@@ -177,14 +177,58 @@ export function UsersManagement() {
   }, [selectedUser, toast, closeDeleteDialog])
 
   const handleSaveUser = useCallback(
-    (formData: any) => {
-      toast({
-        title: "Pending",
-        description: "Save functionality not implemented yet",
-      })
-      closeDialog()
+    async (formData: any) => {
+      if (dialogMode === "create") {
+        try {
+          const userData = {
+            fullName: formData.name,
+            email: formData.email,
+            phoneNumber: formData.phone,
+            address: formData.address,
+            dateOfBirth: formData.dateOfBirth,
+            password: formData.password,
+          }
+  
+          const response = await createUser(userData)
+          if (response.isSuccess) {
+            const newUser: UserBase = {
+              ...response.data,
+              id: response.data.id || crypto.randomUUID(),
+              roleName: response.data.roleName || "Staff", 
+              createdAt: response.data.createdAt || new Date().toISOString(),
+            }
+  
+            toast({
+              title: "Success",
+              description: "Staff account created successfully",
+            })
+            setUsers((prev) => [...prev, newUser])
+            setTotalCount((prev) => prev + 1)
+            closeDialog()
+          } else {
+            toast({
+              title: "Error",
+              description: "Failed to create staff account",
+              variant: "destructive",
+            })
+          }
+        } catch (error) {
+          console.error("Error creating user:", error)
+          toast({
+            title: "Error",
+            description: "An error occurred while creating the staff account",
+            variant: "destructive",
+          })
+        }
+      } else {
+        toast({
+          title: "Pending",
+          description: "Edit functionality not implemented yet",
+        })
+        closeDialog()
+      }
     },
-    [closeDialog, toast]
+    [dialogMode, toast, closeDialog]
   )
 
   const totalPages = Math.ceil(totalCount / pageSize)
@@ -208,7 +252,7 @@ export function UsersManagement() {
         <h1 className="text-2xl font-semibold">Users Management</h1>
         <Button onClick={handleCreateUser} className="bg-blue-600 hover:bg-blue-700">
           <UserPlus className="mr-2 h-4 w-4" />
-          Add New User
+          Add Staff
         </Button>
       </div>
 
@@ -506,10 +550,11 @@ export function UsersManagement() {
                 const data = {
                   name: formData.get("name") as string,
                   email: formData.get("email") as string,
-                  role: formData.get("role") as UserRole,
                   phone: formData.get("phone") as string,
                   address: formData.get("address") as string,
                   dateOfBirth: formData.get("dateOfBirth") as string,
+                  ...(dialogMode === "create" && { password: formData.get("password") as string }),
+                  ...(dialogMode === "edit" && { role: formData.get("role") as UserRole }),
                 }
                 handleSaveUser(data)
               }}
@@ -519,22 +564,36 @@ export function UsersManagement() {
                   <Label htmlFor="name">Full Name</Label>
                   <Input id="name" name="name" defaultValue={selectedUser?.fullName || ""} required />
                 </div>
+                {dialogMode === "create" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      name="password"
+                      type="string"
+                      required
+                      placeholder="Enter password"
+                    />
+                  </div>
+                )}
+                {dialogMode === "edit" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="role">Role</Label>
+                    <Select name="role" defaultValue={selectedUser?.roleName || "Customer"}>
+                      <SelectTrigger id="role">
+                        <SelectValue placeholder="Select role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Admin">Admin</SelectItem>
+                        <SelectItem value="Staff">Staff</SelectItem>
+                        <SelectItem value="Customer">Customer</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input id="email" name="email" type="email" defaultValue={selectedUser?.email || ""} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="role">Role</Label>
-                  <Select name="role" defaultValue={selectedUser?.roleName || "Customer"}>
-                    <SelectTrigger id="role">
-                      <SelectValue placeholder="Select role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Admin">Admin</SelectItem>
-                      <SelectItem value="Staff">Staff</SelectItem>
-                      <SelectItem value="Customer">Customer</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
