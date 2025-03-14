@@ -29,12 +29,17 @@ import {
     type VaccineIntervalRule,
     type VaccineIntervalRuleRequest,
 } from "@/api/staff/vaccineIntervalRules"
-import { VaccineIntervalRuleDialog } from "@/components/staff-dashboard/IntervalRules/VaccineIntervalRuleDialog"
+import { VaccineIntervalRuleDialog } from "./VaccineIntervalRuleDialog"
 
 // Interface to store vaccine details with rule
 interface EnhancedVaccineIntervalRule extends VaccineIntervalRule {
     firstVaccineDetails?: VaccineBase
     secondVaccineDetails?: VaccineBase
+}
+
+// Extend the VaccineIntervalRuleRequest to include the vaccineIntervalRUID for updates
+interface VaccineIntervalRuleWithId extends VaccineIntervalRuleRequest {
+    vaccineIntervalRUID?: string 
 }
 
 export default function VaccineIntervalRulePage() {
@@ -128,11 +133,22 @@ export default function VaccineIntervalRulePage() {
     })
 
     // Handle create/update rule
-    const handleSaveRule = async (data: VaccineIntervalRuleRequest) => {
+    const handleSaveRule = async (data: VaccineIntervalRuleWithId) => {
         try {
-            if (selectedRule) {
-                // Update existing rule
-                const response = await updateVaccineIntervalRule(selectedRule.id, data)
+            // Log the data to verify vaccineIntervalRUID is included
+            console.log("Handling save rule with data:", data)
+
+            if (data.vaccineIntervalRUID) {
+                // Update existing rule - ensure we have the vaccineIntervalRUID
+                console.log(`Updating rule with ID: ${data.vaccineIntervalRUID}`)
+
+                const response = await updateVaccineIntervalRule(data.vaccineIntervalRUID, {
+                    vaccineId: data.vaccineId,
+                    relatedVaccineId: data.relatedVaccineId,
+                    minIntervalDays: data.minIntervalDays,
+                    canBeGivenTogether: data.canBeGivenTogether,
+                })
+
                 if (response.isSuccess) {
                     toast({
                         title: "Success",
@@ -143,7 +159,15 @@ export default function VaccineIntervalRulePage() {
                 }
             } else {
                 // Create new rule
-                const response = await createVaccineIntervalRule(data)
+                console.log("Creating new rule")
+
+                const response = await createVaccineIntervalRule({
+                    vaccineId: data.vaccineId,
+                    relatedVaccineId: data.relatedVaccineId,
+                    minIntervalDays: data.minIntervalDays,
+                    canBeGivenTogether: data.canBeGivenTogether,
+                })
+
                 if (response.isSuccess) {
                     toast({
                         title: "Success",
@@ -168,7 +192,9 @@ export default function VaccineIntervalRulePage() {
         if (!ruleToDelete) return
 
         try {
-            const response = await deleteVaccineIntervalRule(ruleToDelete.id)
+            console.log(`Deleting rule with ID: ${ruleToDelete.vaccineIntervalRUID}`)
+
+            const response = await deleteVaccineIntervalRule(ruleToDelete.vaccineIntervalRUID)
             if (response.isSuccess) {
                 toast({
                     title: "Success",
@@ -302,7 +328,7 @@ export default function VaccineIntervalRulePage() {
                                     </TableRow>
                                 ) : (
                                     filteredRules.map((rule) => (
-                                        <TableRow key={rule.id}>
+                                        <TableRow key={rule.vaccineIntervalRUID}>
                                             <TableCell className="font-medium">{getVaccineName(rule, true)}</TableCell>
                                             <TableCell>
                                                 <ArrowRight className="h-4 w-4 text-muted-foreground" />
@@ -310,20 +336,26 @@ export default function VaccineIntervalRulePage() {
                                             <TableCell className="font-medium">{getVaccineName(rule, false)}</TableCell>
                                             <TableCell>
                                                 {rule.canBeGivenTogether ? (
-                                                    <Badge
-                                                        variant="outline"
-                                                        className="bg-green-50 text-green-700 hover:bg-green-100 border-green-200"
-                                                    >
-                                                        <Check className="mr-1 h-3 w-3" /> Yes
-                                                    </Badge>
+                                                    <div key={`can-together-${rule.vaccineIntervalRUID}`}>
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="bg-green-50 text-green-700 hover:bg-green-100 border-green-200"
+                                                        >
+                                                            <Check className="mr-1 h-3 w-3" />
+                                                            <span>Yes</span>
+                                                        </Badge>
+                                                    </div>
                                                 ) : (
-                                                    <Badge variant="outline" className="bg-red-50 text-red-700 hover:bg-red-100 border-red-200">
-                                                        <X className="mr-1 h-3 w-3" /> No
-                                                    </Badge>
+                                                    <div key={`cannot-together-${rule.vaccineIntervalRUID}`}>
+                                                        <Badge variant="outline" className="bg-red-50 text-red-700 hover:bg-red-100 border-red-200">
+                                                            <X className="mr-1 h-3 w-3" />
+                                                            <span>No</span>
+                                                        </Badge>
+                                                    </div>
                                                 )}
                                             </TableCell>
                                             <TableCell>
-                                                <div className="flex items-center">
+                                                <div key={`interval-${rule.vaccineIntervalRUID}`} className="flex items-center">
                                                     <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
                                                     <span>{rule.minIntervalDays} days</span>
                                                 </div>
@@ -338,6 +370,7 @@ export default function VaccineIntervalRulePage() {
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuItem
                                                             onClick={() => {
+                                                                console.log("Setting selected rule for edit:", rule)
                                                                 setSelectedRule(rule)
                                                                 setDialogOpen(true)
                                                             }}
@@ -347,6 +380,7 @@ export default function VaccineIntervalRulePage() {
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem
                                                             onClick={() => {
+                                                                console.log("Setting rule to delete:", rule)
                                                                 setRuleToDelete(rule)
                                                                 setDeleteConfirmOpen(true)
                                                             }}
