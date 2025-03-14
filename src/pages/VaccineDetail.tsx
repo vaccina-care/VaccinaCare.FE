@@ -78,15 +78,20 @@ export default function VaccineDetail() {
     }
 
     const handleBookAppointment = () => {
-        navigate("/appointments", { state: { 
-            fromVaccineDetail: true, 
-            vaccineId: id} })
+        navigate("/appointments", {
+            state: {
+                fromVaccineDetail: true,
+                vaccineId: id,
+            },
+        })
     }
 
     const handleBackToVaccineList = () => {
         if (!location.state?.fromVaccineDetail) {
             navigate("/vaccine-list")
-        } 
+        } else {
+            navigate(-1)
+        }
     }
 
     return (
@@ -107,11 +112,27 @@ export default function VaccineDetail() {
                                 {vaccine.type}
                             </Badge>
                         </div>
-                        <p className="text-gray-600 mb-4">
-                            Vaccine {vaccine.vaccineName} helps prevent {vaccine.description}, strengthens the immune system, and
-                            reduces the risk of infection. It is recommended for children, with {vaccine.requiredDoses} doses, each
-                            spaced 10 days apart.
-                        </p>
+
+                        {/* Enhanced description section with key information highlighted */}
+                        <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100 mb-4">
+                            <h3 className="text-lg font-semibold text-[#1e1b4b] mb-2">About this vaccine</h3>
+                            <p className="text-gray-700 mb-3 leading-relaxed">
+                                <span className="font-medium underline">Vaccine {vaccine.vaccineName}</span> helps prevent{" "}
+                                <span className="font-medium underline">{vaccine.description}</span>, strengthens the immune system, and reduces
+                                the risk of infection.
+                            </p>
+                            <div className="flex flex-wrap gap-4 mt-3">
+                                <div className="bg-blue-50 px-4 py-2 rounded-md">
+                                    <span className="text-blue-700 font-medium">Required doses:</span>{" "}
+                                    <span className="text-blue-800 font-bold">{vaccine.requiredDoses}</span>
+                                </div>
+                                <div className="bg-blue-50 px-4 py-2 rounded-md">
+                                    <span className="text-blue-700 font-medium">Interval:</span>{" "}
+                                    <span className="text-blue-800 font-bold">{vaccine.doseIntervalDays} days</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <p className="text-gray-600">
                             Post-vaccination reactions may include mild pain, fever, or fatigue, with severe complications being rare.
                             Book an appointment now to protect your health!
@@ -265,8 +286,11 @@ export default function VaccineDetail() {
                                             dose
                                         </p>
                                     </div>
-                                    <Button size="lg" className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90"
-                                        onClick={handleBookAppointment}>
+                                    <Button
+                                        size="lg"
+                                        className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90"
+                                        onClick={handleBookAppointment}
+                                    >
                                         <Syringe className="mr-2 h-5 w-5" />
                                         Book Appointment
                                     </Button>
