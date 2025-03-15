@@ -386,7 +386,7 @@ export default function AppointmentsSection() {
                                                     <Button
                                                         variant="outline"
                                                         className="mt-4"
-                                                        onClick={() => (window.location.href = "/appointment")}
+                                                        onClick={() => (window.location.href = "/appointments")}
                                                     >
                                                         Book an Appointment
                                                     </Button>
