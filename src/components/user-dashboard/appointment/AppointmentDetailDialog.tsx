@@ -4,10 +4,12 @@ import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { format } from "date-fns"
-import { Calendar, Clock, FileText, Syringe, Info, Banknote } from "lucide-react"
+import { format, parseISO } from "date-fns"
+import { Calendar, Clock, FileText, Syringe, Info, Banknote, CreditCard, Loader2 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import type { AppointmentResponse } from "@/api/appointment"
+import { getPaymentCheckoutUrl } from "@/api/payment"
+import { useToast } from "@/hooks/use-toast"
 
 interface AppointmentDetailDialogProps {
     appointment: AppointmentResponse | null
@@ -17,7 +19,9 @@ interface AppointmentDetailDialogProps {
 
 export function AppointmentDetailDialog({ appointment, isOpen, onClose }: AppointmentDetailDialogProps) {
     const navigate = useNavigate()
+    const { toast } = useToast()
     const [showPolicyButton, setShowPolicyButton] = useState(false)
+    const [isProcessingPayment, setIsProcessingPayment] = useState(false)
 
     // Use effect to set the button visibility after component mounts
     useEffect(() => {
@@ -54,6 +58,38 @@ export function AppointmentDetailDialog({ appointment, isOpen, onClose }: Appoin
         }, 100)
     }
 
+    const handleCheckout = async () => {
+        if (!appointment) return
+
+        try {
+            setIsProcessingPayment(true)
+            const response = await getPaymentCheckoutUrl(appointment.appointmentId)
+
+            if (response.isSuccess) {
+                // Redirect to payment page
+                window.location.href = response.data
+            } else {
+                toast({
+                    title: "Payment Error",
+                    description: "Failed to get payment link. Please try again.",
+                    variant: "destructive",
+                })
+            }
+        } catch (error) {
+            console.error("Error getting payment link:", error)
+            toast({
+                title: "Payment Error",
+                description: "An unexpected error occurred. Please try again.",
+                variant: "destructive",
+            })
+        } finally {
+            setIsProcessingPayment(false)
+        }
+    }
+
+    // Parse the ISO date string
+    const appointmentDate = parseISO(appointment.appointmentDate)
+
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="sm:max-w-[500px] flex flex-col">
@@ -77,12 +113,10 @@ export function AppointmentDetailDialog({ appointment, isOpen, onClose }: Appoin
                             <Calendar className="h-5 w-5 text-gray-500 mt-0.5" />
                             <div>
                                 <p className="font-medium">Appointment Date</p>
-                                <p className="text-sm text-gray-600">
-                                    {format(new Date(appointment.appointmentDate), "EEEE, MMMM d, yyyy")}
-                                </p>
+                                <p className="text-sm text-gray-600">{format(appointmentDate, "EEEE, MMMM d, yyyy")}</p>
                                 <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
                                     <Clock className="h-4 w-4" />
-                                    {format(new Date(appointment.appointmentDate), "h:mm a")}
+                                    {format(appointmentDate, "h:mm a")}
                                 </div>
                             </div>
                         </div>
@@ -124,9 +158,31 @@ export function AppointmentDetailDialog({ appointment, isOpen, onClose }: Appoin
                     </div>
                 </div>
 
-                {/* Separate Policy Button Section */}
-                {showPolicyButton && (
-                    <div className="mt-4 pt-4 border-t border-gray-200">
+                {/* Action Buttons */}
+                <div className="space-y-4 mt-4 pt-4 border-t border-gray-200">
+                    {/* Checkout Button - Only show for pending appointments */}
+                    {appointment.status.toLowerCase() === "pending" && (
+                        <Button
+                            onClick={handleCheckout}
+                            disabled={isProcessingPayment}
+                            className="w-full bg-green-600 hover:bg-green-700 text-white"
+                        >
+                            {isProcessingPayment ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Processing...
+                                </>
+                            ) : (
+                                <>
+                                    <CreditCard className="mr-2 h-4 w-4" />
+                                    Proceed to Payment
+                                </>
+                            )}
+                        </Button>
+                    )}
+
+                    {/* Policy Button */}
+                    {showPolicyButton && (
                         <Button
                             variant="outline"
                             onClick={handleViewPolicies}
@@ -135,8 +191,8 @@ export function AppointmentDetailDialog({ appointment, isOpen, onClose }: Appoin
                             <Info className="h-4 w-4" />
                             View Cancellation & Rescheduling Policies
                         </Button>
-                    </div>
-                )}
+                    )}
+                </div>
             </DialogContent>
         </Dialog>
     )

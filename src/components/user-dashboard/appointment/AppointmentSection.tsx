@@ -14,15 +14,17 @@ import {
     User,
     CalendarClock,
     Banknote,
+    CreditCard,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { format } from "date-fns"
+import { format, parseISO } from "date-fns"
 import { getChildAppointments, getAppointmentDetails, type AppointmentResponse } from "@/api/appointment"
 import { getChildren, type ChildData } from "@/api/children"
 import { AppointmentDetailDialog } from "@/components/user-dashboard/appointment/AppointmentDetailDialog"
 import { useToast } from "@/hooks/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import { motion, AnimatePresence } from "framer-motion"
+import { getPaymentCheckoutUrl } from "@/api/payment"
 
 export default function AppointmentsSection() {
     const [children, setChildren] = useState<ChildData[]>([])
@@ -32,6 +34,7 @@ export default function AppointmentsSection() {
     const [isDetailOpen, setIsDetailOpen] = useState(false)
     const [loadingChildren, setLoadingChildren] = useState(true)
     const [loadingAppointments, setLoadingAppointments] = useState<Record<string, boolean>>({})
+    const [processingPayment, setProcessingPayment] = useState<string | null>(null)
     const { toast } = useToast()
 
     // Fetch children data
@@ -107,6 +110,33 @@ export default function AppointmentsSection() {
         }
     }
 
+    const handleCheckout = async (appointmentId: string) => {
+        try {
+            setProcessingPayment(appointmentId)
+            const response = await getPaymentCheckoutUrl(appointmentId)
+
+            if (response.isSuccess) {
+                // Redirect to payment page
+                window.location.href = response.data
+            } else {
+                toast({
+                    title: "Payment Error",
+                    description: "Failed to get payment link. Please try again.",
+                    variant: "destructive",
+                })
+            }
+        } catch (error) {
+            console.error("Error getting payment link:", error)
+            toast({
+                title: "Payment Error",
+                description: "An unexpected error occurred. Please try again.",
+                variant: "destructive",
+            })
+        } finally {
+            setProcessingPayment(null)
+        }
+    }
+
     const toggleChildExpansion = (childId: string) => {
         setExpandedChild(expandedChild === childId ? null : childId)
     }
@@ -138,7 +168,10 @@ export default function AppointmentsSection() {
         const grouped: Record<string, AppointmentResponse[]> = {}
 
         appointments.forEach((appointment) => {
-            const dateKey = format(new Date(appointment.appointmentDate), "yyyy-MM-dd")
+            // Parse the ISO date string
+            const appointmentDate = parseISO(appointment.appointmentDate)
+            const dateKey = format(appointmentDate, "yyyy-MM-dd")
+
             if (!grouped[dateKey]) {
                 grouped[dateKey] = []
             }
@@ -229,6 +262,9 @@ export default function AppointmentsSection() {
                                                                 <div className="space-y-3 pl-6">
                                                                     {dateAppointments.map((appointment) => {
                                                                         const isPackage = isPackageAppointment(appointment)
+                                                                        const isPending = appointment.status.toLowerCase() === "pending"
+                                                                        // Parse the ISO date string
+                                                                        const appointmentDate = parseISO(appointment.appointmentDate)
 
                                                                         return (
                                                                             <div
@@ -279,7 +315,7 @@ export default function AppointmentsSection() {
                                                                                             <div className="flex items-center gap-1.5">
                                                                                                 <Clock className="h-3.5 w-3.5 text-gray-500" />
                                                                                                 <span className="text-gray-600">
-                                                                                                    {format(new Date(appointment.appointmentDate), "h:mm a")}
+                                                                                                    {format(appointmentDate, "h:mm a")}
                                                                                                 </span>
                                                                                             </div>
 
@@ -296,7 +332,7 @@ export default function AppointmentsSection() {
                                                                                     </div>
 
                                                                                     {/* Right side - actions */}
-                                                                                    <div className="flex items-center">
+                                                                                    <div className="flex flex-col gap-2">
                                                                                         <Button
                                                                                             variant="outline"
                                                                                             size="sm"
@@ -310,6 +346,28 @@ export default function AppointmentsSection() {
                                                                                             <Eye className="h-3.5 w-3.5 mr-1.5" />
                                                                                             View Details
                                                                                         </Button>
+
+                                                                                        {/* Checkout button for pending appointments */}
+                                                                                        {isPending && (
+                                                                                            <Button
+                                                                                                size="sm"
+                                                                                                className="bg-green-600 hover:bg-green-700 text-white"
+                                                                                                onClick={() => handleCheckout(appointment.appointmentId)}
+                                                                                                disabled={processingPayment === appointment.appointmentId}
+                                                                                            >
+                                                                                                {processingPayment === appointment.appointmentId ? (
+                                                                                                    <span className="flex items-center">
+                                                                                                        <span className="h-3.5 w-3.5 mr-1.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                                                                                        Processing...
+                                                                                                    </span>
+                                                                                                ) : (
+                                                                                                    <>
+                                                                                                        <CreditCard className="h-3.5 w-3.5 mr-1.5" />
+                                                                                                        Pay Now
+                                                                                                    </>
+                                                                                                )}
+                                                                                            </Button>
+                                                                                        )}
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
