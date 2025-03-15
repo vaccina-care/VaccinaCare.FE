@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { format } from "date-fns"
-import { Calendar, Clock, DollarSign, FileText, Syringe, Info } from "lucide-react"
+import { Calendar, Clock, FileText, Syringe, Info, Banknote } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import type { AppointmentResponse } from "@/api/appointment"
 
@@ -99,7 +99,7 @@ export function AppointmentDetailDialog({ appointment, isOpen, onClose }: Appoin
 
                         {/* Price */}
                         <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                            <DollarSign className="h-5 w-5 text-gray-500 mt-0.5" />
+                            <Banknote className="h-5 w-5 text-gray-500 mt-0.5" />
                             <div>
                                 <p className="font-medium">Total Price</p>
                                 <p className="text-sm text-gray-600">
