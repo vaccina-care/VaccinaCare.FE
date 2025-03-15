@@ -28,6 +28,7 @@ import AppointmentDashboard from "./pages/AppointmentDashboard"
 //demo-page
 import PaymentSuccessPage from "./components/payment/paymentSuccess"
 import PaymentFailPage from "./components/payment/paymentFail"
+import PolicyPage from "./pages/Policy"
 
 // Define valid routes
 const validRoutes = [
@@ -35,6 +36,7 @@ const validRoutes = [
 	"/login",
 	"/register",
 	"/about",
+	"/policies",
 	"/appointments",
 	"/user-dashboard",
 	"/child-dashboard",
@@ -46,7 +48,7 @@ const validRoutes = [
 	"/staff",
 	"/staff/vaccines",
 	"/staff/vaccine-interval-rules",
-	"/appointments-dashboard", // Add the new route
+	"/appointments-dashboard",
 ]
 
 const isValidRoute = (pathname: string) => {
@@ -80,6 +82,7 @@ const AppContent: React.FC = () => {
 							<Route path="/vaccine-list" element={<VaccineList />} />
 							<Route path="/vaccine/:id" element={<VaccineDetail />} />
 							<Route path="/vaccine-package/:packageId" element={<VaccinePackageDetail />} />
+							<Route path="/policies" element={<PolicyPage />} />
 
 							{/* TEST */}
 							<Route path="/feedback" element={<Feedback />} />
