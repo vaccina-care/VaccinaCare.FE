@@ -77,3 +77,5 @@ export const deleteUser = async (id: string): Promise<ApiResponse<UserBase>> => 
         throw error
     }
 }
+
+// Fix delete mất ID lúc tạo phải refresh trang 

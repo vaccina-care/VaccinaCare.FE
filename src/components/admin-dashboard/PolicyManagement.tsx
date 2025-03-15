@@ -305,7 +305,7 @@ export function PolicyManagement() {
                 <th className="px-4 py-3 text-left">Policy Name</th>
                 <th className="px-4 py-3 text-left">Description</th>
                 <th className="px-4 py-3 text-left">Cancellation Deadline (hours)</th>
-                <th className="px-4 py-3 text-left">Penalty Fee ($)</th>
+                <th className="px-4 py-3 text-left">Penalty Fee (đ)</th>
                 <th className="w-[80px] px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
@@ -346,7 +346,7 @@ export function PolicyManagement() {
                       <div className="text-sm text-muted-foreground truncate max-w-xs">{policy.description}</div>
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">{policy.cancellationDeadline} hours</td>
-                    <td className="px-4 py-3 text-muted-foreground">${policy.penaltyFee.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{policy.penaltyFee.toLocaleString('vi-VN')}đ</td>
                     <td className="px-4 py-3 text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -442,65 +442,52 @@ export function PolicyManagement() {
                 <h3 className="text-2xl font-semibold">{selectedPolicy.policyName}</h3>
               </div>
 
-              <Tabs defaultValue="details">
-                <TabsList className="grid w-full grid-cols-1">
-                  <TabsTrigger value="details">Policy Details</TabsTrigger>
-                </TabsList>
-                <TabsContent value="details" className="space-y-4 pt-4">
-                  <div className="space-y-4">
+
+              <div className="space-y-4 pt-4">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground">Description</Label>
+                    <div className="rounded-md border p-3 bg-muted/20">{selectedPolicy.description}</div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                      <Label className="text-muted-foreground">Description</Label>
-                      <div className="rounded-md border p-3 bg-muted/20">{selectedPolicy.description}</div>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label className="text-muted-foreground">Cancellation Deadline</Label>
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-muted-foreground" />
-                          <span>{selectedPolicy.cancellationDeadline} hours</span>
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-muted-foreground">Penalty Fee</Label>
-                        <div className="flex items-center gap-2">
-                          <DollarSign className="h-4 w-4 text-muted-foreground" />
-                          <span>{selectedPolicy.penaltyFee.toFixed(2)}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {selectedPolicy.createdAt && (
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div className="space-y-2">
-                          <Label className="text-muted-foreground">Created</Label>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-muted-foreground" />
-                            <span>{selectedPolicy.createdAt}</span>
-                          </div>
-                        </div>
-                        {selectedPolicy.updatedAt && (
-                          <div className="space-y-2">
-                            <Label className="text-muted-foreground">Last Updated</Label>
-                            <div className="flex items-center gap-2">
-                              <RefreshCw className="h-4 w-4 text-muted-foreground" />
-                              <span>{selectedPolicy.updatedAt}</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">Policy ID</Label>
+                      <Label className="text-muted-foreground">Cancellation Deadline</Label>
                       <div className="flex items-center gap-2">
-                        <Tag className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-xs font-mono">{selectedPolicy.policyId}</span>
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span>{selectedPolicy.cancellationDeadline} hours</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground">Penalty Fee</Label>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">VND</span>
+                        <span>{selectedPolicy.penaltyFee.toLocaleString('vi-VN')}đ</span>
                       </div>
                     </div>
                   </div>
-                </TabsContent>
-              </Tabs>
+
+                  {selectedPolicy.createdAt && (
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label className="text-muted-foreground">Created</Label>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          <span>{selectedPolicy.createdAt}</span>
+                        </div>
+                      </div>
+                      {selectedPolicy.updatedAt && (
+                        <div className="space-y-2">
+                          <Label className="text-muted-foreground">Last Updated</Label>
+                          <div className="flex items-center gap-2">
+                            <RefreshCw className="h-4 w-4 text-muted-foreground" />
+                            <span>{selectedPolicy.updatedAt}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}</div>
+              </div>
             </div>
           ) : (
             <form
@@ -545,14 +532,14 @@ export function PolicyManagement() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="penaltyFee">Penalty Fee ($)</Label>
+                    <Label htmlFor="penaltyFee">Penalty Fee (đ)</Label>
                     <Input
                       id="penaltyFee"
                       name="penaltyFee"
                       type="number"
                       min="0"
                       step="0.01"
-                      defaultValue={selectedPolicy?.penaltyFee || "25.00"}
+                      defaultValue={selectedPolicy?.penaltyFee || "100000"}
                       required
                     />
                   </div>

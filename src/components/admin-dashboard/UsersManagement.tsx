@@ -207,9 +207,10 @@ export function UsersManagement() {
           if (response.isSuccess) {
             const newUser: UserBase = {
               ...response.data,
-              userId: response.data.userId || crypto.randomUUID(),
+              //sửa xong nhớ xóa
+              // userId: response.data.userId || crypto.randomUUID(),
               roleName: response.data.roleName || "Staff", 
-              createdAt: response.data.createdAt || new Date().toISOString(),
+              // createdAt: response.data.createdAt || new Date().toISOString(),
             }
   
             toast({
