@@ -206,11 +206,14 @@ export function UsersManagement() {
           const response = await createUser(userData)
           if (response.isSuccess) {
             const newUser: UserBase = {
-              ...response.data,
-              //sửa xong nhớ xóa
-              // userId: response.data.userId || crypto.randomUUID(),
-              roleName: response.data.roleName || "Staff", 
-              // createdAt: response.data.createdAt || new Date().toISOString(),
+              userId: response.data.userId,
+              fullName: response.data.fullName,
+              email: response.data.email,
+              phoneNumber: response.data.phoneNumber,
+              address: response.data.address,
+              dateOfBirth: response.data.dateOfBirth,
+              roleName: response.data.roleName || "Staff",
+              createdAt: response.data.createdAt,
             }
   
             toast({
@@ -220,6 +223,7 @@ export function UsersManagement() {
             setUsers((prev) => [...prev, newUser])
             setTotalCount((prev) => prev + 1)
             closeDialog()
+            await fetchUsers()
           } else {
             toast({
               title: "Error",
