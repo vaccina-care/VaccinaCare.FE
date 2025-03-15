@@ -116,7 +116,6 @@ export function VaccineDetailDialog({ vaccineId, isOpen, onClose, onSave, mode }
             resetForm();
         }
 
-        // ✅ Always restore interactivity when modal closes
         return () => {
             document.body.style.pointerEvents = "auto";
         };
@@ -192,8 +191,8 @@ export function VaccineDetailDialog({ vaccineId, isOpen, onClose, onSave, mode }
             open={isOpen}
             onOpenChange={(open) => {
                 if (!open) {
-                    setIsFetching(false); // Ensure fetching is reset
-                    setIsLoading(false);  // Ensure loading is reset
+                    setIsFetching(false); 
+                    setIsLoading(false); 
                     resetForm();
                     setTimeout(() => {
                         document.body.style.pointerEvents = "auto"; // Restore interactivity

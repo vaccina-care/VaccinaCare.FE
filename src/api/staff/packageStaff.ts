@@ -6,7 +6,6 @@ import type { ApiResponse } from "@/api/apiResponse"
 export interface CreatePackageRequest {
     packageName: string
     description: string
-    price: number
     vaccineDetails: VaccineDetail[]
 }
 
