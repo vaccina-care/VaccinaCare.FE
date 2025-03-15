@@ -18,12 +18,14 @@ import {
     FileText,
     Syringe,
     Package2,
+    Info,
 } from "lucide-react"
 import { useAppointmentContext } from "@/contexts/AppointmentContext"
 import { useToast } from "@/hooks/use-toast"
-import { bookSingleVaccine } from "@/api/appointment"
+import { bookSingleVaccine, bookPackageVaccine } from "@/api/appointment"
 import { getPaymentCheckoutUrl } from "@/api/payment"
 import { motion } from "framer-motion"
+import { Link } from "react-router-dom"
 
 interface AppointmentConfirmationProps {
     onBack: () => void
@@ -47,6 +49,7 @@ export function AppointmentConfirmation({
         notes,
         serviceType,
         selectedVaccine,
+        selectedPackage,
         resetAppointmentState,
     } = useAppointmentContext()
 
@@ -75,6 +78,9 @@ export function AppointmentConfirmation({
 
             const formattedDate = appointmentDateTime.toISOString()
 
+            let response
+            let appointmentId
+
             if (serviceType === "single") {
                 // Book single vaccine appointment
                 const bookingData = {
@@ -84,42 +90,51 @@ export function AppointmentConfirmation({
                     notes: notes || undefined,
                 }
 
-                const response = await bookSingleVaccine(bookingData)
+                response = await bookSingleVaccine(bookingData)
 
                 if (response.isSuccess && response.data.length > 0) {
                     // Get the first appointment ID (there should be only one for single vaccine)
-                    const appointmentId = response.data[0].appointmentId
+                    appointmentId = response.data[0].appointmentId
+                }
+            } else {
+                // Package booking implementation
+                const bookingData = {
+                    packageId: selectedPackage,
+                    childId: selectedChild,
+                    startDate: formattedDate,
+                    notes: notes || undefined,
+                }
 
-                    // Get payment checkout URL
-                    const paymentResponse = await getPaymentCheckoutUrl(appointmentId)
+                response = await bookPackageVaccine(bookingData)
 
-                    if (paymentResponse.isSuccess) {
-                        // Reset state before redirecting
-                        resetAppointmentState()
+                if (response.isSuccess && response.data.length > 0) {
+                    // Get the first appointment ID from the package (we'll use this for payment)
+                    appointmentId = response.data[0].appointmentId
+                }
+            }
 
-                        // Redirect to payment page
-                        window.location.href = paymentResponse.data
-                    } else {
-                        toast({
-                            title: "Payment Error",
-                            description: "Failed to get payment link. Please try again.",
-                            variant: "destructive",
-                        })
-                        setIsProcessing(false)
-                    }
+            if (response?.isSuccess && appointmentId) {
+                // Get payment checkout URL
+                const paymentResponse = await getPaymentCheckoutUrl(appointmentId)
+
+                if (paymentResponse.isSuccess) {
+                    // Reset state before redirecting
+                    resetAppointmentState()
+
+                    // Redirect to payment page
+                    window.location.href = paymentResponse.data
                 } else {
                     toast({
-                        title: "Booking Error",
-                        description: "Failed to book appointment. Please try again.",
+                        title: "Payment Error",
+                        description: "Failed to get payment link. Please try again.",
                         variant: "destructive",
                     })
                     setIsProcessing(false)
                 }
             } else {
-                // Package booking implementation
                 toast({
-                    title: "Not Implemented",
-                    description: "Package booking is not available yet.",
+                    title: "Booking Error",
+                    description: "Failed to book appointment. Please try again.",
                     variant: "destructive",
                 })
                 setIsProcessing(false)
@@ -286,6 +301,21 @@ export function AppointmentConfirmation({
                                             <p className="text-sm text-gray-500">Included Vaccines</p>
                                             <p className="text-sm">{packageDetails.vaccineDetails?.length || 0} vaccines</p>
                                         </div>
+                                        {packageDetails.vaccineDetails && packageDetails.vaccineDetails.length > 0 && (
+                                            <div className="mt-2">
+                                                <p className="text-sm font-medium text-gray-700 mb-2">Vaccines in this package:</p>
+                                                <ul className="space-y-2">
+                                                    {packageDetails.vaccineDetails.map((vaccine: any, index: number) => (
+                                                        <li key={index} className="text-sm flex items-start gap-2">
+                                                            <Syringe className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                                                            <span>
+                                                                {vaccine.vaccineName} ({vaccine.requiredDoses} doses)
+                                                            </span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
                                     </div>
                                 ) : (
                                     <p className="text-gray-500">No service selected</p>
@@ -308,6 +338,22 @@ export function AppointmentConfirmation({
                                 </div>
                             </>
                         )}
+
+                        {/* Policy Information */}
+                        <Separator />
+                        <div className="space-y-4">
+                            <div className="flex justify-center pt-2">
+                                <Link to="/policies">
+                                    <Button variant="outline" className="border-blue-200 bg-blue-50 hover:bg-blue-100">
+                                        <Info className="mr-2 h-4 w-4 text-blue-600" />
+                                        View Cancellation & Rescheduling Policies
+                                    </Button>
+                                </Link>
+                            </div>
+                            <p className="text-xs text-center text-gray-500">
+                                Please review our policies regarding cancellation deadlines and fees before proceeding
+                            </p>
+                        </div>
                     </CardContent>
 
                     <CardFooter className="flex flex-col sm:flex-row gap-4 justify-between p-6 bg-gray-50">

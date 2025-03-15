@@ -1,8 +1,20 @@
 "use client"
 
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
-import { Phone, Clock, MapPin, LogOut, User, Bell, NotepadText, HelpCircle, Mail, UserCircle } from "lucide-react"
+import {
+	Phone,
+	Clock,
+	MapPin,
+	LogOut,
+	User,
+	Bell,
+	NotepadText,
+	HelpCircle,
+	Mail,
+	UserCircle,
+	Calendar,
+} from "lucide-react"
 import { useAuthContext } from "@/contexts/AuthContexts"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -13,11 +25,17 @@ import avtImage from "@/assets/images/aba.png"
 
 const Header = () => {
 	const { isAuthenticated, logout, user } = useAuthContext()
+	const navigate = useNavigate()
 
+	// This would typically come from your notification context or API
 	const unreadNotifications = 3 // Replace with actual unread notifications count
 
 	const handleLogout = () => {
+		console.log("Header: Logout button clicked")
 		logout()
+
+		// Force navigation to home page after logout
+		navigate("/", { replace: true })
 	}
 
 	return (
@@ -51,7 +69,7 @@ const Header = () => {
 							</div>
 							<div>
 								<p className="text-sm font-medium">WORK HOUR</p>
-								<p className="text-blue-600">08:00 - 17:00 Everyday</p>
+								<p className="text-blue-600">05:00 - 24:00 Everyday</p>
 							</div>
 						</div>
 
@@ -89,20 +107,25 @@ const Header = () => {
 									Vaccine List
 								</Link>
 							</li>
+							<li>
+								<Link to="/policies" className="hover:text-blue-300">
+									Policies
+								</Link>
+							</li>
 						</ul>
 						{isAuthenticated ? (
 							<div className="flex items-center gap-4">
 								{/* Staff Contact Info Popup */}
 								<Popover>
 									<PopoverTrigger asChild>
-										<Button variant="ghost" size="icon" className="text-white hover:bg-white/10 transition-colors">
+										<Button variant="ghost" size="icon" className="text-white hover:text-white transition-colors">
 											<HelpCircle className="h-6 w-6" />
 										</Button>
 									</PopoverTrigger>
 									<PopoverContent className="w-80 p-0">
 										<div className="bg-[#1e1b4b] text-white p-3 rounded-t-md">
 											<h3 className="font-semibold text-lg">Contact Our Staff</h3>
-											<p className="text-sm text-blue-200">We are here to assist you choose the best vaccine for your child.</p>
+											<p className="text-sm text-blue-200">We're here to help you</p>
 										</div>
 										<div className="p-4 space-y-4">
 											<div className="flex items-start gap-3">
@@ -131,10 +154,16 @@ const Header = () => {
 												<UserCircle className="h-5 w-5 text-[#1e1b4b] mt-0.5" />
 												<div>
 													<p className="font-medium">Medical Consultation</p>
-													<p className="text-sm text-gray-600">Dr. Uyle</p>
+													<p className="text-sm text-gray-600">Dr. Nguyen Van A</p>
 													<p className="text-sm text-gray-600">+84 987 654 321</p>
 												</div>
 											</div>
+
+											<Button className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90 mt-2">
+												<Link to="/about" className="w-full">
+													Contact Us
+												</Link>
+											</Button>
 										</div>
 									</PopoverContent>
 								</Popover>
@@ -148,7 +177,7 @@ const Header = () => {
 
 								{/* Notification Bell */}
 								<Link to="/notifications" className="relative">
-									<Button variant="ghost" size="icon" className="text-white hover:bg-white/10 transition-colors">
+									<Button variant="ghost" size="icon" className="text-white hover:text-white transition-colors">
 										<Bell className="h-6 w-6" />
 										{unreadNotifications > 0 && (
 											<Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center rounded-full bg-red-500 text-white text-xs p-0 border-2 border-[#1e1b4b]">
@@ -176,6 +205,10 @@ const Header = () => {
 												<NotepadText className="mr-2 h-4 w-4" />
 												<Link to="/user-dashboard">Dashboard</Link>
 											</Button>
+											<Button variant="ghost" className="flex items-center justify-start px-2">
+												<Calendar className="mr-2 h-4 w-4" />
+												<Link to="/appointments-dashboard">Appointments</Link>
+											</Button>
 											<Button variant="ghost" className="flex items-center justify-start px-2" onClick={handleLogout}>
 												<LogOut className="mr-2 h-4 w-4" />
 												<span>Log out</span>
@@ -186,17 +219,17 @@ const Header = () => {
 							</div>
 						) : (
 							<div className="flex items-center gap-4">
-								{/* Staff Contact Info Popup*/}
+								{/* Staff Contact Info Popup (also available for non-authenticated users) */}
 								<Popover>
 									<PopoverTrigger asChild>
-										<Button variant="ghost" size="icon" className="text-white hover:bg-white/10 transition-colors">
+										<Button variant="ghost" size="icon" className="text-white hover:text-white transition-colors">
 											<HelpCircle className="h-6 w-6" />
 										</Button>
 									</PopoverTrigger>
 									<PopoverContent className="w-80 p-0">
 										<div className="bg-[#1e1b4b] text-white p-3 rounded-t-md">
 											<h3 className="font-semibold text-lg">Contact Our Staff</h3>
-											<p className="text-sm text-blue-200">We are here to assist you choose the best vaccine for your child.</p>
+											<p className="text-sm text-blue-200">We're here to help you</p>
 										</div>
 										<div className="p-4 space-y-4">
 											<div className="flex items-start gap-3">

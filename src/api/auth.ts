@@ -65,6 +65,8 @@ export namespace Auth {
 	export function logout(): void {
 		localStorage.removeItem("accessToken")
 		localStorage.removeItem("refreshToken")
+		sessionStorage.removeItem("email")
+		axiosInstance.defaults.headers.common["Authorization"] = ""
 	}
 
 	export function getToken(): string | null {

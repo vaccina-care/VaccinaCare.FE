@@ -6,6 +6,15 @@ export interface SingleVaccineBookingRequest {
     vaccineId: string
     childId: string
     startDate: string
+    notes?: string
+}
+
+// Request interface for booking package vaccine
+export interface PackageVaccineBookingRequest {
+    packageId: string
+    childId: string
+    startDate: string
+    notes?: string
 }
 
 // Response interface for appointment data
@@ -33,7 +42,20 @@ export const bookSingleVaccine = async (
     }
 }
 
-// Get all appointments for a child
+// Book package vaccine appointment
+export const bookPackageVaccine = async (
+    data: PackageVaccineBookingRequest,
+): Promise<ApiResponse<AppointmentResponse[]>> => {
+    try {
+        const response = await axiosInstance.post("/appointments/booking/package-vaccines", data)
+        return response.data
+    } catch (error) {
+        console.error("Error booking package vaccine:", error)
+        throw error
+    }
+}
+
+// Get all appointments for all child - not separate
 export const getChildAppointments = async (childId: string): Promise<ApiResponse<AppointmentResponse[]>> => {
     try {
         const response = await axiosInstance.get(`/appointments`, {

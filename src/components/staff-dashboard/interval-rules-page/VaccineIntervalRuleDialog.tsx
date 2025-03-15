@@ -14,10 +14,15 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { getAllVaccines, getVaccineById, type VaccineBase } from "@/api/staff/vaccineStaff"
 import type { VaccineIntervalRule, VaccineIntervalRuleRequest } from "@/api/staff/vaccineIntervalRules"
 
+// Create a new interface that extends VaccineIntervalRuleRequest to include vaccineIntervalRUID
+interface VaccineIntervalRuleWithId extends VaccineIntervalRuleRequest {
+    vaccineIntervalRUID?: string
+}
+
 interface VaccineIntervalRuleDialogProps {
     isOpen: boolean
     onClose: () => void
-    onSave: (data: VaccineIntervalRuleRequest) => Promise<void>
+    onSave: (data: VaccineIntervalRuleWithId) => Promise<void>
     selectedRule: VaccineIntervalRule | null
     vaccines: VaccineBase[]
 }
@@ -26,11 +31,11 @@ export function VaccineIntervalRuleDialog({
     isOpen,
     onClose,
     onSave,
-    selectedRule,
+    selectedRule
 }: VaccineIntervalRuleDialogProps) {
     const [isLoading, setIsLoading] = useState(false)
     const { toast } = useToast()
-    const [formData, setFormData] = useState<VaccineIntervalRuleRequest>({
+    const [formData, setFormData] = useState<VaccineIntervalRuleWithId>({
         vaccineId: "",
         relatedVaccineId: "",
         minIntervalDays: 0,
@@ -53,12 +58,14 @@ export function VaccineIntervalRuleDialog({
 
     // Reset form when dialog opens/closes or selected rule changes
     useEffect(() => {
-        document.body.style.pointerEvents = "auto";
-        document.body.style.overflow = "";
+        document.body.style.pointerEvents = "auto"
+        document.body.style.overflow = ""
         if (isOpen) {
             setTimeout(() => {
                 if (selectedRule) {
+                    // Include the vaccineIntervalRUID in the form data when editing
                     setFormData({
+                        vaccineIntervalRUID: selectedRule.vaccineIntervalRUID, // Changed from id to vaccineIntervalRUID
                         vaccineId: selectedRule.vaccineId,
                         relatedVaccineId: selectedRule.relatedVaccineId,
                         minIntervalDays: selectedRule.minIntervalDays,
@@ -114,7 +121,7 @@ export function VaccineIntervalRuleDialog({
                 document.body.style.pointerEvents = "auto"
             }, 50)
         } else {
-            document.body.style.pointerEvents = "";
+            document.body.style.pointerEvents = ""
         }
     }, [isOpen, selectedRule, toast])
 
@@ -212,7 +219,9 @@ export function VaccineIntervalRuleDialog({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
-        
+        // Log the form data to verify vaccineIntervalRUID is included
+        console.log("Submitting form data:", formData)
+
         // Validation
         if (formData.vaccineId === formData.relatedVaccineId) {
             toast({
@@ -241,17 +250,9 @@ export function VaccineIntervalRuleDialog({
             return
         }
 
-        if (!selectedRule?.id) {
-            toast({
-                title: "Error",
-                description: "Missing rule ID for update",
-                variant: "destructive",
-            });
-            return;
-        }
-
         try {
             setIsLoading(true)
+            // Pass the complete formData including the vaccineIntervalRUID if it exists
             await onSave(formData)
             onClose()
         } catch (error) {
@@ -280,9 +281,19 @@ export function VaccineIntervalRuleDialog({
     }, [])
 
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <Dialog
+            open={isOpen}
+            onOpenChange={(open) => {
+                if (!open) {
+                    setTimeout(() => {
+                        document.body.style.pointerEvents = "auto"
+                    }, 100)
+                    onClose()
+                }
+            }}
+        >
             <DialogContent
-                key={selectedRule?.id || "new"}
+                key={selectedRule?.vaccineIntervalRUID || "new"} // Changed from id to vaccineIntervalRUID
                 className="sm:max-w-md"
                 onPointerDownOutside={(e) => {
                     if (isLoading) {

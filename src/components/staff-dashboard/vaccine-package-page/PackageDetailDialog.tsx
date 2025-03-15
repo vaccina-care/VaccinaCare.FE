@@ -31,14 +31,12 @@ interface PackageDetailDialogProps {
 interface CreatePackageRequest {
     packageName: string
     description: string
-    price: number
     vaccineDetails: VaccineDetail[]
 }
 
 const initialFormState: CreatePackageRequest = {
     packageName: "",
     description: "",
-    price: 0,
     vaccineDetails: [],
 }
 
@@ -62,14 +60,10 @@ export function PackageDetailDialog({ packageId, isOpen, onClose, onSave, mode }
 
     // Synchronize internal state with prop
     useEffect(() => {
-        if (isOpen) {
-            setInternalOpen(true);
-        } else if (!isOpen && internalOpen) {
-            // Delay state update slightly to allow smooth unmounting
-            setTimeout(() => setInternalOpen(false), 50);
+        if (isOpen && !internalOpen) {
+            setInternalOpen(true)
         }
-    }, [isOpen, internalOpen]);
-
+    }, [isOpen, internalOpen])
 
     const resetForm = useCallback(() => {
         if (isMounted.current) {
@@ -132,7 +126,6 @@ export function PackageDetailDialog({ packageId, isOpen, onClose, onSave, mode }
             setFormData({
                 packageName: packageData.packageName,
                 description: packageData.description,
-                price: packageData.price,
                 vaccineDetails: packageData.vaccineDetails,
             })
         } catch (error) {
@@ -298,7 +291,11 @@ export function PackageDetailDialog({ packageId, isOpen, onClose, onSave, mode }
                 return
             }
 
-            await onSave(formData)
+            await onSave({
+                packageName: formData.packageName,
+                description: formData.description,
+                vaccineDetails: formData.vaccineDetails,
+            })
 
             // Only update state and show toast if still mounted
             if (isMounted.current) {
@@ -326,13 +323,20 @@ export function PackageDetailDialog({ packageId, isOpen, onClose, onSave, mode }
     const handleClose = useCallback(() => {
         setInternalOpen(false);
 
-        // Use requestAnimationFrame to ensure state updates before calling onClose
-        requestAnimationFrame(() => {
+        setTimeout(() => {
             if (isMounted.current) {
                 resetForm();
-                onClose(); // Ensure parent state updates properly
+                onClose();
+                document.body.style.pointerEvents = "auto";
+
+                // Restore focus to the previously focused element
+                const triggerButton = document.querySelector("#open-dialog-button");
+                if (triggerButton) {
+                    (triggerButton as HTMLElement).focus();
+                }
             }
-        });
+        }, 100);
+
     }, [onClose, resetForm]);
 
 
@@ -346,27 +350,37 @@ export function PackageDetailDialog({ packageId, isOpen, onClose, onSave, mode }
 
     return (
         <Dialog
-            open={internalOpen}
+            open={isOpen}
             onOpenChange={(open) => {
                 if (!open) {
-                    handleClose();
+                    setIsFetching(false); 
+                    setIsLoading(false); 
+                    resetForm();
+                    setTimeout(() => {
+                        document.body.style.pointerEvents = "auto"; // Restore interactivity
+                    }, 300); // Small delay for state updates
+                    onClose();
                 }
             }}
         >
-
             <DialogContent
                 className="max-w-5xl max-h-[90vh] overflow-y-auto p-0"
                 onPointerDownOutside={(e) => {
                     if (isLoading || isFetching) {
-                        e.preventDefault()
+                        e.preventDefault();
+                    } else {
+                        document.body.style.pointerEvents = "auto"; // Ensure pointer events are restored
                     }
                 }}
                 onEscapeKeyDown={(e) => {
                     if (isLoading || isFetching) {
-                        e.preventDefault()
+                        e.preventDefault();
+                    } else {
+                        document.body.style.pointerEvents = "auto";
                     }
                 }}
             >
+
                 <DialogHeader
                     className={`p-6 ${mode === "view" ? "bg-blue-50 dark:bg-blue-950/30" : mode === "edit" ? "bg-amber-50 dark:bg-amber-950/30" : "bg-green-50 dark:bg-green-950/30"}`}
                 >
@@ -439,7 +453,7 @@ export function PackageDetailDialog({ packageId, isOpen, onClose, onSave, mode }
                                                 {new Intl.NumberFormat("vi-VN", {
                                                     style: "currency",
                                                     currency: "VND",
-                                                }).format(formData.price)}
+                                                }).format(totalPrice * 0.9)}
                                             </Badge>
                                             <Badge variant="secondary" className="flex items-center gap-1">
                                                 <Syringe className="h-3 w-3" />
@@ -475,12 +489,22 @@ export function PackageDetailDialog({ packageId, isOpen, onClose, onSave, mode }
                                                         </div>
                                                         <div className="space-y-2">
                                                             <h4 className="font-medium text-sm text-muted-foreground">Price</h4>
-                                                            <p className="font-medium text-blue-600">
-                                                                {new Intl.NumberFormat("vi-VN", {
-                                                                    style: "currency",
-                                                                    currency: "VND",
-                                                                }).format(formData.price)}
-                                                            </p>
+                                                            <div className="space-y-1">
+                                                                <p className="font-medium text-blue-600">
+                                                                    {new Intl.NumberFormat("vi-VN", {
+                                                                        style: "currency",
+                                                                        currency: "VND",
+                                                                    }).format(totalPrice * 0.9)}
+                                                                </p>
+                                                                <p className="text-xs text-muted-foreground">
+                                                                    (Vaccines:{" "}
+                                                                    {new Intl.NumberFormat("vi-VN", {
+                                                                        style: "currency",
+                                                                        currency: "VND",
+                                                                    }).format(totalPrice)}{" "}
+                                                                    - 10% discount)
+                                                                </p>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <Separator />
@@ -615,28 +639,45 @@ export function PackageDetailDialog({ packageId, isOpen, onClose, onSave, mode }
                                                             />
                                                         </div>
                                                         <div>
-                                                            <Label htmlFor="price" className="text-sm">
+                                                            <Label htmlFor="calculatedPrice" className="text-sm">
                                                                 Package Price (VND)
                                                             </Label>
-                                                            <div className="relative mt-1">
-                                                                <Landmark className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                                                <Input
-                                                                    id="price"
-                                                                    type="number"
-                                                                    value={formData.price}
-                                                                    onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
-                                                                    required
-                                                                    min={0}
-                                                                    className="pl-9"
-                                                                    placeholder="Enter price in VND"
-                                                                />
+                                                            <div className="mt-1 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-100 dark:border-blue-800">
+                                                                <div className="flex flex-col gap-1">
+                                                                    <div className="flex justify-between items-center">
+                                                                        <span className="text-sm text-muted-foreground">Total vaccines price:</span>
+                                                                        <span className="font-medium">
+                                                                            {new Intl.NumberFormat("vi-VN", {
+                                                                                style: "currency",
+                                                                                currency: "VND",
+                                                                            }).format(totalPrice)}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="flex justify-between items-center">
+                                                                        <span className="text-sm text-muted-foreground">Discount voucher (10%):</span>
+                                                                        <span className="font-medium text-red-500">
+                                                                            -
+                                                                            {new Intl.NumberFormat("vi-VN", {
+                                                                                style: "currency",
+                                                                                currency: "VND",
+                                                                            }).format(totalPrice * 0.1)}
+                                                                        </span>
+                                                                    </div>
+                                                                    <Separator className="my-1" />
+                                                                    <div className="flex justify-between items-center">
+                                                                        <span className="text-sm font-medium">Final package price:</span>
+                                                                        <span className="text-lg font-bold text-blue-500">
+                                                                            {new Intl.NumberFormat("vi-VN", {
+                                                                                style: "currency",
+                                                                                currency: "VND",
+                                                                            }).format(totalPrice * 0.9)}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                             <p className="text-xs text-muted-foreground mt-1">
-                                                                Suggested price based on included vaccines:{" "}
-                                                                {new Intl.NumberFormat("vi-VN", {
-                                                                    style: "currency",
-                                                                    currency: "VND",
-                                                                }).format(totalPrice)}
+                                                                Price is automatically calculated as the sum of all vaccines minus a 10% discount
+                                                                voucher
                                                             </p>
                                                         </div>
                                                     </CardContent>
@@ -795,7 +836,15 @@ export function PackageDetailDialog({ packageId, isOpen, onClose, onSave, mode }
                                                                 {new Intl.NumberFormat("vi-VN", {
                                                                     style: "currency",
                                                                     currency: "VND",
-                                                                }).format(totalPrice)}
+                                                                }).format(totalPrice)}{" "}
+                                                                <span className="text-red-500">
+                                                                    (After 10% discount:{" "}
+                                                                    {new Intl.NumberFormat("vi-VN", {
+                                                                        style: "currency",
+                                                                        currency: "VND",
+                                                                    }).format(totalPrice * 0.9)}
+                                                                    )
+                                                                </span>
                                                             </p>
                                                         </div>
                                                     </CardFooter>

@@ -305,6 +305,7 @@ export function ChildrenProfile() {
 			toast({
 				title: "Success",
 				description: "Child information updated successfully",
+				variant: "success"
 			})
 		} catch (error) {
 			console.error("Failed to save child:", error)
@@ -323,6 +324,7 @@ export function ChildrenProfile() {
 			toast({
 				title: "Success",
 				description: "New child added successfully",
+				variant: "success"
 			})
 		} catch (error) {
 			console.error("Failed to add new child:", error)
@@ -341,6 +343,7 @@ export function ChildrenProfile() {
 			toast({
 				title: "Success",
 				description: "Child profile deleted successfully",
+				variant: "success"
 			})
 		} catch (error) {
 			console.error("Failed to delete child:", error)

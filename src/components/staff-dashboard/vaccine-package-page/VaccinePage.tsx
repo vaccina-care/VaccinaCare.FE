@@ -47,9 +47,9 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { VaccineDetailDialog } from "@/components/staff-dashboard/VaccineDetailDialog"
-import { PackageDetailDialog } from "@/components/staff-dashboard/PackageDetailDialog"
-import { CreateSelectionDialog } from "@/components/staff-dashboard/CreateDialog"
+import { VaccineDetailDialog } from "@/components/staff-dashboard/vaccine-package-page/VaccineDetailDialog"
+import { PackageDetailDialog } from "@/components/staff-dashboard/vaccine-package-page/PackageDetailDialog"
+import { CreateSelectionDialog } from "@/components/staff-dashboard/vaccine-package-page/CreateDialog"
 
 type FilterType = "all" | "single" | "package"
 type DialogMode = "view" | "edit" | "create"
