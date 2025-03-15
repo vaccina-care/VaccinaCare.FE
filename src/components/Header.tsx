@@ -107,6 +107,11 @@ const Header = () => {
 									Vaccine List
 								</Link>
 							</li>
+							<li>
+								<Link to="/policies" className="hover:text-blue-300">
+									Policies
+								</Link>
+							</li>
 						</ul>
 						{isAuthenticated ? (
 							<div className="flex items-center gap-4">
