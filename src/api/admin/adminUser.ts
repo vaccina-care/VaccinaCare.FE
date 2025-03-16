@@ -55,8 +55,8 @@ export const createUser = async (data: CreateUserData): Promise<ApiResponse<User
     }
 }
 
-// API cập nhật user
-export const updateUser = async (id: string, data: UserBase): Promise<ApiResponse<UserBase>> => {
+// API cập nhật user (BE chưa trả về đủ nên xài Partial nha cu, nhớ xóa hoặc fix)
+export const updateUser = async (id: string, data: Partial<UserBase>): Promise<ApiResponse<UserBase>> => {
     try {
         const response = await axiosInstance.put(`/admin/users/${id}`, data)
         return response.data

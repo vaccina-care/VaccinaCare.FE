@@ -46,7 +46,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
-import { createUser, deleteUser, getAllUsers, UserBase } from "@/api/admin/adminUser"
+import { createUser, updateUser, deleteUser, getAllUsers, UserBase } from "@/api/admin/adminUser"
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString)
@@ -249,15 +249,56 @@ export function UsersManagement() {
             variant: "destructive",
           })
         }
-      } else {
-        toast({
-          title: "Pending",
-          description: "Edit functionality not implemented yet",
-        })
-        closeDialog()
+      } else if (dialogMode === "edit" && selectedUser) {
+        try {
+          const updatedUserData = {
+            fullName: formData.name,
+            email: formData.email,
+            phoneNumber: formData.phone,
+            address: formData.address || null, 
+            dateOfBirth: formData.dateOfBirth || null, 
+            roleName: formData.role || selectedUser.roleName,
+          }
+
+          const response = await updateUser(selectedUser.userId, updatedUserData)
+          if (response.isSuccess) {
+            const updatedUser: UserBase = {
+              ...selectedUser, 
+              fullName: response.data.fullName || updatedUserData.fullName,
+              email: response.data.email || updatedUserData.email,
+              phoneNumber: response.data.phoneNumber || updatedUserData.phoneNumber,
+              address: response.data.address || updatedUserData.address || null,
+              dateOfBirth: response.data.dateOfBirth || updatedUserData.dateOfBirth || null,
+              roleName: response.data.roleName || updatedUserData.roleName, 
+            }
+
+            setUsers((prev) =>
+              prev.map((user) => (user.userId === selectedUser.userId ? updatedUser : user))
+            )
+            toast({
+              title: "Success",
+              description: "User updated successfully",
+            })
+            closeDialog()
+            await fetchUsers() 
+          } else {
+            toast({
+              title: "Error",
+              description: "Failed to update user",
+              variant: "destructive",
+            })
+          }
+        } catch (error) {
+          console.error("Error updating user:", error)
+          toast({
+            title: "Error",
+            description: "An error occurred while updating the user",
+            variant: "destructive",
+          })
+        }
       }
     },
-    [dialogMode, toast, closeDialog]
+    [dialogMode, selectedUser, toast, closeDialog]
   )
 
   const totalPages = Math.ceil(totalCount / pageSize)
