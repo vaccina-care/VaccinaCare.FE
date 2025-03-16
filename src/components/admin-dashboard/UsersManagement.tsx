@@ -97,16 +97,28 @@ export function UsersManagement() {
 
       const response = await getAllUsers({
         searchTerm: debouncedSearchTerm || undefined,
-        role: filterRole !== "all" ? filterRole : undefined,
+        // role: filterRole !== "all" ? filterRole : undefined,
         pageIndex: page,
         pageSize,
       })
 
+      //cách này skibidi nhưng mà BE chưa có search role nên để tạm 
       if (response.isSuccess) {
         console.log("Fetched data:", response.data)
-        setUsers(response.data.users || response.data || [])
-        setTotalCount(response.data.totalCount || 0)
-      } else {
+        let fetchedUsers = response.data.users || []
+        if (filterRole !== "all") {
+          fetchedUsers = fetchedUsers.filter(user => user.roleName === filterRole)
+        }
+        setUsers(fetchedUsers)
+        setTotalCount(filterRole === "all" ? response.data.totalCount || 0 : fetchedUsers.length)
+      }
+
+      // if (response.isSuccess) {
+      //   console.log("Fetched data:", response.data)
+      //   setUsers(response.data.users || response.data || [])
+      //   setTotalCount(response.data.totalCount || 0)
+      // } 
+      else {
         toast({
           title: "Error",
           description: "Failed to fetch users",
@@ -161,31 +173,32 @@ export function UsersManagement() {
   const confirmDeleteUser = useCallback(async () => {
     if (!selectedUser) return
     try {
-        const response = await deleteUser(selectedUser.userId)
-        if (response.isSuccess) {
-            setUsers((prev) => prev.filter((user) => user.userId !== selectedUser.userId))
-            setTotalCount((prev) => prev - 1)
-            toast({
-                title: "Success",
-                description: `${selectedUser.fullName || "Unnamed User"} has been deleted successfully.`,
-            })
-            closeDeleteDialog()
-        } else {
-            toast({
-                title: "Error",
-                description: `Failed to delete user: ${response.message || "Unknown error"}`,
-                variant: "destructive",
-            })
-        }
-    } catch (error: any) {
-        console.error("Error deleting user:", error.response?.data || error.message)
+      const response = await deleteUser(selectedUser.userId)
+      if (response.isSuccess) {
+        setUsers((prev) => prev.filter((user) => user.userId !== selectedUser.userId))
+        setTotalCount((prev) => prev - 1)
         toast({
-            title: "Error",
-            description: error.response?.data?.message || "An error occurred while deleting the user",
-            variant: "destructive",
+          title: "Success",
+          description: `${selectedUser.fullName || "Unnamed User"} has been deleted successfully.`,
         })
+        closeDeleteDialog()
+        await fetchUsers()
+      } else {
+        toast({
+          title: "Error",
+          description: `Failed to delete user: ${response.message || "Unknown error"}`,
+          variant: "destructive",
+        })
+      }
+    } catch (error: any) {
+      console.error("Error deleting user:", error.response?.data || error.message)
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "An error occurred while deleting the user",
+        variant: "destructive",
+      })
     }
-}, [selectedUser, toast, closeDeleteDialog])
+  }, [selectedUser, toast, closeDeleteDialog])
 
   const handleSaveUser = useCallback(
     async (formData: any) => {
@@ -199,7 +212,7 @@ export function UsersManagement() {
             dateOfBirth: formData.dateOfBirth,
             password: formData.password,
           }
-  
+
           const response = await createUser(userData)
           if (response.isSuccess) {
             const newUser: UserBase = {
@@ -212,7 +225,7 @@ export function UsersManagement() {
               roleName: response.data.roleName || "Staff",
               createdAt: response.data.createdAt,
             }
-  
+
             toast({
               title: "Success",
               description: "Staff account created successfully",
@@ -273,7 +286,7 @@ export function UsersManagement() {
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">
-      <div className="flex flex-1 gap-2">
+        <div className="flex flex-1 gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
