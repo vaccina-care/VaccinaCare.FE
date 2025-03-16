@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import axios from "axios"
 
 // Instance to use global
@@ -9,7 +10,7 @@ const axiosInstance = axios.create({
   },
 })
 
-// Gán accessToken vào payload mỗi lần request
+// Gán accessToken vào header với mỗi request cần
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken")
@@ -44,7 +45,7 @@ axiosInstance.interceptors.response.use(
           return axiosInstance(originalRequest)
         }
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      
       } catch (refreshError) {
         localStorage.removeItem("accessToken")
         localStorage.removeItem("refreshToken")
