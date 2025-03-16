@@ -49,7 +49,6 @@ export const getAllUsers = async (params: GetUsersParams): Promise<ApiResponse<U
 export const createUser = async (data: CreateUserData): Promise<ApiResponse<UserBase>> => {
     try {
         const response = await axiosInstance.post("admin/users/staff", data)
-        console.log("Create User API Response:", response.data)
         return response.data
     } catch (error) {
         console.error("Error creating staff:", error)

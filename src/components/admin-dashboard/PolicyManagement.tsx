@@ -14,9 +14,7 @@ import {
   ChevronRight,
   FilePlus,
   Calendar,
-  Tag,
   Clock,
-  DollarSign,
   RefreshCw,
 } from "lucide-react"
 import { useDebounce } from "@/hooks/use-debounce"
@@ -39,7 +37,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { createPolicy, CreatePolicyData, deletePolicy, getAllPolicies, getPolicyById, updatePolicy, type PolicyBase } from "@/api/admin/policy" // Import từ policyStaff
@@ -95,14 +92,14 @@ export function PolicyManagement() {
     try {
       setIsLoading(true)
       const response = await getAllPolicies({
-        search: debouncedSearchName,
-        pageIndex, // Gửi pageIndex thay vì page
+        searchTerm: debouncedSearchName,
+        pageIndex, 
         pageSize,
       })
       console.log("API Response:", response)
       if (response.isSuccess) {
-        const policiesData = response.data.items || response.data || [] // Xử lý cả trường hợp mảng trực tiếp
-        const total = response.data.totalCount !== undefined ? response.data.totalCount : policiesData.length
+        const policiesData = response.data.policies || []
+        const total = response.data.totalCount || policiesData.length
         setPolicies(policiesData)
         setTotalCount(total)
         console.log("PageIndex:", pageIndex, "Policies:", policiesData, "TotalCount:", total)
@@ -183,6 +180,7 @@ export function PolicyManagement() {
           variant: "success",
         })
         closeDeleteDialog()
+        await fetchPolicies()
       } else {
         toast({
           title: "Error",

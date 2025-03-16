@@ -12,14 +12,12 @@ export interface PolicyBase {
 }
 
 export interface PolicyListResponse {
-    items: PolicyBase[]
     totalCount: number
-    pageIndex: number
-    pageSize: number
+    policies: PolicyBase[]
 }
 
 export interface GetPoliciesParams {
-    search?: string
+    searchTerm?: string
     pageIndex?: number
     pageSize?: number
 }

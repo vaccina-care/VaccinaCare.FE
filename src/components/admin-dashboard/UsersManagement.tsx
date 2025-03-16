@@ -468,14 +468,14 @@ export function UsersManagement() {
                 ? "User Details"
                 : dialogMode === "edit"
                   ? "Edit User"
-                  : "Create New User"}
+                  : "Create New Staff"}
             </DialogTitle>
             <DialogDescription>
               {dialogMode === "view"
                 ? "View user information"
                 : dialogMode === "edit"
                   ? "Make changes to user information"
-                  : "Add a new user to the system"}
+                  : "Add a new staff to the system"}
             </DialogDescription>
           </DialogHeader>
 
