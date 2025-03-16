@@ -18,10 +18,9 @@ export interface UserListResponse {
 }
 
 export interface GetUsersParams {
-    searchName?: string
-    searchEmail?: string
+    searchTerm?: string 
     role?: string
-    pageNumber?: number
+    pageIndex?: number
     pageSize?: number
 }
 

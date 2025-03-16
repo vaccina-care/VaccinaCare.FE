@@ -64,8 +64,7 @@ export function UsersManagement() {
   const [users, setUsers] = useState<UserBase[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
-  const [searchName, setSearchName] = useState("")
-  const [searchEmail, setSearchEmail] = useState("")
+  const [searchTerm, setSearchTerm] = useState("")
   const [filterRole, setFilterRole] = useState<string>("all")
   const [page, setPage] = useState(1)
   const [pageSize] = useState(10)
@@ -75,8 +74,7 @@ export function UsersManagement() {
   const [dialogMode, setDialogMode] = useState<DialogMode>("view")
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
-  const debouncedSearchName = useDebounce(searchName, 300)
-  const debouncedSearchEmail = useDebounce(searchEmail, 300)
+  const debouncedSearchTerm = useDebounce(searchTerm, 300)
 
   const openDialog = useCallback((mode: DialogMode, user: UserBase | null = null) => {
     setDialogMode(mode)
@@ -98,10 +96,9 @@ export function UsersManagement() {
       setIsLoading(true)
 
       const response = await getAllUsers({
-        searchName: debouncedSearchName || undefined,
-        searchEmail: debouncedSearchEmail || undefined,
+        searchTerm: debouncedSearchTerm || undefined,
         role: filterRole !== "all" ? filterRole : undefined,
-        pageNumber: page,
+        pageIndex: page,
         pageSize,
       })
 
@@ -126,7 +123,7 @@ export function UsersManagement() {
     } finally {
       setIsLoading(false)
     }
-  }, [debouncedSearchName, debouncedSearchEmail, filterRole, page, pageSize, toast])
+  }, [debouncedSearchTerm, filterRole, page, pageSize, toast])
 
   useEffect(() => {
     fetchUsers()
@@ -276,22 +273,13 @@ export function UsersManagement() {
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="flex flex-1 gap-2">
+      <div className="flex flex-1 gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search by name..."
-              value={searchName}
-              onChange={(e) => setSearchName(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-          <div className="relative flex-1">
-            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search by email..."
-              value={searchEmail}
-              onChange={(e) => setSearchEmail(e.target.value)}
+              placeholder="Search by name or email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
             />
           </div>
