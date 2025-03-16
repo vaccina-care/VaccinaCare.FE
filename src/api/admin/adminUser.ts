@@ -5,10 +5,8 @@ export interface UserBase {
     userId: string
     fullName?: string
     email?: string 
-    address?: string
     phoneNumber?: string
     roleName: "Admin" | "Staff" | "Customer" 
-    dateOfBirth?: string
     createdAt: string 
 }
 
@@ -27,9 +25,6 @@ export interface GetUsersParams {
 export interface CreateUserData {
     fullName?: string
     email?: string
-    address?: string
-    phoneNumber?: string
-    dateOfBirth?: string
     password: string
 }
 
@@ -44,7 +39,6 @@ export const getAllUsers = async (params: GetUsersParams): Promise<ApiResponse<U
     }
 }
 
-// API tạo mới user
 export const createUser = async (data: CreateUserData): Promise<ApiResponse<UserBase>> => {
     try {
         const response = await axiosInstance.post("admin/users/staff", data)
@@ -55,10 +49,10 @@ export const createUser = async (data: CreateUserData): Promise<ApiResponse<User
     }
 }
 
-// API cập nhật user (BE chưa trả về đủ nên xài Partial nha cu, nhớ xóa hoặc fix)
 export const updateUser = async (id: string, data: Partial<UserBase>): Promise<ApiResponse<UserBase>> => {
     try {
         const response = await axiosInstance.put(`/admin/users/${id}`, data)
+        console.log("API Response from updateUser:", response.data)
         return response.data
     } catch (error) {
         console.error("Error updating user:", error)
@@ -66,7 +60,6 @@ export const updateUser = async (id: string, data: Partial<UserBase>): Promise<A
     }
 }
 
-// API xóa user
 export const deleteUser = async (id: string): Promise<ApiResponse<UserBase>> => {
     try {
         const response = await axiosInstance.delete(`/admin/users/${id}`)
@@ -76,5 +69,3 @@ export const deleteUser = async (id: string): Promise<ApiResponse<UserBase>> => 
         throw error
     }
 }
-
-// Fix delete mất ID lúc tạo phải refresh trang 

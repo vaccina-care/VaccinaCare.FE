@@ -20,7 +20,6 @@ import {
   Mail,
   Calendar,
   Phone,
-  MapPin,
 } from "lucide-react"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useToast } from "@/hooks/use-toast"
@@ -97,12 +96,10 @@ export function UsersManagement() {
 
       const response = await getAllUsers({
         searchTerm: debouncedSearchTerm || undefined,
-        // role: filterRole !== "all" ? filterRole : undefined,
         pageIndex: page,
         pageSize,
       })
 
-      //cách này skibidi nhưng mà BE chưa có search role nên để tạm 
       if (response.isSuccess) {
         console.log("Fetched data:", response.data)
         let fetchedUsers = response.data.users || []
@@ -207,9 +204,6 @@ export function UsersManagement() {
           const userData = {
             fullName: formData.name,
             email: formData.email,
-            phoneNumber: formData.phone,
-            address: formData.address,
-            dateOfBirth: formData.dateOfBirth,
             password: formData.password,
           }
 
@@ -219,9 +213,6 @@ export function UsersManagement() {
               userId: response.data.userId,
               fullName: response.data.fullName,
               email: response.data.email,
-              phoneNumber: response.data.phoneNumber,
-              address: response.data.address,
-              dateOfBirth: response.data.dateOfBirth,
               roleName: response.data.roleName || "Staff",
               createdAt: response.data.createdAt,
             }
@@ -255,21 +246,15 @@ export function UsersManagement() {
             fullName: formData.name,
             email: formData.email,
             phoneNumber: formData.phone,
-            address: formData.address || null, 
-            dateOfBirth: formData.dateOfBirth || null, 
-            roleName: formData.role || selectedUser.roleName,
           }
 
           const response = await updateUser(selectedUser.userId, updatedUserData)
           if (response.isSuccess) {
             const updatedUser: UserBase = {
-              ...selectedUser, 
-              fullName: response.data.fullName || updatedUserData.fullName,
-              email: response.data.email || updatedUserData.email,
-              phoneNumber: response.data.phoneNumber || updatedUserData.phoneNumber,
-              address: response.data.address || updatedUserData.address || null,
-              dateOfBirth: response.data.dateOfBirth || updatedUserData.dateOfBirth || null,
-              roleName: response.data.roleName || updatedUserData.roleName, 
+              ...selectedUser,
+              fullName: response.data.fullName ?? updatedUserData.fullName,
+              email: response.data.email ?? updatedUserData.email,
+              phoneNumber: response.data.phoneNumber ?? updatedUserData.phoneNumber,
             }
 
             setUsers((prev) =>
@@ -558,20 +543,6 @@ export function UsersManagement() {
                         <span>{selectedUser.phoneNumber || "Not provided"}</span>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">Address</Label>
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span>{selectedUser.address || "Not provided"}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">Date of Birth</Label>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span>{selectedUser.dateOfBirth || "Not provided"}</span>
-                      </div>
-                    </div>
                   </div>
                 </TabsContent>
                 <TabsContent value="activity" className="space-y-4 pt-4">
@@ -605,10 +576,8 @@ export function UsersManagement() {
                   name: formData.get("name") as string,
                   email: formData.get("email") as string,
                   phone: formData.get("phone") as string,
-                  address: formData.get("address") as string,
-                  dateOfBirth: formData.get("dateOfBirth") as string,
                   ...(dialogMode === "create" && { password: formData.get("password") as string }),
-                  ...(dialogMode === "edit" && { role: formData.get("role") as UserRole }),
+                  ...(dialogMode === "edit" && { phone: formData.get("phone") as string }),
                 }
                 handleSaveUser(data)
               }}
@@ -616,7 +585,7 @@ export function UsersManagement() {
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" name="name" defaultValue={selectedUser?.fullName || ""} required />
+                  <Input id="name" name="name" defaultValue={selectedUser?.fullName || ""} placeholder="Enter full name" required />
                 </div>
                 {dialogMode === "create" && (
                   <div className="space-y-2">
@@ -630,42 +599,16 @@ export function UsersManagement() {
                     />
                   </div>
                 )}
-                {dialogMode === "edit" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="role">Role</Label>
-                    <Select name="role" defaultValue={selectedUser?.roleName || "Customer"}>
-                      <SelectTrigger id="role">
-                        <SelectValue placeholder="Select role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Admin">Admin</SelectItem>
-                        <SelectItem value="Staff">Staff</SelectItem>
-                        <SelectItem value="Customer">Customer</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" defaultValue={selectedUser?.email || ""} required />
+                  <Input id="email" name="email" type="email" defaultValue={selectedUser?.email || ""} placeholder="Enter email" required />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input id="phone" name="phone" defaultValue={selectedUser?.phoneNumber || ""} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="address">Address</Label>
-                  <Input id="address" name="address" defaultValue={selectedUser?.address || ""} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                  <Input
-                    id="dateOfBirth"
-                    name="dateOfBirth"
-                    type="date"
-                    defaultValue={selectedUser?.dateOfBirth || ""}
-                  />
-                </div>
+                {dialogMode === "edit" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <Input id="phone" name="phone" defaultValue={selectedUser?.phoneNumber || ""} placeholder="Enter phone number" />
+                  </div>
+                )}
               </div>
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={closeDialog}>
