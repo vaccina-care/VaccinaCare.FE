@@ -1,3 +1,4 @@
+
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -42,7 +43,7 @@ export function AppointmentChart() {
                 labelStyle={{ color: "var(--foreground)" }}
                 itemStyle={{ color: "var(--foreground)" }}
               />
-              <Legend formatter={(value, entry, index) => <span className="text-foreground">{value}</span>} />
+              <Legend formatter={(value) => <span className="text-foreground">{value}</span>} />
               <Bar dataKey="completed" name="Completed" fill="#10b981" />
               <Bar dataKey="cancelled" name="Cancelled" fill="#f43f5e" />
               <Bar dataKey="rescheduled" name="Rescheduled" fill="#f59e0b" />

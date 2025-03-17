@@ -25,8 +25,6 @@ import Feedback from "./pages/Feedback"
 import StaffPage from "./pages/staff/StaffPage"
 import AdminPage from "./pages/admin/AdminPage"
 import AppointmentDashboard from "./pages/AppointmentDashboard"
-
-//demo-page
 import PaymentSuccessPage from "./components/payment/paymentSuccess"
 import PaymentFailPage from "./components/payment/paymentFail"
 import PolicyPage from "./pages/Policy"
@@ -48,8 +46,8 @@ const validRoutes = [
 	"/feedback",
 	"/staff",
 	"/staff/vaccines",
-  "/staff/vaccine-interval-rules",
-  "/appointments-dashboard",
+	"/staff/vaccine-interval-rules",
+	"/appointments-dashboard",
 	"/admin",
 	"/admin/policy-management",
 	"/admin/users-management",
@@ -114,7 +112,7 @@ const AppContent: React.FC = () => {
 							<Route element={<ProtectedRoute adminOnly />}>
 								<Route path="/admin/*" element={<AdminPage />} />
 							</Route>
-        
+
 							{/* 404 Page */}
 							<Route path="*" element={<NotFound />} />
 						</Routes>

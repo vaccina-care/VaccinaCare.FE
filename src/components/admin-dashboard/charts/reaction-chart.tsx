@@ -42,7 +42,7 @@ export function ReactionsChart() {
                 labelStyle={{ color: "var(--foreground)" }}
                 itemStyle={{ color: "var(--foreground)" }}
               />
-              <Legend formatter={(value, entry, index) => <span className="text-foreground">{value}</span>} />
+              <Legend formatter={(value) => <span className="text-foreground">{value}</span>} />
               <Line type="monotone" dataKey="mild" name="Mild" stroke="#3b82f6" strokeWidth={2} /> {/* Blue */}
               <Line type="monotone" dataKey="moderate" name="Moderate" stroke="#f59e0b" strokeWidth={2} /> {/* Amber */}
               <Line type="monotone" dataKey="severe" name="Severe" stroke="#f43f5e" strokeWidth={2} /> {/* Red */}

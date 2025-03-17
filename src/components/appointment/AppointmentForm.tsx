@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -9,7 +10,7 @@ import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "../ui/button"
 import { ArrowLeft } from "lucide-react"
-import { AddChildDialog } from "../user-dashboard/AddChildDialog"
+import { AddChildDialog } from "@/components/user-dashboard/child-profile/AddChildDialog"
 import { toast } from "@/hooks/use-toast"
 
 export function AppointmentForm() {

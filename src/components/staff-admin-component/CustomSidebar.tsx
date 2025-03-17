@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useAuthContext } from "@/contexts/AuthContexts"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Package2, Syringe, CalendarDays, BarChart3, LogOut, ChevronLeft, ChevronRight, LayoutDashboard, Users } from "lucide-react"
+import { Syringe, CalendarDays, BarChart3, LogOut, ChevronLeft, ChevronRight, LayoutDashboard, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ThemeToggle } from "./ThemeToggle"
 
