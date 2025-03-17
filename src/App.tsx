@@ -83,11 +83,11 @@ const AppContent: React.FC = () => {
 							<Route path="/vaccine/:id" element={<VaccineDetail />} />
 							<Route path="/vaccine-package/:packageId" element={<VaccinePackageDetail />} />
 							<Route path="/policies" element={<PolicyPage />} />
+							<Route path="/payment-success" element={<PaymentSuccessPage />} />
+							<Route path="/payment-fail" element={<PaymentFailPage />} />
 
 							{/* TEST */}
 							<Route path="/feedback" element={<Feedback />} />
-							<Route path="/payment-success" element={<PaymentSuccessPage />} />
-							<Route path="/payment-fail" element={<PaymentFailPage />} />
 
 							{/* Protected user routes */}
 							<Route element={<ProtectedRoute />}>
