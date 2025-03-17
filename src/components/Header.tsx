@@ -27,8 +27,8 @@ const Header = () => {
 	const { isAuthenticated, logout, user } = useAuthContext()
 	const navigate = useNavigate()
 
-	// This would typically come from your notification context or API
-	const unreadNotifications = 3 // Replace with actual unread notifications count
+	// Replace after noti API finished
+	const unreadNotifications = 3
 
 	const handleLogout = () => {
 		console.log("Header: Logout button clicked")
@@ -114,12 +114,151 @@ const Header = () => {
 							</li>
 						</ul>
 						{isAuthenticated ? (
-							<div className="flex items-center gap-4">
+							<div className="flex items-center gap-4 mt-4 md:mt-0">
 								{/* Staff Contact Info Popup */}
 								<Popover>
 									<PopoverTrigger asChild>
-										<Button variant="ghost" size="icon" className="text-white hover:text-white transition-colors">
-											<HelpCircle className="h-6 w-6" />
+										<Button
+											variant="ghost"
+											size="icon"
+											className="text-white bg-blue-600/20 hover:bg-blue-500/30 transition-colors rounded-full w-10 h-10"
+										>
+											<HelpCircle className="h-5 w-5" />
+										</Button>
+									</PopoverTrigger>
+									<PopoverContent className="w-80 p-0">
+										<div className="bg-[#1e1b4b] text-white p-3 rounded-t-md">
+											<h3 className="font-semibold text-lg">Contact Our Staff</h3>
+											<p className="text-sm text-blue-200">We're here to help you</p>
+										</div>
+										<div className="p-4 space-y-4">
+											<div className="flex items-start gap-3">
+												<Phone className="h-5 w-5 text-[#1e1b4b] mt-0.5" />
+												<div>
+													<p className="font-medium">Customer Support</p>
+													<p className="text-sm text-gray-600">+84 123 456 789</p>
+													<p className="text-sm text-gray-600">Available 24/7</p>
+												</div>
+											</div>
+
+											<Separator />
+
+											<div className="flex items-start gap-3">
+												<Mail className="h-5 w-5 text-[#1e1b4b] mt-0.5" />
+												<div>
+													<p className="font-medium">Email Support</p>
+													<p className="text-sm text-gray-600">support@vaccinacare.com</p>
+													<p className="text-sm text-gray-600">Response within 24 hours</p>
+												</div>
+											</div>
+
+											<Separator />
+
+											<div className="flex items-start gap-3">
+												<UserCircle className="h-5 w-5 text-[#1e1b4b] mt-0.5" />
+												<div>
+													<p className="font-medium">Medical Consultation</p>
+													<p className="text-sm text-gray-600">Dr. Nguyen Van A</p>
+													<p className="text-sm text-gray-600">+84 987 654 321</p>
+												</div>
+											</div>
+
+											<Button className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90 mt-2">
+												<Link to="/about" className="w-full">
+													Contact Us
+												</Link>
+											</Button>
+										</div>
+									</PopoverContent>
+								</Popover>
+
+								{/* Appointment transfer button */}
+								<Button
+									asChild
+									className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-md shadow-md transition-all"
+								>
+									<Link to="/appointments">Booking Appointment</Link>
+								</Button>
+
+								{/* Notification Bell */}
+								<Link to="/notifications" className="relative">
+									<Button
+										variant="ghost"
+										size="icon"
+										className="text-white bg-blue-600/20 hover:bg-blue-500/30 transition-colors rounded-full w-10 h-10"
+									>
+										<Bell className="h-5 w-5" />
+										{unreadNotifications > 0 && (
+											<Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center rounded-full bg-red-500 text-white text-xs p-0 border-2 border-[#1e1b4b]">
+												{unreadNotifications}
+											</Badge>
+										)}
+									</Button>
+								</Link>
+
+								{/* User Avatar */}
+								<Popover>
+									<PopoverTrigger asChild>
+										<Button
+											variant="ghost"
+											className="relative rounded-full p-0 h-10 w-10 border-2 border-blue-400 hover:border-blue-300 transition-all"
+										>
+											<Avatar className="h-full w-full">
+												<AvatarImage src={user?.imageUrl || avtImage} alt="Avatar" />
+												<AvatarFallback className="bg-blue-600">
+													<User className="h-4 w-4 text-white" />
+												</AvatarFallback>
+											</Avatar>
+										</Button>
+									</PopoverTrigger>
+									<PopoverContent className="w-56 p-2">
+										<div className="flex flex-col space-y-1">
+											<div className="px-2 py-1.5 mb-1 border-b">
+												<p className="font-medium text-sm">{user?.fullName || "User"}</p>
+												<p className="text-xs text-gray-500 truncate">{user?.email || "user@example.com"}</p>
+											</div>
+											<Button
+												variant="ghost"
+												className="flex items-center justify-start px-2 py-1.5 text-sm hover:bg-blue-50 hover:text-blue-700"
+											>
+												<NotepadText className="mr-2 h-4 w-4" />
+												<Link to="/user-dashboard" className="w-full text-left">
+													Dashboard
+												</Link>
+											</Button>
+											<Button
+												variant="ghost"
+												className="flex items-center justify-start px-2 py-1.5 text-sm hover:bg-blue-50 hover:text-blue-700"
+											>
+												<Calendar className="mr-2 h-4 w-4" />
+												<Link to="/appointments-dashboard" className="w-full text-left">
+													Appointments
+												</Link>
+											</Button>
+											<Separator className="my-1" />
+											<Button
+												variant="ghost"
+												className="flex items-center justify-start px-2 py-1.5 text-sm hover:bg-red-50 hover:text-red-600"
+												onClick={handleLogout}
+											>
+												<LogOut className="mr-2 h-4 w-4" />
+												<span>Log out</span>
+											</Button>
+										</div>
+									</PopoverContent>
+								</Popover>
+							</div>
+						) : (
+							<div className="flex items-center gap-4 mt-4 md:mt-0">
+								{/* Staff Contact Info Popup (also available for non-authenticated users) */}
+								<Popover>
+									<PopoverTrigger asChild>
+										<Button
+											variant="ghost"
+											size="icon"
+											className="text-white bg-blue-600/20 hover:bg-blue-500/30 transition-colors rounded-full w-10 h-10"
+										>
+											<HelpCircle className="h-5 w-5" />
 										</Button>
 									</PopoverTrigger>
 									<PopoverContent className="w-80 p-0">
@@ -169,110 +308,9 @@ const Header = () => {
 								</Popover>
 
 								<Button
+									className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-md shadow-md transition-all"
 									asChild
-									className="bg-[#1e1b4b] hover:bg-[#1e1b4b]/80 text-white font-bold px-6 py-2 rounded-lg border border-white/20 shadow-lg transition-all"
 								>
-									<Link to="/appointments">Appointment</Link>
-								</Button>
-
-								{/* Notification Bell */}
-								<Link to="/notifications" className="relative">
-									<Button variant="ghost" size="icon" className="text-white hover:text-white transition-colors">
-										<Bell className="h-6 w-6" />
-										{unreadNotifications > 0 && (
-											<Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center rounded-full bg-red-500 text-white text-xs p-0 border-2 border-[#1e1b4b]">
-												{unreadNotifications}
-											</Badge>
-										)}
-									</Button>
-								</Link>
-
-								{/* User Avatar */}
-								<Popover>
-									<PopoverTrigger asChild>
-										<Button variant="ghost" className="relative h-8 w-8 rounded-full">
-											<Avatar className="h-8 w-8">
-												<AvatarImage src={user?.imageUrl || avtImage} alt="Avatar" />
-												<AvatarFallback>
-													<User className="h-4 w-4" />
-												</AvatarFallback>
-											</Avatar>
-										</Button>
-									</PopoverTrigger>
-									<PopoverContent className="w-50">
-										<div className="flex flex-col space-y-1">
-											<Button variant="ghost" className="flex items-center justify-start px-2">
-												<NotepadText className="mr-2 h-4 w-4" />
-												<Link to="/user-dashboard">Dashboard</Link>
-											</Button>
-											<Button variant="ghost" className="flex items-center justify-start px-2">
-												<Calendar className="mr-2 h-4 w-4" />
-												<Link to="/appointments-dashboard">Appointments</Link>
-											</Button>
-											<Button variant="ghost" className="flex items-center justify-start px-2" onClick={handleLogout}>
-												<LogOut className="mr-2 h-4 w-4" />
-												<span>Log out</span>
-											</Button>
-										</div>
-									</PopoverContent>
-								</Popover>
-							</div>
-						) : (
-							<div className="flex items-center gap-4">
-								{/* Staff Contact Info Popup (also available for non-authenticated users) */}
-								<Popover>
-									<PopoverTrigger asChild>
-										<Button variant="ghost" size="icon" className="text-white hover:text-white transition-colors">
-											<HelpCircle className="h-6 w-6" />
-										</Button>
-									</PopoverTrigger>
-									<PopoverContent className="w-80 p-0">
-										<div className="bg-[#1e1b4b] text-white p-3 rounded-t-md">
-											<h3 className="font-semibold text-lg">Contact Our Staff</h3>
-											<p className="text-sm text-blue-200">We're here to help you</p>
-										</div>
-										<div className="p-4 space-y-4">
-											<div className="flex items-start gap-3">
-												<Phone className="h-5 w-5 text-[#1e1b4b] mt-0.5" />
-												<div>
-													<p className="font-medium">Customer Support</p>
-													<p className="text-sm text-gray-600">+84 123 456 789</p>
-													<p className="text-sm text-gray-600">Available 24/7</p>
-												</div>
-											</div>
-
-											<Separator />
-
-											<div className="flex items-start gap-3">
-												<Mail className="h-5 w-5 text-[#1e1b4b] mt-0.5" />
-												<div>
-													<p className="font-medium">Email Support</p>
-													<p className="text-sm text-gray-600">support@vaccinacare.com</p>
-													<p className="text-sm text-gray-600">Response within 24 hours</p>
-												</div>
-											</div>
-
-											<Separator />
-
-											<div className="flex items-start gap-3">
-												<UserCircle className="h-5 w-5 text-[#1e1b4b] mt-0.5" />
-												<div>
-													<p className="font-medium">Medical Consultation</p>
-													<p className="text-sm text-gray-600">Dr. Nguyen Van A</p>
-													<p className="text-sm text-gray-600">+84 987 654 321</p>
-												</div>
-											</div>
-
-											<Button className="w-full bg-[#1e1b4b] hover:bg-[#1e1b4b]/90 mt-2">
-												<Link to="/about" className="w-full">
-													Contact Us
-												</Link>
-											</Button>
-										</div>
-									</PopoverContent>
-								</Popover>
-
-								<Button className="mt-4 md:mt-0 bg-[#1e1b4b] hover:bg-[#1e1b4b]/80 border border-white/20" asChild>
 									<Link to="/Login">Login</Link>
 								</Button>
 							</div>
