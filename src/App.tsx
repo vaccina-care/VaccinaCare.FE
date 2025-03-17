@@ -23,6 +23,7 @@ import VaccineDetail from "./pages/VaccineDetail"
 import VaccinePackageDetail from "./pages/VaccinePackageDetail"
 import Feedback from "./pages/Feedback"
 import StaffPage from "./pages/staff/StaffPage"
+import AdminPage from "./pages/admin/AdminPage"
 import AppointmentDashboard from "./pages/AppointmentDashboard"
 
 //demo-page
@@ -47,8 +48,12 @@ const validRoutes = [
 	"/feedback",
 	"/staff",
 	"/staff/vaccines",
-	"/staff/vaccine-interval-rules",
-	"/appointments-dashboard",
+  "/staff/vaccine-interval-rules",
+  "/appointments-dashboard",
+	"/admin",
+	"/admin/policy-management",
+	"/admin/users-management",
+	"/admin/admin-dashboard",
 ]
 
 const isValidRoute = (pathname: string) => {
@@ -56,7 +61,8 @@ const isValidRoute = (pathname: string) => {
 		validRoutes.includes(pathname) ||
 		/^\/vaccine\/[^/]+$/.test(pathname) ||
 		/^\/vaccine-package\/[^/]+$/.test(pathname) ||
-		pathname.startsWith("/staff/")
+		pathname.startsWith("/staff/") ||
+		pathname.startsWith("/admin/")
 	)
 }
 
@@ -65,12 +71,13 @@ const AppContent: React.FC = () => {
 	const isAuthPage = location.pathname === "/login" || location.pathname === "/register"
 	const isValid = isValidRoute(location.pathname)
 	const isStaffPage = location.pathname.startsWith("/staff")
-	const showHeaderFooter = isValid && !isAuthPage && !isStaffPage
+	const isAdminPage = location.pathname.startsWith("/admin")
+	const showHeaderFooter = isValid && !isAuthPage && !isStaffPage && !isAdminPage
 
 	return (
 		<div className="min-h-screen flex flex-col">
 			{showHeaderFooter && <Header />}
-			<main className={`flex-1 ${isStaffPage ? "bg-gray-50" : ""}`}>
+			<main className={`flex-1 ${isStaffPage || isAdminPage ? "bg-gray-50" : ""}`}>
 				<AnimatePresence mode="wait">
 					<PageTransition key={location.pathname}>
 						<Routes location={location}>
@@ -103,6 +110,11 @@ const AppContent: React.FC = () => {
 								<Route path="/staff/*" element={<StaffPage />} />
 							</Route>
 
+							{/* Admin routes */}
+							<Route element={<ProtectedRoute adminOnly />}>
+								<Route path="/admin/*" element={<AdminPage />} />
+							</Route>
+        
 							{/* 404 Page */}
 							<Route path="*" element={<NotFound />} />
 						</Routes>

@@ -62,5 +62,3 @@ export const updateUserProfile = async (userData: UpdateUserData): Promise<UserD
         throw error;
     }
 };
-
-

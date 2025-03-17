@@ -5,9 +5,10 @@ import { useAuthContext } from "@/contexts/AuthContexts"
 interface ProtectedRouteProps {
   children?: React.ReactNode
   staffOnly?: boolean
+  adminOnly?: boolean
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, staffOnly = false }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, staffOnly = false, adminOnly = false }) => {
   const { isAuthenticated, user } = useAuthContext()
   const location = useLocation()
 
@@ -18,6 +19,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, staffOnly = f
   if (staffOnly && user?.roleName !== "Staff") {
     return <Navigate to="/" replace />
   }
+
+  if (adminOnly && user?.roleName !== "Admin") {
+    return <Navigate to="/" replace />
+  }
+
 
   return children || <Outlet />
 }
