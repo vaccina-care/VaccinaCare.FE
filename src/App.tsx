@@ -24,10 +24,12 @@ import VaccinePackageDetail from "./pages/VaccinePackageDetail"
 import Feedback from "./pages/Feedback"
 import StaffPage from "./pages/staff/StaffPage"
 import AdminPage from "./pages/admin/AdminPage"
+import AppointmentDashboard from "./pages/AppointmentDashboard"
 
 //demo-page
-import PaymentSuccessPage from "./components/payment/payment-success"
-import PaymentFailPage from "./components/payment/payment-fail"
+import PaymentSuccessPage from "./components/payment/paymentSuccess"
+import PaymentFailPage from "./components/payment/paymentFail"
+import PolicyPage from "./pages/Policy"
 
 // Define valid routes
 const validRoutes = [
@@ -35,6 +37,7 @@ const validRoutes = [
 	"/login",
 	"/register",
 	"/about",
+	"/policies",
 	"/appointments",
 	"/user-dashboard",
 	"/child-dashboard",
@@ -45,9 +48,8 @@ const validRoutes = [
 	"/feedback",
 	"/staff",
 	"/staff/vaccines",
-	"/staff/appointments",
-	"/staff/reports",
-	"/staff/inventory",
+  "/staff/vaccine-interval-rules",
+  "/appointments-dashboard",
 	"/admin",
 	"/admin/policy-management",
 	"/admin/users-management",
@@ -64,7 +66,6 @@ const isValidRoute = (pathname: string) => {
 	)
 }
 
-
 const AppContent: React.FC = () => {
 	const location = useLocation()
 	const isAuthPage = location.pathname === "/login" || location.pathname === "/register"
@@ -80,7 +81,6 @@ const AppContent: React.FC = () => {
 				<AnimatePresence mode="wait">
 					<PageTransition key={location.pathname}>
 						<Routes location={location}>
-
 							{/* Public routes */}
 							<Route path="/" element={<Home />} />
 							<Route path="/login" element={<Login />} />
@@ -89,21 +89,21 @@ const AppContent: React.FC = () => {
 							<Route path="/vaccine-list" element={<VaccineList />} />
 							<Route path="/vaccine/:id" element={<VaccineDetail />} />
 							<Route path="/vaccine-package/:packageId" element={<VaccinePackageDetail />} />
+							<Route path="/policies" element={<PolicyPage />} />
 
 							{/* TEST */}
 							<Route path="/feedback" element={<Feedback />} />
 							<Route path="/payment-success" element={<PaymentSuccessPage />} />
 							<Route path="/payment-fail" element={<PaymentFailPage />} />
 
-
 							{/* Protected user routes */}
 							<Route element={<ProtectedRoute />}>
 								<Route path="/user-dashboard" element={<UserDashboard />} />
 								<Route path="/child-dashboard" element={<ChildDashboard />} />
+								<Route path="/appointments-dashboard" element={<AppointmentDashboard />} />
 								<Route path="/notifications" element={<Notifications />} />
 								<Route path="/appointments" element={<Appointments />} />
 							</Route>
-
 
 							{/* Staff routes */}
 							<Route element={<ProtectedRoute staffOnly />}>
@@ -114,8 +114,7 @@ const AppContent: React.FC = () => {
 							<Route element={<ProtectedRoute adminOnly />}>
 								<Route path="/admin/*" element={<AdminPage />} />
 							</Route>
-
-
+        
 							{/* 404 Page */}
 							<Route path="*" element={<NotFound />} />
 						</Routes>

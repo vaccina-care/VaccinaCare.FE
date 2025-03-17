@@ -43,9 +43,8 @@ export function CustomSidebar({ children, role }: CustomSidebarProps) {
         { name: "Policy Management", href: "/admin/policy-management", icon: Syringe, match: ["/admin/policy-management"] },
     ] : [
         { name: "Vaccines & Packages", href: "/staff/vaccines", icon: Syringe, match: ["/staff/vaccines", "/staff/packages"] },
-        { name: "Appointments", href: "/staff/appointments", icon: CalendarDays, match: ["/staff/appointments"] },
+        { name: "Vaccine Interval Rules", href: "/staff/vaccine-interval-rules", icon: CalendarDays, match: ["/staff/vaccine-interval-rules"] },
         { name: "Reports", href: "/staff/reports", icon: BarChart3, match: ["/staff/reports"] },
-        { name: "Inventory", href: "/staff/inventory", icon: Package2, match: ["/staff/inventory"] },
     ]
 
     const isActive = (item: (typeof navigation)[0]) => {
