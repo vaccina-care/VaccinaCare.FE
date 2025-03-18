@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client"
 
 import { useEffect, useState } from "react"
@@ -15,6 +16,8 @@ import {
     CalendarClock,
     Banknote,
     CreditCard,
+    CalendarDays,
+    RefreshCw,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { format, parseISO } from "date-fns"
@@ -63,35 +66,35 @@ export default function AppointmentsSection() {
     }, [toast])
 
     // Fetch appointments for expanded child
-    useEffect(() => {
-        const fetchAppointments = async (childId: string) => {
-            if (!childId) return
+    const fetchAppointments = async (childId: string) => {
+        if (!childId) return
 
-            try {
-                setLoadingAppointments((prev) => ({ ...prev, [childId]: true }))
-                const response = await getChildAppointments(childId)
-                if (response.isSuccess) {
-                    setAppointments((prev) => ({
-                        ...prev,
-                        [childId]: response.data,
-                    }))
-                }
-            } catch (error) {
-                console.error("Failed to fetch appointments:", error)
-                toast({
-                    title: "Error",
-                    description: "Failed to load appointments",
-                    variant: "destructive",
-                })
-            } finally {
-                setLoadingAppointments((prev) => ({ ...prev, [childId]: false }))
+        try {
+            setLoadingAppointments((prev) => ({ ...prev, [childId]: true }))
+            const response = await getChildAppointments(childId)
+            if (response.isSuccess) {
+                setAppointments((prev) => ({
+                    ...prev,
+                    [childId]: response.data,
+                }))
             }
+        } catch (error) {
+            console.error("Failed to fetch appointments:", error)
+            toast({
+                title: "Error",
+                description: "Failed to load appointments",
+                variant: "destructive",
+            })
+        } finally {
+            setLoadingAppointments((prev) => ({ ...prev, [childId]: false }))
         }
+    }
 
+    useEffect(() => {
         if (expandedChild && !appointments[expandedChild]) {
             fetchAppointments(expandedChild)
         }
-    }, [expandedChild, appointments, toast])
+    }, [expandedChild, appointments])
 
     const handleViewDetails = async (appointmentId: string) => {
         try {
@@ -121,7 +124,7 @@ export default function AppointmentsSection() {
             } else {
                 toast({
                     title: "Payment Error",
-                    description: "Failed to get payment link. Please try again.",
+                    description: response.message || "Failed to get payment link. Please try again.",
                     variant: "destructive",
                 })
             }
@@ -137,12 +140,21 @@ export default function AppointmentsSection() {
         }
     }
 
+    const handleAppointmentUpdated = () => {
+        // Refresh appointments for the current expanded child
+        if (expandedChild) {
+            fetchAppointments(expandedChild)
+        }
+    }
+
     const toggleChildExpansion = (childId: string) => {
         setExpandedChild(expandedChild === childId ? null : childId)
     }
 
     const getStatusColor = (status: string) => {
         switch (status.toLowerCase()) {
+            case "completed":
+                return "bg-green-700 text-black-800 border-green-700"
             case "confirmed":
                 return "bg-green-100 text-green-800 border-green-200"
             case "pending":
@@ -241,6 +253,21 @@ export default function AppointmentsSection() {
                                         transition={{ duration: 0.3 }}
                                     >
                                         <CardContent className="pt-4">
+                                            <div className="flex justify-end mb-4">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => fetchAppointments(child.id)}
+                                                    disabled={loadingAppointments[child.id]}
+                                                    className="text-xs"
+                                                >
+                                                    <RefreshCw
+                                                        className={`h-3.5 w-3.5 mr-1.5 ${loadingAppointments[child.id] ? "animate-spin" : ""}`}
+                                                    />
+                                                    Refresh
+                                                </Button>
+                                            </div>
+
                                             {loadingAppointments[child.id] ? (
                                                 <div className="space-y-4">
                                                     {[1, 2, 3].map((i) => (
@@ -263,6 +290,8 @@ export default function AppointmentsSection() {
                                                                     {dateAppointments.map((appointment) => {
                                                                         const isPackage = isPackageAppointment(appointment)
                                                                         const isPending = appointment.status.toLowerCase() === "pending"
+                                                                        const isConfirmed = appointment.status.toLowerCase() === "confirmed"
+                                                                        const canReschedule = isPending || isConfirmed
                                                                         // Parse the ISO date string
                                                                         const appointmentDate = parseISO(appointment.appointmentDate)
 
@@ -347,6 +376,21 @@ export default function AppointmentsSection() {
                                                                                             View Details
                                                                                         </Button>
 
+                                                                                        {/* Reschedule button for confirmed and pending appointments */}
+                                                                                        {canReschedule && (
+                                                                                            <Button
+                                                                                                variant="outline"
+                                                                                                size="sm"
+                                                                                                onClick={() => {
+                                                                                                    handleViewDetails(appointment.appointmentId)
+                                                                                                }}
+                                                                                                className="border-blue-300 hover:bg-blue-100"
+                                                                                            >
+                                                                                                <CalendarDays className="h-3.5 w-3.5 mr-1.5" />
+                                                                                                Reschedule
+                                                                                            </Button>
+                                                                                        )}
+
                                                                                         {/* Checkout button for pending appointments */}
                                                                                         {isPending && (
                                                                                             <Button
@@ -416,6 +460,7 @@ export default function AppointmentsSection() {
                     setIsDetailOpen(false)
                     setSelectedAppointment(null)
                 }}
+                onAppointmentUpdated={handleAppointmentUpdated}
             />
         </div>
     )

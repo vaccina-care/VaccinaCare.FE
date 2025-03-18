@@ -79,3 +79,19 @@ export const getAppointmentDetails = async (appointmentId: string): Promise<ApiR
     }
 }
 
+// Reschedule appointment
+export const rescheduleAppointment = async (
+    appointmentId: string,
+    newDate: string,
+): Promise<ApiResponse<AppointmentResponse[]>> => {
+    try {
+        const response = await axiosInstance.put(`/appointments/${appointmentId}/date`, null, {
+            params: { newDate },
+        })
+        return response.data
+    } catch (error) {
+        console.error("Error rescheduling appointment:", error)
+        throw error
+    }
+}
+
