@@ -95,6 +95,15 @@ export function AppointmentConfirmation({
                 if (response.isSuccess && response.data.length > 0) {
                     // Get the first appointment ID (there should be only one for single vaccine)
                     appointmentId = response.data[0].appointmentId
+                } else if (!response.isSuccess) {
+                    // Display the specific error message from the API
+                    toast({
+                        title: "Booking Error",
+                        description: response.message || "Failed to book appointment. Please try again.",
+                        variant: "destructive",
+                    })
+                    setIsProcessing(false)
+                    return
                 }
             } else {
                 // Package booking implementation
@@ -110,10 +119,19 @@ export function AppointmentConfirmation({
                 if (response.isSuccess && response.data.length > 0) {
                     // Get the first appointment ID from the package (we'll use this for payment)
                     appointmentId = response.data[0].appointmentId
+                } else if (!response.isSuccess) {
+                    // Display the specific error message from the API
+                    toast({
+                        title: "Booking Error",
+                        description: response.message || "Failed to book appointment. Please try again.",
+                        variant: "destructive",
+                    })
+                    setIsProcessing(false)
+                    return
                 }
             }
 
-            if (response?.isSuccess && appointmentId) {
+            if (appointmentId) {
                 // Get payment checkout URL
                 const paymentResponse = await getPaymentCheckoutUrl(appointmentId)
 
@@ -124,9 +142,10 @@ export function AppointmentConfirmation({
                     // Redirect to payment page
                     window.location.href = paymentResponse.data
                 } else {
+                    // Display the specific error message from the API
                     toast({
                         title: "Payment Error",
-                        description: "Failed to get payment link. Please try again.",
+                        description: paymentResponse.message || "Failed to get payment link. Please try again.",
                         variant: "destructive",
                     })
                     setIsProcessing(false)
@@ -139,11 +158,21 @@ export function AppointmentConfirmation({
                 })
                 setIsProcessing(false)
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error booking appointment:", error)
+
+            // Try to extract error message from the response if available
+            let errorMessage = "An unexpected error occurred. Please try again."
+
+            if (error.response?.data?.message) {
+                errorMessage = error.response.data.message
+            } else if (error.message) {
+                errorMessage = error.message
+            }
+
             toast({
                 title: "Booking Error",
-                description: "An unexpected error occurred. Please try again.",
+                description: errorMessage,
                 variant: "destructive",
             })
             setIsProcessing(false)
