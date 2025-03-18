@@ -108,7 +108,7 @@ const ChildCard = ({
 						<Baby className="h-5 w-5 text-blue-600" />
 					</div>
 					<div>
-						<CardTitle className="text-lg text-blue-700">{editedChild.fullName}</CardTitle>
+						<CardTitle className="text-lg text-black-700">{editedChild.fullName}</CardTitle>
 						<div className="flex items-center gap-2 mt-1">
 							<Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
 								{age} years old
