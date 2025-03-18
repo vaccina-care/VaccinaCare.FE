@@ -1,15 +1,17 @@
+"use client"
+
 import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { format, addHours, isBefore, startOfDay, parse } from "date-fns"
 import { enUS } from "date-fns/locale"
-import { useState } from "react"
+import { useAppointmentContext } from "@/contexts/AppointmentContext"
 
 const generateTimeSlots = () => {
   const slots = []
   for (let hour = 8; hour <= 17; hour++) {
-    if (hour === 17) continue 
+    if (hour === 17) continue
     const timeString = `${hour.toString().padStart(2, "0")}:00`
     slots.push(timeString)
   }
@@ -19,20 +21,21 @@ const generateTimeSlots = () => {
 const timeSlots = generateTimeSlots()
 
 export function DateTimePicker() {
-  const [date, setDate] = useState<Date | undefined>()
-  const [time, setTime] = useState<string | undefined>()
+  // Use the appointment context instead of local state
+  const { appointmentDate, setAppointmentDate, appointmentTime, setAppointmentTime, isSubmitting } =
+    useAppointmentContext()
 
   const now = new Date()
-  const minSelectableDate = addHours(now, 24) 
+  const minSelectableDate = addHours(now, 24)
 
   const isDateDisabled = (day: Date) => {
     return isBefore(startOfDay(day), startOfDay(minSelectableDate))
   }
 
   const isTimeDisabled = (timeString: string) => {
-    if (!date) return true
+    if (!appointmentDate) return true
 
-    const selectedDateTime = parse(timeString, "HH:mm", date)
+    const selectedDateTime = parse(timeString, "HH:mm", appointmentDate)
 
     return isBefore(selectedDateTime, minSelectableDate)
   }
@@ -46,23 +49,23 @@ export function DateTimePicker() {
         <div className="flex gap-6">
           <Calendar
             mode="single"
-            selected={date}
+            selected={appointmentDate}
             onSelect={(newDate) => {
-              setDate(newDate)
-              setTime(undefined) 
+              setAppointmentDate(newDate)
+              setAppointmentTime(undefined)
             }}
             className="rounded-md border"
-            disabled={isDateDisabled}
+            disabled={(date) => isDateDisabled(date) || isSubmitting}
           />
 
           <div className="space-y-4 min-w-[200px]">
             <div className="space-y-2">
               <Label htmlFor="time">Time</Label>
               <Select
-                key={date?.toISOString() || "no-date"} 
-                value={time}
-                onValueChange={setTime}
-                disabled={!date}
+                key={appointmentDate?.toISOString() || "no-date"}
+                value={appointmentTime}
+                onValueChange={setAppointmentTime}
+                disabled={!appointmentDate || isSubmitting}
               >
                 <SelectTrigger id="time">
                   <SelectValue placeholder="Select time" />
@@ -77,12 +80,12 @@ export function DateTimePicker() {
               </Select>
             </div>
 
-            {(date || time) && (
+            {(appointmentDate || appointmentTime) && (
               <div className="rounded-lg border p-4 bg-muted/50">
                 <h3 className="font-medium mb-2">Selected time:</h3>
                 <div className="space-y-1 text-sm">
-                  {date && <p>Day: {format(date, "EEEE, dd/MM/yyyy", { locale: enUS })}</p>}
-                  {time && <p>Time: {time}</p>}
+                  {appointmentDate && <p>Day: {format(appointmentDate, "EEEE, dd/MM/yyyy", { locale: enUS })}</p>}
+                  {appointmentTime && <p>Time: {appointmentTime}</p>}
                 </div>
               </div>
             )}
@@ -92,3 +95,4 @@ export function DateTimePicker() {
     </Card>
   )
 }
+
