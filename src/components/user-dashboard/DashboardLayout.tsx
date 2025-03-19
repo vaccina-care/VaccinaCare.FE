@@ -3,7 +3,7 @@
 import type React from "react"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
-import { User, Users, Bell, Calendar } from "lucide-react"
+import { User, Users, Bell, Calendar, HistoryIcon } from "lucide-react"
 import { useNavigate, useLocation } from "react-router-dom"
 
 interface DashboardLayoutProps {
@@ -51,6 +51,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             >
               <Calendar className="h-4 w-4" />
               <span>Appointments</span>
+            </button>
+            <button
+              onClick={() => navigate("/vaccine-record")}
+              className={cn(
+                "flex w-full items-center gap-2 rounded-lg px-3 py-2 transition-colors hover:bg-gray-100",
+                isActive("/vaccine-record") ? "text-blue-600 bg-blue-50" : "text-gray-600",
+              )}
+            >
+              <HistoryIcon className="h-4 w-4" />
+              <span>Vaccine Record</span>
             </button>
             <button
               onClick={() => navigate("/notifications")}
