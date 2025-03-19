@@ -15,8 +15,8 @@ import PageTransition from "./components/PageTransition"
 import NotFound from "./pages/NotFound"
 import ProtectedRoute from "./components/ProtectedRoute"
 import { AuthProvider } from "@/contexts/AuthContexts"
-import UserDashboard from "./pages/UserDashboard"
-import ChildDashboard from "./pages/ChildDashboard"
+import UserDashboard from "./pages/user/UserDashboard"
+import ChildDashboard from "./pages/user/ChildDashboard"
 import VaccineList from "./pages/VaccineList"
 import Notifications from "./pages/Notifications"
 import VaccineDetail from "./pages/VaccineDetail"
@@ -24,10 +24,11 @@ import VaccinePackageDetail from "./pages/VaccinePackageDetail"
 import Feedback from "./pages/Feedback"
 import StaffPage from "./pages/staff/StaffPage"
 import AdminPage from "./pages/admin/AdminPage"
-import AppointmentDashboard from "./pages/AppointmentDashboard"
+import AppointmentDashboard from "./pages/user/AppointmentDashboard"
 import PaymentSuccessPage from "./components/payment/paymentSuccess"
 import PaymentFailPage from "./components/payment/paymentFail"
 import PolicyPage from "./pages/Policy"
+import VaccineRecordDashboard from "./pages/user/VaccineRecordDashboard"
 
 // Define valid routes
 const validRoutes = [
@@ -40,6 +41,7 @@ const validRoutes = [
 	"/user-dashboard",
 	"/child-dashboard",
 	"/notifications",
+	"/vaccine-record",
 	"/vaccine-list",
 	"/vaccine/:id",
 	"/vaccine-package/:packageId",
@@ -101,6 +103,7 @@ const AppContent: React.FC = () => {
 								<Route path="/appointments-dashboard" element={<AppointmentDashboard />} />
 								<Route path="/notifications" element={<Notifications />} />
 								<Route path="/appointments" element={<Appointments />} />
+								<Route path="/vaccine-record" element={<VaccineRecordDashboard />} />
 							</Route>
 
 							{/* Staff routes */}
