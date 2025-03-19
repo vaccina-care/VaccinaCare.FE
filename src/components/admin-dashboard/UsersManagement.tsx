@@ -44,36 +44,9 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Label } from "@/components/ui/label"
 import { createUser, updateUser, deleteUser, getAllUsers, UserBase } from "@/api/admin/adminUser"
-import { MockUser, UserRoleInfo } from "./charts/user-role-info"
+import { UserRoleInfo } from "./charts/user-role-info"
 import { Card, CardHeader, CardTitle } from "../ui/card"
 import { UserRoleChartImp } from "./charts/user-role-chart-imp"
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-  })
-}
-
-const mockUsers: MockUser[] = Array.from({ length: 50 }, (_, i) => ({
-  id: `user-${i + 1}`,
-  name: `User ${i + 1}`,
-  email: `user${i + 1}@example.com`,
-  role: i % 10 === 0 ? "admin" : i % 3 === 0 ? "staff" : "customer",
-  phone: `+1 (555) ${100 + i}-${1000 + i}`,
-  dateOfBirth: i % 2 === 0 ? `1990-${(i % 12) + 1}-${(i % 28) + 1}` : undefined,
-  createdAt: `2023-${(i % 12) + 1}-${(i % 28) + 1}`,
-  lastLogin: i % 3 === 0 ? `2023-${(i % 12) + 1}-${(i % 28) + 1}` : undefined,
-  avatar: i % 5 === 0 ? undefined : `/placeholder.svg?height=40&width=40`,
-}))
-
-const chartData = [
-  { name: "Admin", value: 5, color: "#ef4444" }, 
-  { name: "Staff", value: 25, color: "#22c55e" }, 
-  { name: "Customer", value: 120, color: "#3b82f6" }, 
-]
 
 type UserRole = "Admin" | "Staff" | "Customer"
 type DialogMode = "view" | "edit" | "create"
@@ -91,6 +64,21 @@ export function UsersManagement() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogMode, setDialogMode] = useState<DialogMode>("view")
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+
+  const [chartData, setChartData] = useState([
+    { name: "Admin", value: 0, color: "#ef4444" },
+    { name: "Staff", value: 0, color: "#22c55e" },
+    { name: "Customer", value: 0, color: "#3b82f6" },
+  ])
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+    })
+  }
 
   const debouncedSearchTerm = useDebounce(searchTerm, 1000)
   const currentUserRole = "Admin";
@@ -114,6 +102,24 @@ export function UsersManagement() {
     try {
       setIsLoading(true)
 
+      // Fetch all users without pagination for chart data
+      const allUsersResponse = await getAllUsers({})
+      if (allUsersResponse.isSuccess) {
+        const allUsers = allUsersResponse.data.users || []
+        const adminCount = allUsers.filter(user => user.roleName === "Admin").length
+        const staffCount = allUsers.filter(user => user.roleName === "Staff").length
+        const customerCount = allUsers.filter(user => user.roleName === "Customer").length
+
+        setChartData([
+          { name: "Admin", value: adminCount, color: "#ef4444" },
+          { name: "Staff", value: staffCount, color: "#22c55e" },
+          { name: "Customer", value: customerCount, color: "#3b82f6" },
+        ])
+        setUsers(allUsers)
+        setTotalCount(allUsers.length)
+      }
+
+      // Fetch paginated users for table
       const response = await getAllUsers({
         searchTerm: debouncedSearchTerm || undefined,
         pageIndex: page,
@@ -327,9 +333,9 @@ export function UsersManagement() {
       case "Admin":
         return "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-400"
       case "Staff":
-        return "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400" 
+        return "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400"
       case "Customer":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-400" 
+        return "bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-400"
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-500/20 dark:text-gray-400"
     }
@@ -347,7 +353,7 @@ export function UsersManagement() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div>
-          <UserRoleInfo mockUsers={mockUsers} />
+          <UserRoleInfo users={users} />
         </div>
 
         <Card className="shadow-md">
@@ -359,7 +365,7 @@ export function UsersManagement() {
           </div>
         </Card>
       </div>
-      
+
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="flex flex-1 gap-2">
           <div className="relative w-1/3">

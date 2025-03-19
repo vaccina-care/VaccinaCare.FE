@@ -2,27 +2,16 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, Shield, UserCircle, User, ArrowUpRight } from "lucide-react"
-
-export interface MockUser {
-    id: string
-    name: string
-    email: string
-    role: "admin" | "staff" | "customer"
-    phone: string
-    dateOfBirth?: string
-    createdAt: string
-    lastLogin?: string
-    avatar?: string
-}
+import { UserBase } from "@/api/admin/adminUser"
 
 interface UserRoleInfoProps {
-    mockUsers: MockUser[]
+  users: UserBase[]
 }
 
-export function UserRoleInfo({ mockUsers }: UserRoleInfoProps) {
-  const adminCount = mockUsers.filter(user => user.role === "admin").length
-  const staffCount = mockUsers.filter(user => user.role === "staff").length
-  const customerCount = mockUsers.filter(user => user.role === "customer").length 
+export function UserRoleInfo({ users }: UserRoleInfoProps) {
+  const adminCount = users.filter(user => user.roleName === "Admin").length
+  const staffCount = users.filter(user => user.roleName === "Staff").length
+  const customerCount = users.filter(user => user.roleName === "Customer").length
 
   return (
     <div className="grid gap-4 grid-cols-2">
@@ -34,7 +23,7 @@ export function UserRoleInfo({ mockUsers }: UserRoleInfoProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold text-purple-700 dark:text-purple-400">{mockUsers.length}</div>
+          <div className="text-3xl font-bold text-purple-700 dark:text-purple-400">{users.length}</div>
           <p className="text-sm text-purple-600 dark:text-purple-300 flex items-center mt-1">
             <ArrowUpRight className="h-3 w-3 mr-1" />
             +10% from last month
@@ -52,7 +41,7 @@ export function UserRoleInfo({ mockUsers }: UserRoleInfoProps) {
         <CardContent>
           <div className="text-3xl font-bold text-red-700 dark:text-red-400">{adminCount}</div>
           <p className="text-sm text-red-600 dark:text-red-300 mt-1">
-            {((adminCount / mockUsers.length) * 100).toFixed(1)}% of total users
+            {users.length > 0 ? ((adminCount / users.length) * 100).toFixed(1) : 0}% of total users
           </p>
         </CardContent>
       </Card>
@@ -67,7 +56,7 @@ export function UserRoleInfo({ mockUsers }: UserRoleInfoProps) {
         <CardContent>
           <div className="text-3xl font-bold text-green-700 dark:text-green-400">{staffCount}</div>
           <p className="text-sm text-green-600 dark:text-green-300 mt-1">
-            {((staffCount / mockUsers.length) * 100).toFixed(1)}% of total users
+            {users.length > 0 ? ((staffCount / users.length) * 100).toFixed(1) : 0}% of total users
           </p>
         </CardContent>
       </Card>
@@ -82,7 +71,7 @@ export function UserRoleInfo({ mockUsers }: UserRoleInfoProps) {
         <CardContent>
           <div className="text-3xl font-bold text-blue-700 dark:text-blue-400">{customerCount}</div>
           <p className="text-sm text-blue-600 dark:text-blue-300 mt-1">
-            {((customerCount / mockUsers.length) * 100).toFixed(1)}% of total users
+            {users.length > 0 ? ((customerCount / users.length) * 100).toFixed(1) : 0}% of total users
           </p>
         </CardContent>
       </Card>
