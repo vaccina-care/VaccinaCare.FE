@@ -21,11 +21,14 @@ export default function PolicyPage() {
             try {
                 setLoading(true)
                 const data = await getAllPolicies()
-                setPolicies(data)
+                // Ensure data is an array before setting state
+                setPolicies(Array.isArray(data) ? data : [])
                 setError(null)
             } catch (err) {
                 setError("Failed to load policies. Please try again later.")
                 console.error(err)
+                // Ensure policies is an empty array on error
+                setPolicies([])
             } finally {
                 setLoading(false)
             }

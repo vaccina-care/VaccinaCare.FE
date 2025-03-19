@@ -58,7 +58,7 @@ export const bookPackageVaccine = async (
 // Get all appointments for all child - not separate
 export const getChildAppointments = async (childId: string): Promise<ApiResponse<AppointmentResponse[]>> => {
     try {
-        const response = await axiosInstance.get(`/appointments`, {
+        const response = await axiosInstance.get(`/appointments/${childId}`, {
             params: { childId },
         })
         return response.data

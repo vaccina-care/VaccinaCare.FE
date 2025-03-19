@@ -8,19 +8,30 @@ export interface Policy {
     penaltyFee: number
 }
 
+export interface PolicyResponseData {
+    totalCount: number
+    policies: Policy[]
+}
+
 export interface PolicyResponse {
     isSuccess: boolean
     message: string
-    data: Policy[]
+    data: PolicyResponseData
 }
 
 export const getAllPolicies = async (): Promise<Policy[]> => {
     try {
-        const response = await axiosInstance.get("/policies")
-        if (response.data.isSuccess) {
-            return response.data.data
+        const response = await axiosInstance.get<PolicyResponse>("/policies")
+        if (
+            response.data.isSuccess &&
+            response.data.data &&
+            response.data.data.policies &&
+            Array.isArray(response.data.data.policies)
+        ) {
+            return response.data.data.policies
         } else {
-            throw new Error(response.data.message)
+            console.warn("API returned success but data structure is unexpected:", response.data)
+            return []
         }
     } catch (error) {
         console.error("Error fetching policies:", error)
