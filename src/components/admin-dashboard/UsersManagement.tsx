@@ -102,10 +102,17 @@ export function UsersManagement() {
     try {
       setIsLoading(true)
 
-      // Fetch all users without pagination for chart data
-      const allUsersResponse = await getAllUsers({})
-      if (allUsersResponse.isSuccess) {
-        const allUsers = allUsersResponse.data.users || []
+      // Fetch paginated users for table
+      const response = await getAllUsers({
+        searchTerm: debouncedSearchTerm || undefined,
+        pageIndex: page,
+        pageSize,
+      })
+
+      if (response.isSuccess) {
+
+        //Fetch for chart
+        const allUsers = response.data.users || []
         const adminCount = allUsers.filter(user => user.roleName === "Admin").length
         const staffCount = allUsers.filter(user => user.roleName === "Staff").length
         const customerCount = allUsers.filter(user => user.roleName === "Customer").length
@@ -117,16 +124,8 @@ export function UsersManagement() {
         ])
         setUsers(allUsers)
         setTotalCount(allUsers.length)
-      }
 
-      // Fetch paginated users for table
-      const response = await getAllUsers({
-        searchTerm: debouncedSearchTerm || undefined,
-        pageIndex: page,
-        pageSize,
-      })
-
-      if (response.isSuccess) {
+        //Fetch user list
         console.log("Fetched data:", response.data)
         let fetchedUsers = response.data.users || []
         if (filterRole !== "all") {
