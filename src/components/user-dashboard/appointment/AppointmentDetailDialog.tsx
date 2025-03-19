@@ -40,6 +40,8 @@ export function AppointmentDetailDialog({
     onClose,
     onAppointmentUpdated,
 }: AppointmentDetailDialogProps) {
+    console.log("Dialog props:", { appointment, isOpen })
+
     const navigate = useNavigate()
     const { toast } = useToast()
     const [showPolicyButton, setShowPolicyButton] = useState(false)
@@ -197,7 +199,7 @@ export function AppointmentDetailDialog({
                 toast({
                     title: "Appointment Rescheduled",
                     description: response.message || "Your appointment has been successfully rescheduled.",
-                    variant: "success"
+                    variant: "success",
                 })
 
                 // Reset form and close it
@@ -299,7 +301,7 @@ export function AppointmentDetailDialog({
                                         isInvalid={!!timeError}
                                     />
                                     {timeError && <p className="text-xs text-red-500 mt-1">{timeError}</p>}
-                                    <p className="text-xs text-gray-500 mt-1">Business hours: 8:00 AM - 4:00 PM</p>
+                                    <p className="text-xs text-gray-500 mt-1">Business hours: 8:00 AM - 6:00 PM</p>
                                 </div>
                             </div>
 

@@ -1,6 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client"
 
+import { useCallback } from "react"
+
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -96,22 +98,25 @@ export default function AppointmentsSection() {
         }
     }, [expandedChild, appointments])
 
-    const handleViewDetails = async (appointmentId: string) => {
-        try {
-            const response = await getAppointmentDetails(appointmentId)
-            if (response.isSuccess) {
-                setSelectedAppointment(response.data)
-                setIsDetailOpen(true)
+    const handleViewDetails = useCallback(
+        async (appointmentId: string) => {
+            try {
+                const response = await getAppointmentDetails(appointmentId)
+                if (response.isSuccess) {
+                    setSelectedAppointment(response.data)
+                    setIsDetailOpen(true)
+                }
+            } catch (error) {
+                console.error("Failed to fetch appointment details:", error)
+                toast({
+                    title: "Error",
+                    description: "Failed to load appointment details",
+                    variant: "destructive",
+                })
             }
-        } catch (error) {
-            console.error("Failed to fetch appointment details:", error)
-            toast({
-                title: "Error",
-                description: "Failed to load appointment details",
-                variant: "destructive",
-            })
-        }
-    }
+        },
+        [toast],
+    )
 
     const handleCheckout = async (appointmentId: string) => {
         try {

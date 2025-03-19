@@ -71,7 +71,7 @@ export const getChildAppointments = async (childId: string): Promise<ApiResponse
 // Get appointment details
 export const getAppointmentDetails = async (appointmentId: string): Promise<ApiResponse<AppointmentResponse>> => {
     try {
-        const response = await axiosInstance.get(`/appointments/${appointmentId}`)
+        const response = await axiosInstance.get(`/appointments/details/${appointmentId}`)
         return response.data
     } catch (error) {
         console.error("Error fetching appointment details:", error)
