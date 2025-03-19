@@ -57,7 +57,7 @@ export function PolicyManagement() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   // Add debounced search values
-  const debouncedSearchName = useDebounce(searchName, 300)
+  const debouncedSearchName = useDebounce(searchName, 1000)
 
   const openDialog = useCallback((mode: DialogMode, policy: PolicyBase | null = null) => {
     setDialogMode(mode)
@@ -93,7 +93,7 @@ export function PolicyManagement() {
       setIsLoading(true)
       const response = await getAllPolicies({
         searchTerm: debouncedSearchName,
-        pageIndex, 
+        pageIndex,
         pageSize,
       })
       console.log("API Response:", response)
@@ -283,7 +283,7 @@ export function PolicyManagement() {
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="flex flex-1 gap-2">
-          <div className="relative w-1/4">
+          <div className="relative w-1/3">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search policies..."
@@ -291,6 +291,9 @@ export function PolicyManagement() {
               onChange={(e) => setSearchName(e.target.value)}
               className="pl-9"
             />
+            {searchName && searchName !== debouncedSearchName && (
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-red-600">Searching...</span>
+            )}
           </div>
         </div>
       </div>

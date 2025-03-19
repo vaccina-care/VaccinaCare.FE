@@ -54,6 +54,8 @@ const formatDate = (dateString: string) => {
   })
 }
 
+const currentUserRole = "Admin";
+
 type UserRole = "Admin" | "Staff" | "Customer"
 type DialogMode = "view" | "edit" | "create"
 
@@ -71,7 +73,7 @@ export function UsersManagement() {
   const [dialogMode, setDialogMode] = useState<DialogMode>("view")
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
-  const debouncedSearchTerm = useDebounce(searchTerm, 300)
+  const debouncedSearchTerm = useDebounce(searchTerm, 1000)
 
   const openDialog = useCallback((mode: DialogMode, user: UserBase | null = null) => {
     setDialogMode(mode)
@@ -167,6 +169,17 @@ export function UsersManagement() {
 
   const confirmDeleteUser = useCallback(async () => {
     if (!selectedUser) return
+
+    if (currentUserRole === "Admin" && selectedUser.roleName === "Admin") {
+      toast({
+        title: "Error",
+        description: "Admins cannot delete other Admins.",
+        variant: "destructive",
+      })
+      closeDeleteDialog()
+      return
+    }
+
     try {
       const response = await deleteUser(selectedUser.userId)
       if (response.isSuccess) {
@@ -314,7 +327,7 @@ export function UsersManagement() {
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="flex flex-1 gap-2">
-          <div className="relative flex-1">
+          <div className="relative w-1/3">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search by name or email..."
@@ -322,9 +335,11 @@ export function UsersManagement() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
             />
+            {searchTerm && searchTerm !== debouncedSearchTerm && (
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-red-600">Searching...</span>
+            )}
           </div>
-        </div>
-        <div className="flex gap-2">
+
           <Select value={filterRole} onValueChange={setFilterRole}>
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="Role" />
@@ -352,6 +367,9 @@ export function UsersManagement() {
             </SelectContent>
           </Select>
         </div>
+        {/* <div className="flex gap-2">
+          
+        </div> */}
       </div>
 
       <div className="rounded-md border bg-card overflow-hidden">
