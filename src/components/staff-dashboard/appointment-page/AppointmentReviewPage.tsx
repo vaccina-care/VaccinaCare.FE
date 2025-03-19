@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
@@ -75,6 +76,7 @@ export default function AppointmentReviewPage() {
                 toast({
                     title: "Success",
                     description: `Appointment status updated to ${newStatus}`,
+                    variant: "success"
                 })
 
                 setIsUpdateDialogOpen(false)
