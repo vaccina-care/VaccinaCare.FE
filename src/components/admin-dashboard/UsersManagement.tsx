@@ -371,7 +371,7 @@ export function UsersManagement() {
               className="pl-9"
             />
             {searchTerm && searchTerm !== debouncedSearchTerm && (
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-red-600">Searching...</span>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-blue-600">Searching...</span>
             )}
           </div>
 

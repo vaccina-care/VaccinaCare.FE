@@ -1,5 +1,6 @@
 import { AdminDashboard } from "@/components/admin-dashboard/Dashboard"
 import { PolicyManagement } from "@/components/admin-dashboard/PolicyManagement"
+import { RatingManagement } from "@/components/admin-dashboard/RatingManagement"
 import { UsersManagement } from "@/components/admin-dashboard/UsersManagement"
 import { AdminLayout } from "@/components/AdminLayout"
 import { useAuthContext } from "@/contexts/AuthContexts"
@@ -19,6 +20,7 @@ export default function AdminPage() {
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
                 <Route path="/policy-management" element={<PolicyManagement />} />
                 <Route path="/users-management" element={<UsersManagement />} />
+                <Route path="/rating-management" element={<RatingManagement />} />
 
                 <Route path="*" element={<Navigate to="/admin/admin-dashboard" replace />} />
             </Routes>

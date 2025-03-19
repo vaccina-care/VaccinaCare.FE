@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useAuthContext } from "@/contexts/AuthContexts"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Syringe, CalendarDays, BarChart3, LogOut, ChevronLeft, ChevronRight, LayoutDashboard, Users } from "lucide-react"
+import { Syringe, CalendarDays, BarChart3, LogOut, ChevronLeft, ChevronRight, LayoutDashboard, Users, Star } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ThemeToggle } from "./ThemeToggle"
 
@@ -41,6 +41,7 @@ export function CustomSidebar({ children, role }: CustomSidebarProps) {
         { name: "Dashboard", href: "/admin/admin-dashboard", icon: LayoutDashboard, match: ["/admin/admin-dashboard"] },
         { name: "User Management", href: "/admin/users-management", icon: Users, match: ["/admin/users-management"] },
         { name: "Policy Management", href: "/admin/policy-management", icon: Syringe, match: ["/admin/policy-management"] },
+        { name: "Rating Management", href: "/admin/rating-management", icon: Star, match: ["/admin/rating-management"] },
     ] : [
         { name: "Vaccines & Packages", href: "/staff/vaccines", icon: Syringe, match: ["/staff/vaccines", "/staff/packages"] },
         { name: "Vaccine Interval Rules", href: "/staff/vaccine-interval-rules", icon: CalendarDays, match: ["/staff/vaccine-interval-rules"] },

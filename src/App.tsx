@@ -52,6 +52,7 @@ const validRoutes = [
 	"/admin/policy-management",
 	"/admin/users-management",
 	"/admin/admin-dashboard",
+	"/admin/rating-management",
 ]
 
 const isValidRoute = (pathname: string) => {
