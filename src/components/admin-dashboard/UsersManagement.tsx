@@ -41,9 +41,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
 import { createUser, updateUser, deleteUser, getAllUsers, UserBase } from "@/api/admin/adminUser"
 
@@ -177,6 +175,7 @@ export function UsersManagement() {
         toast({
           title: "Success",
           description: `${selectedUser.fullName || "Unnamed User"} has been deleted successfully.`,
+          variant: "success",
         })
         closeDeleteDialog()
         await fetchUsers()
@@ -220,6 +219,7 @@ export function UsersManagement() {
             toast({
               title: "Success",
               description: "Staff account created successfully",
+              variant: "success",
             })
             setUsers((prev) => [...prev, newUser])
             setTotalCount((prev) => prev + 1)
@@ -263,9 +263,10 @@ export function UsersManagement() {
             toast({
               title: "Success",
               description: "User updated successfully",
+              variant: "success",
             })
             closeDialog()
-            await fetchUsers() 
+            await fetchUsers()
           } else {
             toast({
               title: "Error",
@@ -522,49 +523,33 @@ export function UsersManagement() {
                 </div>
               </div>
 
-              <Tabs defaultValue="details">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="details">User Details</TabsTrigger>
-                  <TabsTrigger value="activity">Activity</TabsTrigger>
-                </TabsList>
-                <TabsContent value="details" className="space-y-4 pt-4">
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">Email</Label>
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                        <span>{selectedUser.email || "Not provided"}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">Phone</Label>
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span>{selectedUser.phoneNumber || "Not provided"}</span>
-                      </div>
+              <div className="space-y-4">
+                <h4 className="text-lg font-medium">User Details</h4> {/* Thêm tiêu đề cho phần User Details */}
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground">Email</Label>
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-muted-foreground" />
+                      <span>{selectedUser.email || "Not provided"}</span>
                     </div>
                   </div>
-                </TabsContent>
-                <TabsContent value="activity" className="space-y-4 pt-4">
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">Account Created</Label>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span>{formatDate(selectedUser.createdAt)}</span>
-                      </div>
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground">Phone</Label>
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <span>{selectedUser.phoneNumber || "Not provided"}</span>
                     </div>
-                    <Card>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-sm text-muted-foreground">No recent activity to display.</div>
-                      </CardContent>
-                    </Card>
                   </div>
-                </TabsContent>
-              </Tabs>
+                  {/* SỬA: Thêm Account Created từ tab Activity vào đây */}
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground">Account Created</Label>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span>{formatDate(selectedUser.createdAt)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           ) : (
             <form
