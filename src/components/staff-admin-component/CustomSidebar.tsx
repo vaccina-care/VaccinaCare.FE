@@ -44,7 +44,7 @@ export function CustomSidebar({ children, role }: CustomSidebarProps) {
     ] : [
         { name: "Vaccines & Packages", href: "/staff/vaccines", icon: Syringe, match: ["/staff/vaccines", "/staff/packages"] },
         { name: "Vaccine Interval Rules", href: "/staff/vaccine-interval-rules", icon: CalendarDays, match: ["/staff/vaccine-interval-rules"] },
-        { name: "Reports", href: "/staff/reports", icon: BarChart3, match: ["/staff/reports"] },
+        { name: "Appointments", href: "/staff/appointments", icon: BarChart3, match: ["/staff/appointments"] },
     ]
 
     const isActive = (item: (typeof navigation)[0]) => {

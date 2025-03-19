@@ -162,10 +162,10 @@ export function AppointmentDetailDialog({
             setTimeError("Time is required")
             isValid = false
         } else {
-            // Check if time is within business hours (8:00 - 16:00)
+            // Check if time is within business hours (6:00 - 18:00)
             const hour = newTime.hour
-            if (hour < 7 || hour > 18) {
-                setTimeError("Time must be between 7:00 AM and 18:00 PM")
+            if (hour < 6 || hour > 18) {
+                setTimeError("Time must be between 6:00 AM and 18:00 PM")
                 isValid = false
             }
         }

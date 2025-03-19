@@ -1,9 +1,9 @@
 import { Routes, Route, Navigate } from "react-router-dom"
 import { StaffLayout } from "@/components/StaffLayout"
 import VaccinesPage from "@/components/staff-dashboard/vaccine-package-page/VaccinePage"
-import ReportsPage from "@/components/staff-dashboard/ReportPage"
 import { useAuthContext } from "@/contexts/AuthContexts"
 import VaccineIntervalRulePage from "@/components/staff-dashboard/interval-rules-page/VaccineIntervalRulePage"
+import AppointmentReviewPage from "@/components/staff-dashboard/appointment-page/AppointmentReviewPage"
 
 export default function StaffPage() {
     const { user } = useAuthContext()
@@ -19,7 +19,7 @@ export default function StaffPage() {
                 <Route path="/" element={<Navigate to="/staff/vaccines" replace />} />
                 <Route path="/vaccines" element={<VaccinesPage />} />
                 <Route path="/vaccine-interval-rules" element={<VaccineIntervalRulePage />} />
-                <Route path="/reports" element={<ReportsPage />} /> 
+                <Route path="/appointments" element={<AppointmentReviewPage />} />
 
                 {/* Catch any other staff routes and redirect to vaccines */}
                 <Route path="*" element={<Navigate to="/staff/vaccines" replace />} />
