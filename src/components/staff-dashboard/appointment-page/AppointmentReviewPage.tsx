@@ -17,7 +17,7 @@ import { useDebounce } from "@/hooks/use-debounce"
 export default function AppointmentReviewPage() {
     // State management
     const [pageIndex, setPageIndex] = useState(1)
-    const [pageSize, setPageSize] = useState(10)
+    const [pageSize] = useState(10)
     const [appointments, setAppointments] = useState<AppointmentReviewData[]>([])
     const [totalCount, setTotalCount] = useState(0)
     const [loading, setLoading] = useState(true)
