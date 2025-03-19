@@ -44,6 +44,9 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Label } from "@/components/ui/label"
 import { createUser, updateUser, deleteUser, getAllUsers, UserBase } from "@/api/admin/adminUser"
+import { MockUser, UserRoleInfo } from "./charts/user-role-info"
+import { Card, CardHeader, CardTitle } from "../ui/card"
+import { UserRoleChartImp } from "./charts/user-role-chart-imp"
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString)
@@ -54,7 +57,23 @@ const formatDate = (dateString: string) => {
   })
 }
 
-const currentUserRole = "Admin";
+const mockUsers: MockUser[] = Array.from({ length: 50 }, (_, i) => ({
+  id: `user-${i + 1}`,
+  name: `User ${i + 1}`,
+  email: `user${i + 1}@example.com`,
+  role: i % 10 === 0 ? "admin" : i % 3 === 0 ? "staff" : "customer",
+  phone: `+1 (555) ${100 + i}-${1000 + i}`,
+  dateOfBirth: i % 2 === 0 ? `1990-${(i % 12) + 1}-${(i % 28) + 1}` : undefined,
+  createdAt: `2023-${(i % 12) + 1}-${(i % 28) + 1}`,
+  lastLogin: i % 3 === 0 ? `2023-${(i % 12) + 1}-${(i % 28) + 1}` : undefined,
+  avatar: i % 5 === 0 ? undefined : `/placeholder.svg?height=40&width=40`,
+}))
+
+const chartData = [
+  { name: "Admin", value: 5, color: "#ef4444" }, 
+  { name: "Staff", value: 25, color: "#22c55e" }, 
+  { name: "Customer", value: 120, color: "#3b82f6" }, 
+]
 
 type UserRole = "Admin" | "Staff" | "Customer"
 type DialogMode = "view" | "edit" | "create"
@@ -74,6 +93,7 @@ export function UsersManagement() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   const debouncedSearchTerm = useDebounce(searchTerm, 1000)
+  const currentUserRole = "Admin";
 
   const openDialog = useCallback((mode: DialogMode, user: UserBase | null = null) => {
     setDialogMode(mode)
@@ -305,11 +325,11 @@ export function UsersManagement() {
   const getRoleBadgeVariant = (role: UserRole) => {
     switch (role) {
       case "Admin":
-        return "bg-purple-100 text-purple-800 dark:bg-purple-500/20 dark:text-purple-400"
+        return "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-400"
       case "Staff":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-400"
+        return "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400" 
       case "Customer":
-        return "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400"
+        return "bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-400" 
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-500/20 dark:text-gray-400"
     }
@@ -325,6 +345,21 @@ export function UsersManagement() {
         </Button>
       </div>
 
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div>
+          <UserRoleInfo mockUsers={mockUsers} />
+        </div>
+
+        <Card className="shadow-md">
+          <CardHeader>
+            <CardTitle>User Distribution</CardTitle>
+          </CardHeader>
+          <div className="h-[200px]">
+            <UserRoleChartImp data={chartData} />
+          </div>
+        </Card>
+      </div>
+      
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="flex flex-1 gap-2">
           <div className="relative w-1/3">
@@ -367,9 +402,6 @@ export function UsersManagement() {
             </SelectContent>
           </Select>
         </div>
-        {/* <div className="flex gap-2">
-          
-        </div> */}
       </div>
 
       <div className="rounded-md border bg-card overflow-hidden">
