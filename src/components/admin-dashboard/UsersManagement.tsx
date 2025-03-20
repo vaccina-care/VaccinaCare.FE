@@ -41,20 +41,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
 import { createUser, updateUser, deleteUser, getAllUsers, UserBase } from "@/api/admin/adminUser"
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-  })
-}
+import { UserRoleInfo } from "./charts/user-role-info"
+import { Card, CardHeader, CardTitle } from "../ui/card"
+import { UserRoleChartImp } from "./charts/user-role-chart-imp"
 
 type UserRole = "Admin" | "Staff" | "Customer"
 type DialogMode = "view" | "edit" | "create"
@@ -73,7 +65,23 @@ export function UsersManagement() {
   const [dialogMode, setDialogMode] = useState<DialogMode>("view")
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
-  const debouncedSearchTerm = useDebounce(searchTerm, 300)
+  const [chartData, setChartData] = useState([
+    { name: "Admin", value: 0, color: "#ef4444" },
+    { name: "Staff", value: 0, color: "#22c55e" },
+    { name: "Customer", value: 0, color: "#3b82f6" },
+  ])
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+    })
+  }
+
+  const debouncedSearchTerm = useDebounce(searchTerm, 1000)
+  const currentUserRole = "Admin";
 
   const openDialog = useCallback((mode: DialogMode, user: UserBase | null = null) => {
     setDialogMode(mode)
@@ -94,6 +102,7 @@ export function UsersManagement() {
     try {
       setIsLoading(true)
 
+      // Fetch paginated users for table
       const response = await getAllUsers({
         searchTerm: debouncedSearchTerm || undefined,
         pageIndex: page,
@@ -101,6 +110,22 @@ export function UsersManagement() {
       })
 
       if (response.isSuccess) {
+
+        //Fetch for chart
+        const allUsers = response.data.users || []
+        const adminCount = allUsers.filter(user => user.roleName === "Admin").length
+        const staffCount = allUsers.filter(user => user.roleName === "Staff").length
+        const customerCount = allUsers.filter(user => user.roleName === "Customer").length
+
+        setChartData([
+          { name: "Admin", value: adminCount, color: "#ef4444" },
+          { name: "Staff", value: staffCount, color: "#22c55e" },
+          { name: "Customer", value: customerCount, color: "#3b82f6" },
+        ])
+        setUsers(allUsers)
+        setTotalCount(allUsers.length)
+
+        //Fetch user list
         console.log("Fetched data:", response.data)
         let fetchedUsers = response.data.users || []
         if (filterRole !== "all") {
@@ -169,6 +194,17 @@ export function UsersManagement() {
 
   const confirmDeleteUser = useCallback(async () => {
     if (!selectedUser) return
+
+    if (currentUserRole === "Admin" && selectedUser.roleName === "Admin") {
+      toast({
+        title: "Error",
+        description: "Admins cannot delete other Admins.",
+        variant: "destructive",
+      })
+      closeDeleteDialog()
+      return
+    }
+
     try {
       const response = await deleteUser(selectedUser.userId)
       if (response.isSuccess) {
@@ -177,6 +213,7 @@ export function UsersManagement() {
         toast({
           title: "Success",
           description: `${selectedUser.fullName || "Unnamed User"} has been deleted successfully.`,
+          variant: "success",
         })
         closeDeleteDialog()
         await fetchUsers()
@@ -220,6 +257,7 @@ export function UsersManagement() {
             toast({
               title: "Success",
               description: "Staff account created successfully",
+              variant: "success",
             })
             setUsers((prev) => [...prev, newUser])
             setTotalCount((prev) => prev + 1)
@@ -263,9 +301,10 @@ export function UsersManagement() {
             toast({
               title: "Success",
               description: "User updated successfully",
+              variant: "success",
             })
             closeDialog()
-            await fetchUsers() 
+            await fetchUsers()
           } else {
             toast({
               title: "Error",
@@ -291,11 +330,11 @@ export function UsersManagement() {
   const getRoleBadgeVariant = (role: UserRole) => {
     switch (role) {
       case "Admin":
-        return "bg-purple-100 text-purple-800 dark:bg-purple-500/20 dark:text-purple-400"
+        return "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-400"
       case "Staff":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-400"
-      case "Customer":
         return "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400"
+      case "Customer":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-400"
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-500/20 dark:text-gray-400"
     }
@@ -311,9 +350,24 @@ export function UsersManagement() {
         </Button>
       </div>
 
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div>
+          <UserRoleInfo users={users} />
+        </div>
+
+        <Card className="shadow-md">
+          <CardHeader>
+            <CardTitle>User Distribution</CardTitle>
+          </CardHeader>
+          <div className="h-[200px]">
+            <UserRoleChartImp data={chartData} />
+          </div>
+        </Card>
+      </div>
+
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="flex flex-1 gap-2">
-          <div className="relative flex-1">
+          <div className="relative w-1/3">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search by name or email..."
@@ -321,9 +375,11 @@ export function UsersManagement() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
             />
+            {searchTerm && searchTerm !== debouncedSearchTerm && (
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-blue-600">Searching...</span>
+            )}
           </div>
-        </div>
-        <div className="flex gap-2">
+
           <Select value={filterRole} onValueChange={setFilterRole}>
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="Role" />
@@ -522,49 +578,33 @@ export function UsersManagement() {
                 </div>
               </div>
 
-              <Tabs defaultValue="details">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="details">User Details</TabsTrigger>
-                  <TabsTrigger value="activity">Activity</TabsTrigger>
-                </TabsList>
-                <TabsContent value="details" className="space-y-4 pt-4">
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">Email</Label>
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                        <span>{selectedUser.email || "Not provided"}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">Phone</Label>
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span>{selectedUser.phoneNumber || "Not provided"}</span>
-                      </div>
+              <div className="space-y-4">
+                <h4 className="text-lg font-medium">User Details</h4> {/* Thêm tiêu đề cho phần User Details */}
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground">Email</Label>
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-muted-foreground" />
+                      <span>{selectedUser.email || "Not provided"}</span>
                     </div>
                   </div>
-                </TabsContent>
-                <TabsContent value="activity" className="space-y-4 pt-4">
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">Account Created</Label>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span>{formatDate(selectedUser.createdAt)}</span>
-                      </div>
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground">Phone</Label>
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <span>{selectedUser.phoneNumber || "Not provided"}</span>
                     </div>
-                    <Card>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-sm text-muted-foreground">No recent activity to display.</div>
-                      </CardContent>
-                    </Card>
                   </div>
-                </TabsContent>
-              </Tabs>
+                  {/* SỬA: Thêm Account Created từ tab Activity vào đây */}
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground">Account Created</Label>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span>{formatDate(selectedUser.createdAt)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           ) : (
             <form
