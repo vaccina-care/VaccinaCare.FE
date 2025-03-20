@@ -59,7 +59,7 @@ export default function AppointmentReviewPage() {
     // Initial fetch and when dependencies change
     useEffect(() => {
         fetchAppointments()
-    }, [pageIndex, pageSize, debouncedSearchTerm]) // Use debouncedSearchTerm instead of searchTerm
+    }, [pageIndex, pageSize, debouncedSearchTerm])
 
     // Handle status update
     const handleUpdateStatus = async (appointmentId: string, newStatus: string, cancellationReason?: string) => {
