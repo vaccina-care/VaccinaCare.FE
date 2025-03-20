@@ -11,8 +11,36 @@ export default defineConfig({
     },
     publicDir: 'public', // This ensures Vite serves files from the public directory
     // Ensure the Vite development server listens on 0.0.0.0 and port 3000
+
+    //Optimize dev server
     server: {
+        hmr: {
+            overlay: false, // Disable the error overlay
+        },
+        watch: {
+            usePolling: false, // Disable polling
+        },
+        fs: {
+            strict: false, // Less strict file system checks
+        },
         host: '0.0.0.0', // Bind to 0.0.0.0 to make the server accessible outside the container
         port: 3000, // Set the port to 3000
+    },
+
+    // Optimize dependencies
+    optimizeDeps: {
+        include: [
+            // List used dependencies
+            'react',
+            'react-dom',
+            'react-router-dom',
+        ],
+    },
+
+    // Reduce build time
+    build: {
+        target: 'esnext', // Modern browsers only
+        minify: false, // Skip minification in development
+        sourcemap: false, // Disable sourcemaps in development
     },
 });

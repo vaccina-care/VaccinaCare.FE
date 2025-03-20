@@ -1,6 +1,4 @@
 "use client"
-
-import type React from "react"
 import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom"
 import { AnimatePresence } from "framer-motion"
 import Header from "./components/Header"
@@ -67,7 +65,7 @@ const isValidRoute = (pathname: string) => {
 	)
 }
 
-const AppContent: React.FC = () => {
+const AppContent = () => {
 	const location = useLocation()
 	const isAuthPage = location.pathname === "/login" || location.pathname === "/register"
 	const isValid = isValidRoute(location.pathname)
@@ -129,7 +127,7 @@ const AppContent: React.FC = () => {
 	)
 }
 
-const App: React.FC = () => {
+const App = () => {
 	return (
 		<AuthProvider>
 			<Router>
