@@ -64,6 +64,7 @@ export function VaccineDetailDialog({ vaccineId, isOpen, onClose, onSave, mode }
     const [formData, setFormData] = useState<VaccineFormData>(initialFormState)
     const [previewImage, setPreviewImage] = useState<string | null>(null)
     const [activeTab, setActiveTab] = useState<string>("general")
+    const [formErrors, setFormErrors] = useState<Record<string, string>>({})
 
     const resetForm = useCallback(() => {
         setFormData(initialFormState)
@@ -71,117 +72,176 @@ export function VaccineDetailDialog({ vaccineId, isOpen, onClose, onSave, mode }
         setIsLoading(false)
         setIsFetching(false)
         setActiveTab("general")
+        setFormErrors({})
     }, [])
 
     const fetchVaccineData = useCallback(async () => {
         if (!vaccineId || mode === "create" || !isOpen) {
-            resetForm();
-            return;
+            resetForm()
+            return
         }
 
         try {
-            setIsFetching(true);
-            const response = await getVaccineById(vaccineId);
+            setIsFetching(true)
+            const response = await getVaccineById(vaccineId)
             if (response.isSuccess) {
                 setFormData({
                     ...response.data,
-                    forBloodType: response.data.forBloodType || "Unknown", // Ensure it's always a string
-                    vaccinePictureFile: undefined, // Reset file input
-                });
+                    forBloodType: response.data.forBloodType || "Unknown",
+                    vaccinePictureFile: undefined,
+                })
 
-                setPreviewImage(response.data.picUrl); // Set preview image
+                setPreviewImage(response.data.picUrl) 
             } else {
                 toast({
                     title: "Error",
                     description: "Failed to fetch vaccine details",
                     variant: "destructive",
-                });
+                })
             }
         } catch (error) {
-            console.error("Error fetching vaccine:", error);
+            console.error("Error fetching vaccine:", error)
             toast({
                 title: "Error",
                 description: "Failed to fetch vaccine details",
                 variant: "destructive",
-            });
+            })
         } finally {
-            setIsFetching(false);
+            setIsFetching(false)
         }
-    }, [vaccineId, mode, isOpen, toast, resetForm]);
+    }, [vaccineId, mode, isOpen, toast, resetForm])
 
     useEffect(() => {
         if (isOpen && mode !== "create") {
-            fetchVaccineData();
+            fetchVaccineData()
         } else {
-            resetForm();
+            resetForm()
         }
 
         return () => {
-            document.body.style.pointerEvents = "auto";
-        };
-    }, [isOpen, mode, resetForm, fetchVaccineData]);
-
+            document.body.style.pointerEvents = "auto"
+        }
+    }, [isOpen, mode, resetForm, fetchVaccineData])
 
     const isViewMode = mode === "view"
     const title = mode === "create" ? "CREATE VACCINE" : mode === "edit" ? "EDIT VACCINE" : "VACCINE DETAILS"
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
+        const file = e.target.files?.[0]
 
         if (file) {
-            const reader = new FileReader();
+            const reader = new FileReader()
             reader.onloadend = () => {
-                setPreviewImage(reader.result as string); // Update preview image
-            };
-            reader.readAsDataURL(file);
+                setPreviewImage(reader.result as string) // Update preview image
+            }
+            reader.readAsDataURL(file)
 
             setFormData((prev) => ({
                 ...prev,
                 vaccinePictureFile: file, // Attach the file
                 picUrl: prev.picUrl || "", // Retain existing image if no new file is uploaded
-            }));
+            }))
+
+            // Clear any image-related error when an image is uploaded
+            if (formErrors.image) {
+                setFormErrors((prev) => {
+                    const newErrors = { ...prev }
+                    delete newErrors.image
+                    return newErrors
+                })
+            }
         }
-    };
+    }
+
+    const validateForm = (): boolean => {
+        const errors: Record<string, string> = {}
+
+        // Required fields validation
+        if (!formData.vaccineName.trim()) {
+            errors.vaccineName = "Vaccine name is required"
+        }
+
+        if (!formData.description.trim()) {
+            errors.description = "Description is required"
+        }
+
+        if (!formData.type.trim()) {
+            errors.type = "Origin is required"
+        }
+
+        if (formData.price <= 0) {
+            errors.price = "Price must be greater than 0"
+        }
+
+        if (formData.requiredDoses < 1) {
+            errors.requiredDoses = "Required doses must be at least 1"
+        }
+
+        // Image validation - required for new vaccines, optional for edits
+        if (mode === "create" && !previewImage && !formData.vaccinePictureFile) {
+            errors.image = "Vaccine image is required"
+        } else if (mode === "edit" && !previewImage && !formData.picUrl && !formData.vaccinePictureFile) {
+            errors.image = "Vaccine image is required"
+        }
+
+        setFormErrors(errors)
+
+        // If there are errors, show a toast with a summary
+        if (Object.keys(errors).length > 0) {
+            toast({
+                title: "Validation Error",
+                description: "Please fill in all required fields including the vaccine image.",
+                variant: "destructive",
+            })
+            return false
+        }
+
+        return true
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-            setIsLoading(true);
+        e.preventDefault()
 
-            const { picUrl, vaccinePictureFile, ...restData } = formData;
+        // Validate form before submission
+        if (!validateForm()) {
+            return
+        }
+
+        try {
+            setIsLoading(true)
+
+            const { picUrl, vaccinePictureFile, ...restData } = formData
 
             const submissionData: VaccineFormData = {
                 ...restData,
                 vaccinePictureFile,
-                picUrl
-            };
+                picUrl,
+            }
 
-            await onSave(submissionData);
+            await onSave(submissionData)
 
             toast({
                 title: "Success",
                 description: `Vaccine ${mode === "create" ? "created" : "updated"} successfully.`,
                 variant: "success",
-            });
+            })
 
             // **Delay to ensure all state updates complete**
             setTimeout(() => {
-                resetForm();
-                onClose();
-                document.body.style.pointerEvents = "auto"; // Ensure interactivity is restored
-            }, 100);
-
+                resetForm()
+                onClose()
+                document.body.style.pointerEvents = "auto" // Ensure interactivity is restored
+            }, 100)
         } catch (error) {
             toast({
                 title: "Error",
                 description: `Failed to ${mode === "create" ? "create" : "update"} vaccine.`,
                 variant: "destructive",
-            });
+            })
         } finally {
-            setIsLoading(false);
+            setIsLoading(false)
         }
-    };
-
+    }
 
     const hasWarnings =
         formData.avoidChronic || formData.avoidAllergy || formData.hasDrugInteraction || formData.hasSpecialWarning
@@ -191,16 +251,15 @@ export function VaccineDetailDialog({ vaccineId, isOpen, onClose, onSave, mode }
             open={isOpen}
             onOpenChange={(open) => {
                 if (!open) {
-                    setIsFetching(false); 
-                    setIsLoading(false); 
-                    resetForm();
+                    setIsFetching(false)
+                    setIsLoading(false)
+                    resetForm()
                     setTimeout(() => {
-                        document.body.style.pointerEvents = "auto"; // Restore interactivity
-                    }, 300); // Small delay for state updates
-                    onClose();
+                        document.body.style.pointerEvents = "auto" // Restore interactivity
+                    }, 300) // Small delay for state updates
+                    onClose()
                 }
             }}
-
         >
             <DialogContent
                 aria-hidden={false}
@@ -239,10 +298,13 @@ export function VaccineDetailDialog({ vaccineId, isOpen, onClose, onSave, mode }
                     </DialogTitle>
                 </DialogHeader>
 
-                <AnimatePresence mode="wait" onExitComplete={() => {
-                    document.body.style.pointerEvents = "auto";
-                    resetForm();
-                }}>
+                <AnimatePresence
+                    mode="wait"
+                    onExitComplete={() => {
+                        document.body.style.pointerEvents = "auto"
+                        resetForm()
+                    }}
+                >
                     {isFetching ? (
                         <motion.div
                             initial={{ opacity: 0 }}
@@ -486,7 +548,9 @@ export function VaccineDetailDialog({ vaccineId, isOpen, onClose, onSave, mode }
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         {/* Left side - Image upload */}
                                         <div className="space-y-4">
-                                            <div className="relative aspect-square border-2 border-dashed rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                            <div
+                                                className={`relative aspect-square border-2 ${formErrors.image ? "border-red-500" : "border-dashed"} rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors`}
+                                            >
                                                 {previewImage ? (
                                                     <div className="relative w-full h-full group">
                                                         <img
@@ -512,11 +576,13 @@ export function VaccineDetailDialog({ vaccineId, isOpen, onClose, onSave, mode }
                                                         <motion.div
                                                             whileHover={{ scale: 1.1 }}
                                                             whileTap={{ scale: 0.95 }}
-                                                            className="w-20 h-20 rounded-full border-2 border-gray-300 flex items-center justify-center mb-4"
+                                                            className={`w-20 h-20 rounded-full border-2 ${formErrors.image ? "border-red-500" : "border-gray-300"} flex items-center justify-center mb-4`}
                                                         >
-                                                            <Plus className="h-10 w-10 text-gray-400" />
+                                                            <Plus className={`h-10 w-10 ${formErrors.image ? "text-red-500" : "text-gray-400"}`} />
                                                         </motion.div>
-                                                        <p className="text-sm text-gray-500">Click to upload vaccine image</p>
+                                                        <p className={`text-sm ${formErrors.image ? "text-red-500 font-medium" : "text-gray-500"}`}>
+                                                            {formErrors.image ? "Vaccine image is required" : "Click to upload vaccine image"}
+                                                        </p>
                                                     </label>
                                                 )}
                                                 <input
@@ -538,35 +604,57 @@ export function VaccineDetailDialog({ vaccineId, isOpen, onClose, onSave, mode }
                                                 </CardHeader>
                                                 <CardContent className="space-y-4">
                                                     <div>
-                                                        <Label htmlFor="type" className="text-sm">
-                                                            Origin
+                                                        <Label htmlFor="type" className={`text-sm ${formErrors.type ? "text-red-500" : ""}`}>
+                                                            Origin {formErrors.type && "*"}
                                                         </Label>
                                                         <Input
                                                             id="type"
                                                             value={formData.type}
-                                                            onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                                                            onChange={(e) => {
+                                                                setFormData({ ...formData, type: e.target.value })
+                                                                if (e.target.value.trim()) {
+                                                                    setFormErrors((prev) => {
+                                                                        const newErrors = { ...prev }
+                                                                        delete newErrors.type
+                                                                        return newErrors
+                                                                    })
+                                                                }
+                                                            }}
                                                             required
-                                                            className="mt-1"
+                                                            className={`mt-1 ${formErrors.type ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                                                             placeholder="e.g., USA, France, Japan"
                                                         />
+                                                        {formErrors.type && <p className="text-xs text-red-500 mt-1">{formErrors.type}</p>}
                                                     </div>
                                                     <div>
-                                                        <Label htmlFor="price" className="text-sm">
-                                                            Price (VND)
+                                                        <Label htmlFor="price" className={`text-sm ${formErrors.price ? "text-red-500" : ""}`}>
+                                                            Price (VND) {formErrors.price && "*"}
                                                         </Label>
                                                         <div className="relative mt-1">
-                                                            <Landmark className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                            <Landmark
+                                                                className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${formErrors.price ? "text-red-500" : "text-muted-foreground"}`}
+                                                            />
                                                             <Input
                                                                 id="price"
                                                                 type="number"
                                                                 value={formData.price}
-                                                                onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+                                                                onChange={(e) => {
+                                                                    setFormData({ ...formData, price: Number(e.target.value) })
+                                                                    if (Number(e.target.value) > 0) {
+                                                                        setFormErrors((prev) => {
+                                                                            const newErrors = { ...prev }
+                                                                            delete newErrors.price
+                                                                            return newErrors
+                                                                        })
+                                                                    }
+                                                                }}
                                                                 required
                                                                 min={0}
-                                                                className="pl-9"
+                                                                className={`pl-9 ${formErrors.price ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                                                                 placeholder="Enter price in VND"
                                                             />
                                                         </div>
+                                                        {formErrors.price && <p className="text-xs text-red-500 mt-1">{formErrors.price}</p>}
                                                     </div>
                                                 </CardContent>
                                             </Card>
@@ -582,18 +670,33 @@ export function VaccineDetailDialog({ vaccineId, isOpen, onClose, onSave, mode }
                                                 <CardContent className="space-y-4">
                                                     <div className="grid grid-cols-2 gap-4">
                                                         <div>
-                                                            <Label htmlFor="requiredDoses" className="text-sm">
-                                                                Required Doses
+                                                            <Label
+                                                                htmlFor="requiredDoses"
+                                                                className={`text-sm ${formErrors.requiredDoses ? "text-red-500" : ""}`}
+                                                            >
+                                                                Required Doses {formErrors.requiredDoses && "*"}
                                                             </Label>
                                                             <Input
                                                                 id="requiredDoses"
                                                                 type="number"
                                                                 value={formData.requiredDoses}
-                                                                onChange={(e) => setFormData({ ...formData, requiredDoses: Number(e.target.value) })}
+                                                                onChange={(e) => {
+                                                                    setFormData({ ...formData, requiredDoses: Number(e.target.value) })
+                                                                    if (Number(e.target.value) >= 1) {
+                                                                        setFormErrors((prev) => {
+                                                                            const newErrors = { ...prev }
+                                                                            delete newErrors.requiredDoses
+                                                                            return newErrors
+                                                                        })
+                                                                    }
+                                                                }}
                                                                 required
                                                                 min={1}
-                                                                className="mt-1"
+                                                                className={`mt-1 ${formErrors.requiredDoses ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                                                             />
+                                                            {formErrors.requiredDoses && (
+                                                                <p className="text-xs text-red-500 mt-1">{formErrors.requiredDoses}</p>
+                                                            )}
                                                         </div>
                                                         <div>
                                                             <Label htmlFor="doseIntervalDays" className="text-sm">
@@ -646,30 +749,60 @@ export function VaccineDetailDialog({ vaccineId, isOpen, onClose, onSave, mode }
                                                 </CardHeader>
                                                 <CardContent className="space-y-4">
                                                     <div>
-                                                        <Label htmlFor="vaccineName" className="text-sm">
-                                                            Vaccine Name
+                                                        <Label
+                                                            htmlFor="vaccineName"
+                                                            className={`text-sm ${formErrors.vaccineName ? "text-red-500" : ""}`}
+                                                        >
+                                                            Vaccine Name {formErrors.vaccineName && "*"}
                                                         </Label>
                                                         <Input
                                                             id="vaccineName"
                                                             value={formData.vaccineName}
-                                                            onChange={(e) => setFormData({ ...formData, vaccineName: e.target.value })}
+                                                            onChange={(e) => {
+                                                                setFormData({ ...formData, vaccineName: e.target.value })
+                                                                if (e.target.value.trim()) {
+                                                                    setFormErrors((prev) => {
+                                                                        const newErrors = { ...prev }
+                                                                        delete newErrors.vaccineName
+                                                                        return newErrors
+                                                                    })
+                                                                }
+                                                            }}
                                                             required
-                                                            className="mt-1"
+                                                            className={`mt-1 ${formErrors.vaccineName ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                                                             placeholder="Enter vaccine name"
                                                         />
+                                                        {formErrors.vaccineName && (
+                                                            <p className="text-xs text-red-500 mt-1">{formErrors.vaccineName}</p>
+                                                        )}
                                                     </div>
                                                     <div>
-                                                        <Label htmlFor="description" className="text-sm">
-                                                            Description
+                                                        <Label
+                                                            htmlFor="description"
+                                                            className={`text-sm ${formErrors.description ? "text-red-500" : ""}`}
+                                                        >
+                                                            Description {formErrors.description && "*"}
                                                         </Label>
                                                         <Textarea
                                                             id="description"
                                                             value={formData.description}
-                                                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                                            onChange={(e) => {
+                                                                setFormData({ ...formData, description: e.target.value })
+                                                                if (e.target.value.trim()) {
+                                                                    setFormErrors((prev) => {
+                                                                        const newErrors = { ...prev }
+                                                                        delete newErrors.description
+                                                                        return newErrors
+                                                                    })
+                                                                }
+                                                            }}
                                                             required
-                                                            className="mt-1 min-h-[120px]"
+                                                            className={`mt-1 min-h-[120px] ${formErrors.description ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                                                             placeholder="Enter vaccine description, including what diseases it prevents"
                                                         />
+                                                        {formErrors.description && (
+                                                            <p className="text-xs text-red-500 mt-1">{formErrors.description}</p>
+                                                        )}
                                                     </div>
                                                 </CardContent>
                                             </Card>
@@ -759,13 +892,13 @@ export function VaccineDetailDialog({ vaccineId, isOpen, onClose, onSave, mode }
                                             type="button"
                                             variant="outline"
                                             onClick={() => {
-                                                setIsFetching(false);
-                                                setIsLoading(false);
-                                                resetForm();
+                                                setIsFetching(false)
+                                                setIsLoading(false)
+                                                resetForm()
                                                 setTimeout(() => {
-                                                    document.body.style.pointerEvents = "auto"; // Ensure interactivity is restored
-                                                }, 300);
-                                                onClose();
+                                                    document.body.style.pointerEvents = "auto" // Ensure interactivity is restored
+                                                }, 300)
+                                                onClose()
                                             }}
                                         >
                                             Cancel
