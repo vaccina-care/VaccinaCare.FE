@@ -1,6 +1,6 @@
 # VaccinaCare - Frontend Application
 
-![VaccinaCare Logo](https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=logo.png&version_id=null)
+<img src="src/assets/showcase/logo.png" alt="VaccinaCare Logo" style="width:500px;"/>
 
 VaccinaCare is a comprehensive web application for managing vaccinations, designed to connect parents with healthcare providers for scheduling and tracking child vaccinations.
 
