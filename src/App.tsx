@@ -23,7 +23,6 @@ const VaccineList = lazy(() => import("./pages/VaccineList"))
 const Notifications = lazy(() => import("./pages/Notifications"))
 const VaccineDetail = lazy(() => import("./pages/VaccineDetail"))
 const VaccinePackageDetail = lazy(() => import("./pages/VaccinePackageDetail"))
-const Feedback = lazy(() => import("./pages/Feedback"))
 const StaffPage = lazy(() => import("./pages/staff/StaffPage"))
 const AdminPage = lazy(() => import("./pages/admin/AdminPage"))
 const AppointmentDashboard = lazy(() => import("./pages/user/AppointmentDashboard"))
@@ -54,7 +53,6 @@ const validRoutes = [
 	"/vaccine-list",
 	"/vaccine/:id",
 	"/vaccine-package/:packageId",
-	"/feedback",
 	"/staff",
 	"/staff/vaccines",
 	"/staff/vaccine-interval-rules",
@@ -105,7 +103,6 @@ const AppContent = () => {
 								<Route path="/payment-fail" element={<PaymentFailPage />} />
 
 								{/* TEST */}
-								<Route path="/feedback" element={<Feedback />} />
 
 								{/* Protected user routes */}
 								<Route element={<ProtectedRoute />}>
