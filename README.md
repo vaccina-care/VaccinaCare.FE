@@ -1,5 +1,7 @@
 # VaccinaCare - Frontend Application
 
+![VaccinaCare Logo](https://minio.ae-tao-fullstack-api.site/api/v1/buckets/vaccinacare-bucket/objects/download?preview=true&prefix=logo.png&version_id=null)
+
 VaccinaCare is a comprehensive web application for managing vaccinations, designed to connect parents with healthcare providers for scheduling and tracking child vaccinations.
 
 ## Overview
@@ -94,6 +96,7 @@ The application uses a JWT-based authentication system with:
    npm run dev
    ```
 
+
 ## Build for Production
 
 ```
@@ -113,6 +116,17 @@ VITE_API_URL=your_api_url
 - Mobile application
 - Integration with health records systems
 - Multi-language support
+
+## Screenshots
+
+### Home Page
+![Home Page](src/assets/showcase/home.png)
+
+### Vaccine List
+![Vaccine List](src/assets/showcase/vaccine-list.png)
+
+### User Dashboard
+![User Dashboard](src/assets/showcase/user-dashboard.png)
 
 ---
 
