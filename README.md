@@ -1,50 +1,119 @@
-# React + TypeScript + Vite
+# VaccinaCare - Frontend Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+VaccinaCare is a comprehensive web application for managing vaccinations, designed to connect parents with healthcare providers for scheduling and tracking child vaccinations.
 
-Currently, two official plugins are available:
+## Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This frontend application is built with React and TypeScript, utilizing modern web development tools and practices. It provides different interfaces for customers (parents), staff, and administrators.
 
-## Expanding the ESLint configuration
+## Features
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### Customer Features
+- **User Authentication**: Secure login and registration system
+- **User Dashboard**: Manage profile and view notification
+- **Child Management**: Add and manage children's profiles and medical information
+- **Appointment Booking**: Schedule vaccination appointments for children
+- **Vaccine Records**: Track vaccination history and upcoming schedules
+- **Vaccine Catalog**: Browse available vaccines and packages with detailed information
 
-- Configure the top-level `parserOptions` property like this:
+### Staff Features
+- **Vaccine Management**: Add, update, and delete vaccines
+- **Vaccine Package Management**: Create and manage bundled vaccine packages
+- **Appointment Review**: Process and manage customer appointments
+- **Vaccine Interval Rules**: Set and manage rules for vaccine administration intervals
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### Admin Features
+- **User Management**: Manage staff and customer accounts
+- **Policy Management**: Define and update cancellation and rescheduling policies
+- **Dashboard**: View system statistics and metrics
+- **Rating Management**: Monitor and manage customer feedback
+
+## Technical Stack
+
+- **Framework**: React with TypeScript
+- **Routing**: React Router
+- **State Management**: React Context API
+- **UI Components**: Custom components with Tailwind CSS
+- **API Communication**: Axios
+- **Authentication**: JWT-based authentication
+- **Styling**: Tailwind CSS with shadcn/ui components
+- **Animations**: Framer Motion
+- **Data Visualization**: Recharts
+
+## Project Structure
+
+```
+src/
+│
+├── api/              # API service layer
+│   ├── admin/        # Admin-specific API calls
+│   ├── staff/        # Staff-specific API calls
+│   └── ...           # Shared API services
+│
+├── components/       # React components
+│   ├── admin-dashboard/  # Admin interface components
+│   ├── staff-dashboard/  # Staff interface components
+│   ├── user-dashboard/   # User interface components
+│   ├── ui/               # Shared UI components
+│   └── ...               # Other components
+│
+├── contexts/         # React contexts for state management
+│   ├── AppointmentContext.tsx
+│   ├── AuthContexts.tsx
+│   └── ...
+│
+├── hooks/            # Custom React hooks
+│
+├── lib/              # Utility functions and helper libraries
+│
+├── pages/            # Page components for routing
+│   ├── admin/        # Admin pages
+│   ├── staff/        # Staff pages
+│   ├── user/         # User pages
+│   └── ...           # Shared pages
+│
+└── types/            # TypeScript type definitions
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Authentication and Authorization
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+The application uses a JWT-based authentication system with:
+- Access tokens for API requests
+- Refresh tokens for session maintenance
+- Role-based access control (Customer, Staff, Admin)
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+## Getting Started
+
+1. Clone the repository
+2. Install dependencies:
+   ```
+   npm install
+   ```
+3. Start the development server:
+   ```
+   npm run dev
+   ```
+
+## Build for Production
+
 ```
+npm run build
+```
+
+## Environment Setup
+
+Create a `.env` file with the following variables:
+```
+VITE_API_URL=your_api_url
+```
+
+## Features in Development
+
+- Enhanced reporting features
+- Mobile application
+- Integration with health records systems
+- Multi-language support
+
+---
+
+For more information, contact the development team.

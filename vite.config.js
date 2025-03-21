@@ -9,7 +9,7 @@ export default defineConfig({
             "@": path.resolve(__dirname, "./src"),
         },
     },
-    publicDir: 'public', // This ensures Vite serves files from the public directory
+    publicDir: 'public', 
     // Ensure the Vite development server listens on 0.0.0.0 and port 3000
 
     //Optimize dev server
@@ -30,7 +30,6 @@ export default defineConfig({
     // Optimize dependencies
     optimizeDeps: {
         include: [
-            // List used dependencies
             'react',
             'react-dom',
             'react-router-dom',
