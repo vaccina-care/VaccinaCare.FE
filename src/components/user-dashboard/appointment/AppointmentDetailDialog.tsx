@@ -17,6 +17,7 @@ import {
     Loader2,
     CalendarDays,
     X,
+    MessageSquare,
 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { rescheduleAppointment, type AppointmentResponse } from "@/api/appointment"
@@ -26,6 +27,7 @@ import { Label } from "@/components/ui/label"
 import { DateInput } from "@heroui/date-input"
 import { TimeInput } from "@heroui/date-input"
 import { CalendarDate, Time } from "@internationalized/date"
+import { FeedbackSection } from "./FeedbackSection"
 
 interface AppointmentDetailDialogProps {
     appointment: AppointmentResponse | null
@@ -52,6 +54,7 @@ export function AppointmentDetailDialog({
     const [newTime, setNewTime] = useState<Time | null>(null)
     const [dateError, setDateError] = useState("")
     const [timeError, setTimeError] = useState("")
+    const [activeTab, setActiveTab] = useState<"details" | "feedback">("details")
 
     // Use effect to set the button visibility after component mounts
     useEffect(() => {
@@ -69,6 +72,7 @@ export function AppointmentDetailDialog({
             setNewTime(null)
             setDateError("")
             setTimeError("")
+            setActiveTab("details")
         }
     }, [isOpen, appointment])
 
@@ -96,7 +100,7 @@ export function AppointmentDetailDialog({
     const getStatusColor = (status: string) => {
         switch (status.toLowerCase()) {
             case "completed":
-                return "bg-green-700 text-black-800 border-green-700"
+                return "bg-green-500 text-white-500 border-green-700"
             case "confirmed":
                 return "bg-green-100 text-green-800 border-green-200"
             case "pending":
@@ -240,6 +244,9 @@ export function AppointmentDetailDialog({
     // Can reschedule if status is Confirmed or Pending, but not if Completed or Cancelled
     const canReschedule = ["confirmed", "pending"].includes(appointment.status.toLowerCase())
 
+    // Check if appointment is completed to show feedback tab
+    const isCompleted = appointment.status.toLowerCase() === "completed"
+
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="sm:max-w-[500px] flex flex-col">
@@ -247,16 +254,44 @@ export function AppointmentDetailDialog({
                     <DialogTitle className="text-xl font-semibold">Appointment Details</DialogTitle>
                 </DialogHeader>
 
+                {/* Status Badge */}
+                <div className="flex justify-center mb-4">
+                    <Badge variant="outline" className={`px-4 py-1 text-sm ${getStatusColor(appointment.status)}`}>
+                        {appointment.status}
+                    </Badge>
+                </div>
+
+                {/* Tabs - Only show tabs for completed appointments */}
+                {isCompleted && (
+                    <div className="flex border-b mb-4">
+                        <button
+                            className={`flex items-center gap-1 px-4 py-2 border-b-2 ${activeTab === "details"
+                                    ? "border-blue-600 text-blue-600"
+                                    : "border-transparent text-gray-500 hover:text-gray-700"
+                                }`}
+                            onClick={() => setActiveTab("details")}
+                        >
+                            <Info className="h-4 w-4" />
+                            Details
+                        </button>
+                        <button
+                            className={`flex items-center gap-1 px-4 py-2 border-b-2 ${activeTab === "feedback"
+                                    ? "border-blue-600 text-blue-600"
+                                    : "border-transparent text-gray-500 hover:text-gray-700"
+                                }`}
+                            onClick={() => setActiveTab(activeTab === "details" ? "feedback" : "details")}
+                        >
+                            <MessageSquare className="h-4 w-4" />
+                            Rate & Review
+                        </button>
+                    </div>
+                )}
+
                 {/* Main Content */}
                 <div className="flex-1 overflow-auto">
-                    {/* Status Badge */}
-                    <div className="flex justify-center mb-6">
-                        <Badge variant="outline" className={`px-4 py-1 text-sm ${getStatusColor(appointment.status)}`}>
-                            {appointment.status}
-                        </Badge>
-                    </div>
-
-                    {showRescheduleForm ? (
+                    {activeTab === "feedback" && isCompleted ? (
+                        <FeedbackSection appointmentId={appointment.appointmentId} />
+                    ) : showRescheduleForm ? (
                         <div className="space-y-4 mb-6">
                             <div className="flex justify-between items-center">
                                 <h3 className="font-medium">Reschedule Appointment</h3>
@@ -375,57 +410,66 @@ export function AppointmentDetailDialog({
                 </div>
 
                 {/* Action Buttons */}
-                <div className="space-y-4 mt-4 pt-4 border-t border-gray-200">
-                    {/* Buttons only shown when not in reschedule mode */}
-                    {!showRescheduleForm && (
-                        <>
-                            {/* Checkout Button - Only show for pending appointments */}
-                            {appointment.status.toLowerCase() === "pending" && (
-                                <Button
-                                    onClick={handleCheckout}
-                                    disabled={isProcessingPayment}
-                                    className="w-full bg-green-600 hover:bg-green-700 text-white"
-                                >
-                                    {isProcessingPayment ? (
-                                        <>
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Processing...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <CreditCard className="mr-2 h-4 w-4" />
-                                            Proceed to Payment
-                                        </>
-                                    )}
-                                </Button>
-                            )}
+                {activeTab === "details" && !showRescheduleForm && (
+                    <div className="space-y-4 mt-4 pt-4 border-t border-gray-200">
+                        {/* Checkout Button - Only show for pending appointments */}
+                        {appointment.status.toLowerCase() === "pending" && (
+                            <Button
+                                onClick={handleCheckout}
+                                disabled={isProcessingPayment}
+                                className="w-full bg-green-600 hover:bg-green-700 text-white"
+                            >
+                                {isProcessingPayment ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Processing...
+                                    </>
+                                ) : (
+                                    <>
+                                        <CreditCard className="mr-2 h-4 w-4" />
+                                        Proceed to Payment
+                                    </>
+                                )}
+                            </Button>
+                        )}
 
-                            {/* Reschedule Button - Show for confirmed and pending appointments */}
-                            {canReschedule && (
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setShowRescheduleForm(true)}
-                                    className="w-full border-blue-200 hover:bg-blue-50"
-                                >
-                                    <CalendarDays className="mr-2 h-4 w-4 text-blue-600" />
-                                    Reschedule Appointment
-                                </Button>
-                            )}
+                        {/* Feedback Button - Only show for completed appointments */}
+                        {isCompleted && (
+                            <Button
+                                variant="outline"
+                                onClick={() => setActiveTab(activeTab === "details" ? "feedback" : "details")}
+                                className="w-full border-blue-200 hover:bg-blue-50"
+                            >
+                                <MessageSquare className="mr-2 h-4 w-4 text-blue-600" />
+                                Rate & Review
+                            </Button>
+                        )}
 
-                            {/* Policy Button */}
-                            {showPolicyButton && (
-                                <Button
-                                    variant="outline"
-                                    onClick={handleViewPolicies}
-                                    className="w-full flex items-center justify-center gap-2"
-                                >
-                                    <Info className="h-4 w-4" />
-                                    View Cancellation & Rescheduling Policies
-                                </Button>
-                            )}
-                        </>
-                    )}
-                </div>
+                        {/* Reschedule Button - Show for confirmed and pending appointments */}
+                        {canReschedule && (
+                            <Button
+                                variant="outline"
+                                onClick={() => setShowRescheduleForm(true)}
+                                className="w-full border-blue-200 hover:bg-blue-50"
+                            >
+                                <CalendarDays className="mr-2 h-4 w-4 text-blue-600" />
+                                Reschedule Appointment
+                            </Button>
+                        )}
+
+                        {/* Policy Button */}
+                        {showPolicyButton && (
+                            <Button
+                                variant="outline"
+                                onClick={handleViewPolicies}
+                                className="w-full flex items-center justify-center gap-2"
+                            >
+                                <Info className="h-4 w-4" />
+                                View Cancellation & Rescheduling Policies
+                            </Button>
+                        )}
+                    </div>
+                )}
             </DialogContent>
         </Dialog>
     )

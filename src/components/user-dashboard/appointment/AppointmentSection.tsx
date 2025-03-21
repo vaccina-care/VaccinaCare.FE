@@ -159,7 +159,7 @@ export default function AppointmentsSection() {
     const getStatusColor = (status: string) => {
         switch (status.toLowerCase()) {
             case "completed":
-                return "bg-green-700 text-black-800 border-green-700"
+                return "bg-green-500 text-white-500 border-green-700"
             case "confirmed":
                 return "bg-green-100 text-green-800 border-green-200"
             case "pending":
@@ -175,7 +175,7 @@ export default function AppointmentsSection() {
     const isPackageAppointment = (appointment: AppointmentResponse) => {
         return (
             appointment.notes?.toLowerCase().includes("package") ||
-            appointment.notes?.includes("Mũi") ||
+            appointment.notes?.includes("Doses") ||
             appointment.notes?.includes("/")
         )
     }
