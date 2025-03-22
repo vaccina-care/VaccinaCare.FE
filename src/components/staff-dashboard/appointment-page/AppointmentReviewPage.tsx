@@ -44,15 +44,7 @@ export default function AppointmentReviewPage() {
         try {
             const response = await getAllAppointments(pageIndex, pageSize, debouncedSearchTerm)
             if (response.isSuccess && response.data) {
-                const appointments = response.data.appointments
-
-                // Log unique status values to help debug
-                if (appointments.length > 0) {
-                    const uniqueStatuses = [...new Set(appointments.map((a) => a.status))]
-                    console.log("Available status values:", uniqueStatuses)
-                }
-
-                setAllAppointments(appointments)
+                setAllAppointments(response.data.appointments)
                 setTotalCount(response.data.totalCount)
             } else {
                 toast({
@@ -89,20 +81,7 @@ export default function AppointmentReviewPage() {
         if (statusFilter === "all") {
             return allAppointments
         }
-
-        // More robust filtering that handles case, whitespace, and partial matches
-        return allAppointments.filter((appointment) => {
-            const appointmentStatus = appointment.status.toLowerCase().trim()
-            const filterValue = statusFilter.toLowerCase().trim()
-
-            // Log to debug specific status issues
-            if (filterValue === "pending" && appointmentStatus.includes("pend")) {
-                console.log("Found pending-like status:", appointmentStatus)
-            }
-
-            // Check if the status contains the filter value (for partial matches)
-            return appointmentStatus.includes(filterValue)
-        })
+        return allAppointments.filter((appointment) => appointment.status.toLowerCase() === statusFilter.toLowerCase())
     }, [allAppointments, statusFilter])
 
     // Handle status update
@@ -181,7 +160,7 @@ export default function AppointmentReviewPage() {
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="flex gap-2 flex-1">
                                 <Input
-                                    placeholder="Search by vaccine name, child name..."
+                                    placeholder="Search by vaccine name"
                                     value={searchTerm}
                                     onChange={(e) => {
                                         setSearchTerm(e.target.value)
