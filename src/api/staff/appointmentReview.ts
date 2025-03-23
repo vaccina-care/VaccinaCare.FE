@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import axiosInstance from "@/api/axiosInstance"
 import type { ApiResponse } from "@/api/apiResponse"
 
@@ -6,7 +7,9 @@ import type { ApiResponse } from "@/api/apiResponse"
 export interface AppointmentReviewData {
     appointmentId: string
     childId: string
+    childName: string
     userId: string
+    userName: string
     appointmentDate: string
     status: string
     vaccineName: string
@@ -21,20 +24,32 @@ export interface PaginatedAppointmentsResponse {
     appointments: AppointmentReviewData[]
 }
 
+export interface PaginatedAppointmentsResponse {
+    items: any[]
+    totalCount: number
+    pageIndex: number
+    pageSize: number
+}
 
 export const getAllAppointments = async (
     pageIndex = 1,
     pageSize = 10,
     searchTerm?: string,
+    status?: string,
 ): Promise<ApiResponse<PaginatedAppointmentsResponse>> => {
     try {
         const params: Record<string, any> = {
-            PageIndex: pageIndex, 
-            PageSize: pageSize, 
+            PageIndex: pageIndex,
+            PageSize: pageSize,
         }
 
         if (searchTerm) {
-            params.searchTerm = searchTerm 
+            params.searchTerm = searchTerm
+        }
+
+        // Add status filter parameter if provided
+        if (status && status !== "all") {
+            params.status = status
         }
 
         const response = await axiosInstance.get("/appointments", { params })
@@ -44,7 +59,6 @@ export const getAllAppointments = async (
         throw error
     }
 }
-
 
 export const updateAppointmentStatus = async (
     appointmentId: string,

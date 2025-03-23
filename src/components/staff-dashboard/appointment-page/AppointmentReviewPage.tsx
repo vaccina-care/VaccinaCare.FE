@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect } from "react"
 import { getAllAppointments, updateAppointmentStatus } from "@/api/staff/appointmentReview"
 import type { AppointmentReviewData } from "@/api/staff/appointmentReview"
 import { AppointmentStatusChart } from "./AppointmentStatusChart"
@@ -11,16 +11,15 @@ import { UpdateStatusDialog } from "./UpdateStatusDialog"
 import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Loader2, RefreshCw, Filter } from "lucide-react"
+import { Loader2, RefreshCw } from "lucide-react"
 import { useDebounce } from "@/hooks/use-debounce"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 
 export default function AppointmentReviewPage() {
     // State management
     const [pageIndex, setPageIndex] = useState(1)
     const [pageSize] = useState(10)
-    const [allAppointments, setAllAppointments] = useState<AppointmentReviewData[]>([])
+    const [appointments, setAppointments] = useState<AppointmentReviewData[]>([])
     const [totalCount, setTotalCount] = useState(0)
     const [loading, setLoading] = useState(true)
     const [refreshing, setRefreshing] = useState(false)
@@ -42,9 +41,11 @@ export default function AppointmentReviewPage() {
         }
 
         try {
-            const response = await getAllAppointments(pageIndex, pageSize, debouncedSearchTerm)
+            // Now passing the status filter to the API
+            const response = await getAllAppointments(pageIndex, pageSize, debouncedSearchTerm, statusFilter)
+
             if (response.isSuccess && response.data) {
-                setAllAppointments(response.data.appointments)
+                setAppointments(response.data.appointments)
                 setTotalCount(response.data.totalCount)
             } else {
                 toast({
@@ -74,15 +75,7 @@ export default function AppointmentReviewPage() {
     // Initial fetch and when dependencies change
     useEffect(() => {
         fetchAppointments()
-    }, [pageIndex, pageSize, debouncedSearchTerm])
-
-    // Filter appointments based on status
-    const filteredAppointments = useMemo(() => {
-        if (statusFilter === "all") {
-            return allAppointments
-        }
-        return allAppointments.filter((appointment) => appointment.status.toLowerCase() === statusFilter.toLowerCase())
-    }, [allAppointments, statusFilter])
+    }, [pageIndex, pageSize, debouncedSearchTerm, statusFilter])
 
     // Handle status update
     const handleUpdateStatus = async (appointmentId: string, newStatus: string, cancellationReason?: string) => {
@@ -90,7 +83,7 @@ export default function AppointmentReviewPage() {
             const response = await updateAppointmentStatus(appointmentId, newStatus, cancellationReason)
             if (response.isSuccess && response.data) {
                 // Update the appointment in the list
-                setAllAppointments((prevAppointments) =>
+                setAppointments((prevAppointments) =>
                     prevAppointments.map((appointment) =>
                         appointment.appointmentId === appointmentId ? { ...appointment, status: newStatus } : appointment,
                     ),
@@ -125,13 +118,16 @@ export default function AppointmentReviewPage() {
         setIsUpdateDialogOpen(true)
     }
 
-    // Calculate status counts for chart
+    // Calculate status counts for chart and statistics
     const getStatusCounts = () => {
         const statusCounts: Record<string, number> = {}
-        filteredAppointments.forEach((appointment) => {
+
+        appointments.forEach((appointment) => {
+            // Normalize status to ensure consistent casing
             const status = appointment.status
             statusCounts[status] = (statusCounts[status] || 0) + 1
         })
+
         return statusCounts
     }
 
@@ -155,12 +151,14 @@ export default function AppointmentReviewPage() {
                 <Card className="md:col-span-2">
                     <CardHeader>
                         <CardTitle>Search & Filter Appointments</CardTitle>
+                        <CardDescription>Find and manage vaccination appointments</CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="space-y-4">
+                        {/* Search bar and refresh button */}
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="flex gap-2 flex-1">
                                 <Input
-                                    placeholder="Search by vaccine name"
+                                    placeholder="Search by vaccine name & child name"
                                     value={searchTerm}
                                     onChange={(e) => {
                                         setSearchTerm(e.target.value)
@@ -173,38 +171,91 @@ export default function AppointmentReviewPage() {
                                 {loading && <Loader2 className="h-4 w-4 animate-spin mt-3" />}
                             </div>
 
-                            <div className="flex gap-2">
-                                <div className="flex items-center gap-2">
-                                    <Filter className="h-4 w-4 text-muted-foreground" />
-                                    <Select
-                                        value={statusFilter}
-                                        onValueChange={(value) => {
-                                            setStatusFilter(value)
-                                            setPageIndex(1) // Reset to first page when filter changes
-                                        }}
-                                    >
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="Filter by status" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">All Statuses</SelectItem>
-                                            <SelectItem value="pending">Pending</SelectItem>
-                                            <SelectItem value="confirmed">Confirmed</SelectItem>
-                                            <SelectItem value="completed">Completed</SelectItem>
-                                            <SelectItem value="cancelled">Cancelled</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
+                            <Button
+                                variant="outline"
+                                onClick={handleRefresh}
+                                disabled={refreshing}
+                                title="Refresh appointments"
+                                className="min-w-[100px]"
+                            >
+                                <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
+                                Refresh
+                            </Button>
+                        </div>
 
-                                <Button
-                                    variant="outline"
-                                    size="icon"
-                                    onClick={handleRefresh}
-                                    disabled={refreshing}
-                                    title="Refresh appointments"
-                                >
-                                    <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
-                                </Button>
+                        {/* Quick filter buttons */}
+                        <div className="flex flex-wrap gap-2 pt-2">
+                            <Button
+                                variant={statusFilter === "all" ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setStatusFilter("all")}
+                                className="rounded-full"
+                            >
+                                All
+                            </Button>
+                            <Button
+                                variant={statusFilter === "Pending" ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setStatusFilter("Pending")}
+                                className="rounded-full bg-yellow-500 text-white hover:bg-yellow-600 hover:text-white"
+                            >
+                                Pending
+                            </Button>
+                            <Button
+                                variant={statusFilter === "Confirmed" ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setStatusFilter("Confirmed")}
+                                className="rounded-full bg-blue-500 text-white hover:bg-blue-600 hover:text-white"
+                            >
+                                Confirmed
+                            </Button>
+                            <Button
+                                variant={statusFilter === "Completed" ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setStatusFilter("Completed")}
+                                className="rounded-full bg-green-500 text-white hover:bg-green-600 hover:text-white"
+                            >
+                                Completed
+                            </Button>
+                            <Button
+                                variant={statusFilter === "Cancelled" ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setStatusFilter("Cancelled")}
+                                className="rounded-full bg-red-500 text-white hover:bg-red-600 hover:text-white"
+                            >
+                                Cancelled
+                            </Button>
+                        </div>
+
+                        {/* Statistics summary */}
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-2">
+                            <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                <div className="text-sm text-gray-500">Total</div>
+                                <div className="text-2xl font-semibold">{totalCount}</div>
+                            </div>
+                            <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-100">
+                                <div className="text-sm text-yellow-600">Pending</div>
+                                <div className="text-2xl font-semibold">
+                                    {Object.entries(getStatusCounts()).find(([status]) => status.toLowerCase() === "pending")?.[1] || 0}
+                                </div>
+                            </div>
+                            <div className="bg-blue-50 p-3 rounded-lg border border-blue-100">
+                                <div className="text-sm text-blue-600">Confirmed</div>
+                                <div className="text-2xl font-semibold">
+                                    {Object.entries(getStatusCounts()).find(([status]) => status.toLowerCase() === "confirmed")?.[1] || 0}
+                                </div>
+                            </div>
+                            <div className="bg-green-50 p-3 rounded-lg border border-green-100">
+                                <div className="text-sm text-green-600">Completed</div>
+                                <div className="text-2xl font-semibold">
+                                    {Object.entries(getStatusCounts()).find(([status]) => status.toLowerCase() === "completed")?.[1] || 0}
+                                </div>
+                            </div>
+                            <div className="bg-red-50 p-3 rounded-lg border border-red-100">
+                                <div className="text-sm text-red-600">Cancelled</div>
+                                <div className="text-2xl font-semibold">
+                                    {Object.entries(getStatusCounts()).find(([status]) => status.toLowerCase() === "cancelled")?.[1] || 0}
+                                </div>
                             </div>
                         </div>
                     </CardContent>
@@ -217,19 +268,19 @@ export default function AppointmentReviewPage() {
                     <div>
                         <CardTitle>Appointments</CardTitle>
                         <CardDescription>
-                            Showing {filteredAppointments.length} of {totalCount} appointments
+                            Showing {appointments.length} of {totalCount} appointments
                             {statusFilter !== "all" && ` • Filtered by: ${statusFilter}`}
                         </CardDescription>
                     </div>
                 </CardHeader>
                 <CardContent>
                     <AppointmentList
-                        appointments={filteredAppointments}
+                        appointments={appointments}
                         loading={loading}
                         onUpdateStatus={openUpdateDialog}
                         pageIndex={pageIndex}
                         pageSize={pageSize}
-                        totalCount={statusFilter === "all" ? totalCount : filteredAppointments.length}
+                        totalCount={totalCount}
                         onPageChange={setPageIndex}
                     />
                 </CardContent>
