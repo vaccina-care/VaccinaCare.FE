@@ -12,7 +12,7 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination"
-import { Loader2 } from 'lucide-react'
+import { Loader2 } from "lucide-react"
 import type { AppointmentReviewData } from "@/api/staff/appointmentReview"
 
 interface AppointmentListProps {
@@ -77,7 +77,7 @@ export function AppointmentList({
                     <TableHeader>
                         <TableRow>
                             <TableHead>Vaccine</TableHead>
-                            <TableHead>Dose</TableHead>
+                            <TableHead>Child</TableHead>
                             <TableHead>Date</TableHead>
                             <TableHead>Price</TableHead>
                             <TableHead>Status</TableHead>
@@ -87,8 +87,14 @@ export function AppointmentList({
                     <TableBody>
                         {appointments.map((appointment) => (
                             <TableRow key={appointment.appointmentId}>
-                                <TableCell className="font-medium">{appointment.vaccineName}</TableCell>
-                                <TableCell>{appointment.doseNumber}</TableCell>
+                                <TableCell className="font-medium">
+                                    {appointment.vaccineName}
+                                    <div className="text-xs text-muted-foreground">Dose {appointment.doseNumber}</div>
+                                </TableCell>
+                                <TableCell>
+                                    {appointment.childName}
+                                    <div className="text-xs text-muted-foreground">{appointment.userName}</div>
+                                </TableCell>
                                 <TableCell>{format(new Date(appointment.appointmentDate), "dd/MM/yyyy HH:mm")}</TableCell>
                                 <TableCell>{formatCurrency(appointment.totalPrice)}</TableCell>
                                 <TableCell>{getStatusBadge(appointment.status)}</TableCell>
@@ -122,19 +128,13 @@ export function AppointmentList({
                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                         // Show current page and surrounding pages
                         // Adjusted for 1-based pagination
-                        const pageToShow = pageIndex < 3
-                            ? i + 1
-                            : pageIndex > totalPages - 2
-                                ? totalPages - 4 + i
-                                : pageIndex - 2 + i
+                        const pageToShow =
+                            pageIndex < 3 ? i + 1 : pageIndex > totalPages - 2 ? totalPages - 4 + i : pageIndex - 2 + i
 
                         if (pageToShow >= 1 && pageToShow <= totalPages) {
                             return (
                                 <PaginationItem key={pageToShow}>
-                                    <PaginationLink
-                                        isActive={pageIndex === pageToShow}
-                                        onClick={() => onPageChange(pageToShow)}
-                                    >
+                                    <PaginationLink isActive={pageIndex === pageToShow} onClick={() => onPageChange(pageToShow)}>
                                         {pageToShow}
                                     </PaginationLink>
                                 </PaginationItem>
