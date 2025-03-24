@@ -9,6 +9,7 @@ import ProtectedRoute from "./components/ProtectedRoute"
 import { AuthProvider } from "@/contexts/AuthContexts"
 import Header from "./components/Header"
 import Footer from "./components/Footer"
+import { Loading } from "./components/ui/loading"
 
 // Lazy load components
 const Home = lazy(() => import("./pages/Home"))
@@ -33,9 +34,7 @@ const VaccineRecordDashboard = lazy(() => import("./pages/user/VaccineRecordDash
 
 // Loading fallback component
 const LoadingFallback = () => (
-	<div className="flex items-center justify-center min-h-screen">
-		<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-	</div>
+	<Loading text="Please wait, we are cooking..." />
 )
 
 // Define valid routes
