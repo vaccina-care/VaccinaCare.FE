@@ -1,164 +1,79 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
-import { Bell, Calendar, User2, MapPin, Syringe, CheckCircle2, Info } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { Calendar, CheckCircle2, Info, Loader2 } from "lucide-react"
+import { getUserNotifications, type Notification } from "@/api/notification"
+import { format, parseISO } from "date-fns"
+import { enUS } from "date-fns/locale"
 
-// Types for notifications
-type NotificationType = "appointment" | "update" | "suggestion" | "system"
-
-interface Notification {
-    id: string
-    type: NotificationType
-    title: string
-    content: {
-        childName?: string
-        appointmentDate?: string
-        doctor?: string
-        vaccine?: string
-        location?: string
-        message?: string
+// Helper function to determine notification type based on title
+const getNotificationType = (title: string): string => {
+    if (title.includes("Appointment") || title.includes("appointment")) {
+        return "appointment"
+    } else if (title.includes("Payment") || title.includes("payment")) {
+        return "payment"
+    } else if (title.includes("Child Profile") || title.includes("child")) {
+        return "profile"
+    } else {
+        return "system"
     }
-    timestamp: string
-    isRead: boolean
 }
 
-// Sample notifications data
-const sampleNotifications: Notification[] = [
-    {
-        id: "1",
-        type: "appointment",
-        title: "Xác nhận lịch hẹn tiêm chủng",
-        content: {
-            childName: "Suppa skibidi",
-            appointmentDate: "20/1/2025",
-            doctor: "Nguyễn Văn Ô",
-            vaccine: "Vaccine MMR",
-            location: "Phòng khám số 3, Tầng 2",
-        },
-        timestamp: "2024-01-15T10:30:00Z",
-        isRead: false,
-    },
-    {
-        id: "2",
-        type: "update",
-        title: "Cập nhật thông tin trẻ",
-        content: {
-            childName: "Suppa skibidi",
-            message: "Thông tin sức khỏe của trẻ đã được cập nhật thành công.",
-        },
-        timestamp: "2024-01-14T15:20:00Z",
-        isRead: true,
-    },
-    {
-        id: "3",
-        type: "suggestion",
-        title: "Đề xuất gói vaccine",
-        content: {
-            childName: "Suppa skibidi",
-            message: "Dựa trên độ tuổi và lịch sử tiêm chủng, chúng tôi đề xuất gói vaccine 6 trong 1 cho trẻ.",
-        },
-        timestamp: "2024-01-13T09:15:00Z",
-        isRead: true,
-    },
-    {
-        id: "4",
-        type: "system",
-        title: "Chào mừng đến với VaccinaCare",
-        content: {
-            message: "Cảm ơn bạn đã đăng ký tài khoản. Hãy bắt đầu bằng việc thêm thông tin cho trẻ.",
-        },
-        timestamp: "2024-01-12T08:00:00Z",
-        isRead: true,
-    },
-]
-
-const NotificationIcon = ({ type }: { type: NotificationType }) => {
+// Icon component based on notification type
+const NotificationIcon = ({ type }: { type: string }) => {
     switch (type) {
         case "appointment":
             return <Calendar className="h-5 w-5 text-blue-500" />
-        case "update":
+        case "payment":
             return <CheckCircle2 className="h-5 w-5 text-green-500" />
-        case "suggestion":
-            return <Syringe className="h-5 w-5 text-purple-500" />
+        case "profile":
+            return <CheckCircle2 className="h-5 w-5 text-purple-500" />
         case "system":
-            return <Info className="h-5 w-5 text-gray-500" />
         default:
-            return <Bell className="h-5 w-5 text-gray-500" />
+            return <Info className="h-5 w-5 text-gray-500" />
     }
 }
 
 const NotificationCard = ({ notification }: { notification: Notification }) => {
+    const notificationType = getNotificationType(notification.title)
+
+    // Format date to English locale
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString("vi-VN", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        })
+        try {
+            const date = parseISO(dateString)
+            return format(date, "MMMM d, yyyy, h:mm a", { locale: enUS })
+        } catch (error) {
+            return dateString
+        }
     }
 
     return (
-        <Card
-            className={cn("mb-4 transition-colors hover:bg-gray-50", !notification.isRead && "border-l-4 border-l-blue-500")}
-        >
+        <Card className="mb-4 transition-colors hover:bg-gray-50">
             <CardContent className="p-4">
                 <div className="flex items-start gap-4">
                     <div className="mt-1">
-                        <NotificationIcon type={notification.type} />
+                        <NotificationIcon type={notificationType} />
                     </div>
                     <div className="flex-1 space-y-1">
                         <div className="flex items-center justify-between">
                             <h4 className="font-medium text-sm">{notification.title}</h4>
-                            <Badge variant={notification.isRead ? "secondary" : "default"} className="text-xs">
-                                {notification.isRead ? "Đã đọc" : "Chưa đọc"}
-                            </Badge>
                         </div>
                         <div className="space-y-2">
-                            {notification.content.childName && (
-                                <div className="flex items-center gap-2 text-sm text-gray-600">
-                                    <User2 className="h-4 w-4" />
-                                    <span>Tên trẻ: {notification.content.childName}</span>
-                                </div>
-                            )}
-                            {notification.content.appointmentDate && (
-                                <div className="flex items-center gap-2 text-sm text-gray-600">
-                                    <Calendar className="h-4 w-4" />
-                                    <span>Ngày giờ tiêm: {notification.content.appointmentDate}</span>
-                                </div>
-                            )}
-                            {notification.content.doctor && (
-                                <div className="flex items-center gap-2 text-sm text-gray-600">
-                                    <User2 className="h-4 w-4" />
-                                    <span>Bác sĩ phụ trách: {notification.content.doctor}</span>
-                                </div>
-                            )}
-                            {notification.content.vaccine && (
-                                <div className="flex items-center gap-2 text-sm text-gray-600">
-                                    <Syringe className="h-4 w-4" />
-                                    <span>Vaccine: {notification.content.vaccine}</span>
-                                </div>
-                            )}
-                            {notification.content.location && (
-                                <div className="flex items-center gap-2 text-sm text-gray-600">
-                                    <MapPin className="h-4 w-4" />
-                                    <span>Địa điểm: {notification.content.location}</span>
-                                </div>
-                            )}
-                            {notification.content.message && <p className="text-sm text-gray-600">{notification.content.message}</p>}
-                            {notification.type === "appointment" && (
+                            <p className="text-sm text-gray-600">{notification.content}</p>
+
+                            {notification.appointmentId && notificationType === "appointment" && (
                                 <p className="text-xs text-gray-500 mt-2 italic">
-                                    Vui lòng đến sớm 15 phút trước giờ hẹn để hoàn tất các thủ tục.
+                                    Please arrive 15 minutes before your appointment to complete the procedures.
                                     <br />
-                                    Nếu có thay đổi, bạn có thể cập nhật hoặc hủy lịch hẹn trước thời gian giờ hẹn.
+                                    If you need to make changes, you can update or cancel your appointment before the scheduled time.
                                 </p>
                             )}
                         </div>
-                        <p className="text-xs text-gray-400 mt-2">{formatDate(notification.timestamp)}</p>
+                        <p className="text-xs text-gray-400 mt-2">{formatDate(notification.createdAt)}</p>
                     </div>
                 </div>
             </CardContent>
@@ -167,30 +82,63 @@ const NotificationCard = ({ notification }: { notification: Notification }) => {
 }
 
 export default function NotificationsSection() {
-    const [notifications] = useState<Notification[]>(sampleNotifications)
+    const [notifications, setNotifications] = useState<Notification[]>([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
+
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            try {
+                setIsLoading(true)
+                const response = await getUserNotifications()
+                if (response.isSuccess) {
+                    setNotifications(response.data)
+                } else {
+                    setError(response.message || "Failed to fetch notifications")
+                }
+            } catch (error) {
+                console.error("Error fetching notifications:", error)
+                setError("An error occurred while fetching notifications")
+            } finally {
+                setIsLoading(false)
+            }
+        }
+
+        fetchNotifications()
+    }, [])
 
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                    <h2 className="text-2xl font-bold text-[#1e1b4b]">Thông báo</h2>
-                    <p className="text-sm text-gray-500">Xem tất cả thông báo và cập nhật của bạn</p>
+                    <h2 className="text-2xl font-bold text-[#1e1b4b]">Notifications</h2>
+                    <p className="text-sm text-gray-500">View all your notifications and updates</p>
                 </div>
                 <Badge variant="outline" className="rounded-full">
-                    {notifications.filter((n) => !n.isRead).length} chưa đọc
+                    {notifications.length} notifications
                 </Badge>
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-lg font-medium">Danh sách thông báo</CardTitle>
+                    <CardTitle className="text-lg font-medium">Notification List</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <ScrollArea className="h-[600px] pr-4">
-                        {notifications.map((notification) => (
-                            <NotificationCard key={notification.id} notification={notification} />
-                        ))}
-                    </ScrollArea>
+                    {isLoading ? (
+                        <div className="flex justify-center items-center h-[400px]">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        </div>
+                    ) : error ? (
+                        <div className="text-center py-8 text-red-500">{error}</div>
+                    ) : notifications.length === 0 ? (
+                        <div className="text-center py-8 text-muted-foreground">No notifications</div>
+                    ) : (
+                        <ScrollArea className="h-[600px] pr-4">
+                            {notifications.map((notification) => (
+                                <NotificationCard key={notification.id} notification={notification} />
+                            ))}
+                        </ScrollArea>
+                    )}
                 </CardContent>
             </Card>
         </div>
