@@ -269,7 +269,7 @@ export function RatingManagement() {
                       </Avatar>
                       <div>
                         <div className="font-medium">Anonymous</div>
-                        <div className="text-sm text-muted-foreground">Appointment: {rating.appointmentId}</div>
+                        {/* <div className="text-sm text-muted-foreground">Appointment: {rating.appointmentId}</div> */}
                       </div>
                     </div>
                     <div className="flex">{renderStars(rating.rating)}</div>
@@ -344,7 +344,7 @@ export function RatingManagement() {
                 <div className="space-y-1">
                   <h3 className="text-xl font-semibold">Anonymous</h3>
                   <div className="flex">{renderStars(selectedRating.rating)}</div>
-                  <div className="text-sm text-muted-foreground">Appointment ID: {selectedRating.appointmentId}</div>
+                  {/* <div className="text-sm text-muted-foreground">Appointment ID: {selectedRating.appointmentId}</div> */}
                 </div>
               </div>
 
@@ -358,7 +358,7 @@ export function RatingManagement() {
                   <label className="text-muted-foreground">Date Submitted</label>
                   <div className="flex items-center gap-2">
                     <CalendarDays className="h-4 w-4 text-muted-foreground" />
-                    <span>{formatDate(new Date().toISOString())}</span> {/* Mặc định ngày hiện tại */}
+                    <span>{formatDate(new Date().toISOString())}</span> 
                   </div>
                 </div>
               </div>
