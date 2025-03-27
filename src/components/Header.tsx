@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
-import { Link, useNavigate } from "react-router-dom"
+import { useState, useEffect, useCallback } from "react"
+import { Link, useNavigate, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import {
 	Phone,
@@ -14,21 +16,80 @@ import {
 	Mail,
 	UserCircle,
 	Calendar,
+	Loader2,
+	CheckCircle2,
 } from "lucide-react"
 import { useAuthContext } from "@/contexts/AuthContexts"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { getUserNotifications, type Notification } from "@/api/notification"
+import { format, parseISO } from "date-fns"
 
 import avtImage from "@/assets/images/aba.png"
 
 const Header = () => {
 	const { isAuthenticated, logout, user } = useAuthContext()
 	const navigate = useNavigate()
+	const location = useLocation()
 
-	// Replace after noti API finished
-	const unreadNotifications = 3
+	const [notifications, setNotifications] = useState<Notification[]>([])
+	const [isLoadingNotifications, setIsLoadingNotifications] = useState(false)
+	const [notificationError, setNotificationError] = useState<string | null>(null)
+
+	// Function to fetch notifications
+	const fetchNotifications = useCallback(async () => {
+		if (!isAuthenticated) return
+
+		try {
+			setIsLoadingNotifications(true)
+			const response = await getUserNotifications()
+			if (response.isSuccess) {
+				setNotifications(response.data)
+			} else {
+				setNotificationError(response.message || "Failed to fetch notifications")
+			}
+		} catch (error) {
+			console.error("Error fetching notifications:", error)
+			setNotificationError("An error occurred while fetching notifications")
+		} finally {
+			setIsLoadingNotifications(false)
+		}
+	}, [isAuthenticated])
+
+	// Fetch notifications on initial load and when authentication state changes
+	useEffect(() => {
+		fetchNotifications()
+	}, [fetchNotifications])
+
+	// Refresh notifications when specific paths are visited
+	useEffect(() => {
+		// Route that will trigger a notification refresh
+		const refreshPaths = [
+			"/appointments", 
+			"/payment-success",
+			"/child-dashboard",
+		]
+
+		if (refreshPaths.some((path) => location.pathname.includes(path))) {
+			fetchNotifications()
+		}
+
+		// Add event listener for child added event
+		const handleChildAdded = () => {
+			fetchNotifications()
+		}
+
+		// Register event listener
+		window.addEventListener("child-added", handleChildAdded)
+
+		// Clean up event listener
+		return () => {
+			window.removeEventListener("child-added", handleChildAdded)
+		}
+	}, [location.pathname, fetchNotifications])
 
 	const handleLogout = () => {
 		console.log("Header: Logout button clicked")
@@ -36,6 +97,31 @@ const Header = () => {
 
 		// Force navigation to home page after logout
 		navigate("/", { replace: true })
+	}
+
+	// Format notification date
+	const formatNotificationDate = (dateString: string) => {
+		try {
+			const date = parseISO(dateString)
+			const now = new Date()
+
+			// If it's today, just show the time
+			if (date.toDateString() === now.toDateString()) {
+				return format(date, "h:mm a")
+			}
+
+			// If it's within the last 7 days, show the day name
+			const sevenDaysAgo = new Date(now)
+			sevenDaysAgo.setDate(now.getDate() - 7)
+			if (date > sevenDaysAgo) {
+				return format(date, "EEEE, h:mm a")
+			}
+
+			// Otherwise show the full date
+			return format(date, "MMM d, yyyy")
+		} catch (error) {
+			return dateString
+		}
 	}
 
 	return (
@@ -180,21 +266,105 @@ const Header = () => {
 									<Link to="/appointments">Booking Appointment</Link>
 								</Button>
 
-								{/* Notification Bell */}
-								<Link to="/notifications" className="relative">
-									<Button
-										variant="ghost"
-										size="icon"
-										className="text-white bg-blue-600/20 hover:bg-blue-500/30 transition-colors rounded-full w-10 h-10"
-									>
-										<Bell className="h-5 w-5" />
-										{unreadNotifications > 0 && (
-											<Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center rounded-full bg-red-500 text-white text-xs p-0 border-2 border-[#1e1b4b]">
-												{unreadNotifications}
-											</Badge>
+								{/* Notification Bell with Popover */}
+								<Popover>
+									<PopoverTrigger asChild>
+										<Button
+											variant="ghost"
+											size="icon"
+											className="text-white bg-blue-600/20 hover:bg-blue-500/30 transition-colors rounded-full w-10 h-10 relative"
+										>
+											<Bell className="h-5 w-5" />
+											{notifications.length > 0 && (
+												<Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center rounded-full bg-red-500 text-white text-xs p-0 border-2 border-[#1e1b4b]">
+													{notifications.length > 99 ? "99+" : notifications.length}
+												</Badge>
+											)}
+										</Button>
+									</PopoverTrigger>
+									<PopoverContent className="w-80 p-0 max-h-[70vh] flex flex-col">
+										<div className="bg-[#1e1b4b] text-white p-3 rounded-t-md flex justify-between items-center">
+											<div>
+												<h3 className="font-semibold text-lg">Notifications</h3>
+												<p className="text-sm text-blue-200">{notifications.length} notifications</p>
+											</div>
+											<Link to="/notifications">
+												<Button variant="ghost" size="sm" className="text-white hover:bg-blue-700/50">
+													View All
+												</Button>
+											</Link>
+										</div>
+
+										{isLoadingNotifications ? (
+											<div className="flex justify-center items-center p-6">
+												<Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+											</div>
+										) : notificationError ? (
+											<div className="p-4 text-center text-red-500">
+												<p>{notificationError}</p>
+											</div>
+										) : notifications.length === 0 ? (
+											<div className="p-6 text-center text-gray-500">
+												<p>No notifications</p>
+											</div>
+										) : (
+											<ScrollArea className="flex-1 max-h-[400px]">
+												<div className="p-2">
+													{notifications.slice(0, 5).map((notification) => (
+														<div
+															key={notification.id}
+															className="p-3 hover:bg-gray-50 rounded-md transition-colors cursor-pointer border-b border-gray-100 last:border-0"
+															onClick={() => {
+																// If notification has appointmentId, navigate to appointment details
+																if (notification.appointmentId) {
+																	navigate(`/appointments/${notification.appointmentId}`)
+																} else {
+																	// Otherwise navigate to notifications page
+																	navigate("/notifications")
+																}
+															}}
+														>
+															<div className="flex gap-3">
+																<div className="mt-1 flex-shrink-0">
+																	{notification.title.includes("Appointment") ? (
+																		<Calendar className="h-5 w-5 text-blue-500" />
+																	) : notification.title.includes("Payment") ? (
+																		<CheckCircle2 className="h-5 w-5 text-green-500" />
+																	) : notification.title.includes("Child") ? (
+																		<User className="h-5 w-5 text-purple-500" />
+																	) : (
+																		<Bell className="h-5 w-5 text-gray-500" />
+																	)}
+																</div>
+																<div className="flex-1">
+																	<h4 className="text-sm font-medium line-clamp-1">{notification.title}</h4>
+																	<p className="text-xs text-gray-600 line-clamp-2 mt-1">{notification.content}</p>
+																	<p className="text-xs text-gray-400 mt-1">
+																		{formatNotificationDate(notification.createdAt)}
+																	</p>
+																</div>
+															</div>
+														</div>
+													))}
+
+													{notifications.length > 5 && (
+														<div className="p-2 text-center">
+															<Link to="/notifications">
+																<Button
+																	variant="ghost"
+																	size="sm"
+																	className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+																>
+																	View {notifications.length - 5} more notifications
+																</Button>
+															</Link>
+														</div>
+													)}
+												</div>
+											</ScrollArea>
 										)}
-									</Button>
-								</Link>
+									</PopoverContent>
+								</Popover>
 
 								{/* User Avatar */}
 								<Popover>
