@@ -116,6 +116,9 @@ importers:
       lucide-react:
         specifier: ^0.470.0
         version: 0.470.0(react@18.3.1)
+      pnpm:
+        specifier: ^10.6.5
+        version: 10.7.0
       postcss:
         specifier: ^8.4.49
         version: 8.5.3
@@ -3092,6 +3095,11 @@ packages:
   pkg-dir@4.2.0:
     resolution: {integrity: sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ==}
     engines: {node: '>=8'}
+
+  pnpm@10.7.0:
+    resolution: {integrity: sha512-a4Za1LYqHZhCth1nSjk5A7hx2SRJVPZSuIQsK1U8chdrJ49kxGPlLUD/+KujhcI1yMns9cx95P14uLttSWM6tg==}
+    engines: {node: '>=18.12'}
+    hasBin: true
 
   postcss-import@15.1.0:
     resolution: {integrity: sha512-hpr+J05B2FVYUAXHeK1YyI267J/dDDhMU6B6civm8hSY1jYJnBXxzKDKDswzJmtLHryrjhnDjqqp/49t8FALew==}
@@ -6972,6 +6980,8 @@ snapshots:
   pkg-dir@4.2.0:
     dependencies:
       find-up: 4.1.0
+
+  pnpm@10.7.0: {}
 
   postcss-import@15.1.0(postcss@8.5.3):
     dependencies:
