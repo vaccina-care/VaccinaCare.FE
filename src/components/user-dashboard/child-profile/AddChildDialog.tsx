@@ -78,6 +78,10 @@ export function AddChildDialog({ onSubmit }: AddChildDialogProps) {
                 dateOfBirth: dateOfBirth?.toISOString().split("T")[0] || new Date().toISOString().split("T")[0],
             }
             await onSubmit(submissionData)
+
+            // Dispatch an event to notify that a child was added
+            window.dispatchEvent(new Event("child-added"));
+
             setOpen(false)
             resetForm()
         } catch (error) {
