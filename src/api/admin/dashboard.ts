@@ -93,52 +93,42 @@ export const getAppointmentsByStatus = async (): Promise<ApiResponse<Appointment
     try {
         let allAppointments: any[] = [];
         let pageNumber = 1;
-        const pageSize = 50; // API giới hạn 50 bản ghi mỗi trang
+        const pageSize = 50; 
         let totalCount = 0;
 
-        // Lấy dữ liệu từ trang đầu tiên để biết totalCount
         const firstResponse = await axiosInstance.get("/dashboard/appointments/all", {
             params: { PageSize: pageSize, PageNumber: pageNumber }
         });
         totalCount = firstResponse.data.data.totalCount;
         allAppointments = firstResponse.data.data.appointments;
 
-        // Log số lượng cuộc hẹn từ trang đầu tiên
         console.log(`Page ${pageNumber} - Fetched ${allAppointments.length} appointments`);
 
-        // Lặp qua các trang còn lại cho đến khi lấy đủ totalCount
         while (allAppointments.length < totalCount) {
             pageNumber++;
 
-            // Tính số lượng bản ghi còn lại cần lấy
             const remainingCount = totalCount - allAppointments.length;
             if (remainingCount <= 0) {
-                break; // Dừng lại nếu đã lấy đủ
+                break;
             }
 
-            // Gọi API với số lượng bản ghi còn lại hoặc pageSize
             const response = await axiosInstance.get("/dashboard/appointments/all", {
                 params: { PageSize: Math.min(pageSize, remainingCount), PageNumber: pageNumber }
             });
             const appointments = response.data.data.appointments;
 
-            // Log số lượng cuộc hẹn từ trang hiện tại
             console.log(`Page ${pageNumber} - Fetched ${appointments.length} appointments`);
 
-            // Nếu không còn dữ liệu để lấy, thoát vòng lặp
             if (appointments.length === 0) {
                 break;
             }
 
-            // Chỉ lấy số lượng bản ghi cần thiết để không vượt quá totalCount
             const appointmentsToAdd = appointments.slice(0, remainingCount);
             allAppointments = [...allAppointments, ...appointmentsToAdd];
         }
 
-        // Log tổng số lượng cuộc hẹn đã lấy được
         console.log("Total Appointments Fetched:", allAppointments.length);
 
-        // Tính toán phân bố trạng thái
         const statusCount = allAppointments.reduce((acc: any, appointment: any) => {
             const status = appointment.status;
             acc[status] = (acc[status] || 0) + 1;
@@ -147,10 +137,10 @@ export const getAppointmentsByStatus = async (): Promise<ApiResponse<Appointment
         console.log("Status Count:", statusCount);
 
         const colors = {
-            Pending: "#f59e0b", // Amber
-            Confirmed: "#3b82f6", // Blue
-            Completed: "#10b981", // Green
-            Cancelled: "#f43f5e" // Red
+            Pending: "#f59e0b", 
+            Confirmed: "#3b82f6", 
+            Completed: "#10b981", 
+            Cancelled: "#f43f5e" 
         };
         const data = Object.entries(statusCount).map(([name, value]) => ({
             name,

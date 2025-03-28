@@ -10,6 +10,8 @@ import { ReactionsChart } from "./charts/reaction-chart"
 import { useEffect, useState } from "react"
 import { getAppointmentsByStatus, getTotalAppointments, getTotalChildren, getTotalPaymentAmount, getTotalVaccines, getUserRolesDistribution } from "@/api/admin/dashboard"
 import { AppointmentsByStatusChart, AppointmentStatusDistribution } from "./charts/appointments-by-status-chart"
+import { VaccinationAgeChart } from "./charts/age-group-chart"
+import { VaccineMostBookedChart } from "./charts/vaccine-most-booked-chart"
 
 // Sample staff performance data
 const staffPerformance = [
@@ -152,6 +154,8 @@ export function AdminDashboard() {
       <div className="grid gap-6 mb-8 md:grid-cols-2">
         <AppointmentsByStatusChart data={appointmentsByStatusData} chartKey={chartKey}/>
         <UserRoleChart data={userRolesData} chartKey={chartKey}/>
+        <VaccinationAgeChart/>
+        <VaccineMostBookedChart/>
       </div>
 
       {/* Trends Section */}
