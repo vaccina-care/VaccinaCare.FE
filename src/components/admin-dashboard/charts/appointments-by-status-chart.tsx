@@ -3,22 +3,22 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts"
 
-export interface UserRoleDistribution {
+export interface AppointmentStatusDistribution {
   name: string
   value: number
   color: string
 }
 
-interface UserRoleChartProps {
-  data: UserRoleDistribution[]
+interface AppointmentsByStatusChartProps {
+  data: AppointmentStatusDistribution[]
 }
 
-export function UserRoleChart({ data }: UserRoleChartProps) {
+export function AppointmentsByStatusChart({ data }: AppointmentsByStatusChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Users by Role</CardTitle>
-        <CardDescription>Distribution of users by their role in the system</CardDescription>
+        <CardTitle>Appointments by Status</CardTitle>
+        <CardDescription>Distribution of appointments by their status</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">
@@ -40,7 +40,7 @@ export function UserRoleChart({ data }: UserRoleChartProps) {
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value, name) => [`${value} Users`, name]}
+                formatter={(value, name) => [`${value} Appointments`, name]}
                 contentStyle={{
                   backgroundColor: "var(--background)",
                   borderColor: "var(--border)",

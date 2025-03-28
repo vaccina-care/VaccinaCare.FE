@@ -3,13 +3,14 @@ import { Users, CalendarDays, Syringe, AlertTriangle, DollarSign } from "lucide-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Progress } from "@/components/ui/progress"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { UserRoleChart } from "./charts/user-role-chart"
+import { UserRoleChart, UserRoleDistribution } from "./charts/user-role-chart"
 import { AppointmentChart } from "./charts/appointment-chart"
 import { RevenueChart } from "./charts/revenue-chart"
 import { VaccinationAgeChart } from "./charts/age-group-chart"
 import { ReactionsChart } from "./charts/reaction-chart"
 import { useEffect, useState } from "react"
-import { getTotalAppointments, getTotalChildren, getTotalPaymentAmount, getTotalVaccines } from "@/api/admin/dashboard"
+import { getAppointmentsByStatus, getTotalAppointments, getTotalChildren, getTotalPaymentAmount, getTotalVaccines, getUserRolesDistribution } from "@/api/admin/dashboard"
+import { AppointmentsByStatusChart, AppointmentStatusDistribution } from "./charts/appointments-by-status-chart"
 
 // Sample staff performance data
 const staffPerformance = [
@@ -47,6 +48,8 @@ export function AdminDashboard() {
   const [totalVaccines, setTotalVaccines] = useState<number | null>(null)
   const [totalAppointments, setTotalAppointments] = useState<number | null>(null)
   const [totalPaymentAmount, setTotalPaymentAmount] = useState<number | null>(null)
+  const [userRolesData, setUserRolesData] = useState<UserRoleDistribution[]>([])
+  const [appointmentsByStatusData, setAppointmentsByStatusData] = useState<AppointmentStatusDistribution[]>([])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -69,6 +72,15 @@ export function AdminDashboard() {
         const paymentResponse = await getTotalPaymentAmount()
         if (paymentResponse.isSuccess) {
           setTotalPaymentAmount(paymentResponse.data)
+        }
+        const userRolesResponse = await getUserRolesDistribution()
+        if (userRolesResponse.isSuccess) {
+          setUserRolesData(userRolesResponse.data)
+        }
+
+        const appointmentsByStatusResponse = await getAppointmentsByStatus()
+        if (appointmentsByStatusResponse.isSuccess) {
+          setAppointmentsByStatusData(appointmentsByStatusResponse.data)
         }
       } catch (error) {
         console.error("Error fetching dashboard data:", error)
@@ -136,8 +148,8 @@ export function AdminDashboard() {
 
       {/* Coverage and Demographics Section */}
       <div className="grid gap-6 mb-8 md:grid-cols-2">
-        <VaccinationAgeChart />
-        <UserRoleChart />
+        <AppointmentsByStatusChart data={appointmentsByStatusData} />
+        <UserRoleChart data={userRolesData} />
       </div>
 
       {/* Trends Section */}
