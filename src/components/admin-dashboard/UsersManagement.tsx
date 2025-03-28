@@ -64,6 +64,7 @@ export function UsersManagement() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogMode, setDialogMode] = useState<DialogMode>("view")
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [chartKey, setChartKey] = useState<string>(Date.now().toString())
 
   const [chartData, setChartData] = useState([
     { name: "Admin", value: 0, color: "#ef4444" },
@@ -124,6 +125,7 @@ export function UsersManagement() {
         ])
         setUsers(allUsers)
         setTotalCount(allUsers.length)
+        setChartKey(Date.now().toString())
 
         //Fetch user list
         console.log("Fetched data:", response.data)
@@ -360,7 +362,7 @@ export function UsersManagement() {
             <CardTitle>User Distribution</CardTitle>
           </CardHeader>
           <div className="h-[200px]">
-            <UserRoleChartImp data={chartData} />
+            <UserRoleChartImp data={chartData} chartKey={chartKey}/>
           </div>
         </Card>
       </div>

@@ -11,9 +11,10 @@ export interface AppointmentStatusDistribution {
 
 interface AppointmentsByStatusChartProps {
   data: AppointmentStatusDistribution[]
+  chartKey: string;
 }
 
-export function AppointmentsByStatusChart({ data }: AppointmentsByStatusChartProps) {
+export function AppointmentsByStatusChart({ data, chartKey }: AppointmentsByStatusChartProps) {
   return (
     <Card>
       <CardHeader>
@@ -22,7 +23,7 @@ export function AppointmentsByStatusChart({ data }: AppointmentsByStatusChartPro
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" key={chartKey}>
             <PieChart>
               <Pie
                 data={data}

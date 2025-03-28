@@ -11,6 +11,7 @@ interface ChartData {
 
 interface UserRoleChartProps {
   data: ChartData[]
+  chartKey: string;
 }
 
 const renderActiveShape = (props: any) => {
@@ -54,7 +55,7 @@ const renderActiveShape = (props: any) => {
   )
 }
 
-export function UserRoleChartImp({ data }: UserRoleChartProps) {
+export function UserRoleChartImp({ data, chartKey }: UserRoleChartProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
   const [mounted, setMounted] = useState(false)
 
@@ -75,7 +76,7 @@ export function UserRoleChartImp({ data }: UserRoleChartProps) {
   const onLegendLeave = () => setActiveIndex(null)
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height="100%" key={chartKey}>
       <PieChart>
         <Pie
           activeIndex={activeIndex ?? undefined}

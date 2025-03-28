@@ -6,7 +6,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { UserRoleChart, UserRoleDistribution } from "./charts/user-role-chart"
 import { AppointmentChart } from "./charts/appointment-chart"
 import { RevenueChart } from "./charts/revenue-chart"
-import { VaccinationAgeChart } from "./charts/age-group-chart"
 import { ReactionsChart } from "./charts/reaction-chart"
 import { useEffect, useState } from "react"
 import { getAppointmentsByStatus, getTotalAppointments, getTotalChildren, getTotalPaymentAmount, getTotalVaccines, getUserRolesDistribution } from "@/api/admin/dashboard"
@@ -50,6 +49,7 @@ export function AdminDashboard() {
   const [totalPaymentAmount, setTotalPaymentAmount] = useState<number | null>(null)
   const [userRolesData, setUserRolesData] = useState<UserRoleDistribution[]>([])
   const [appointmentsByStatusData, setAppointmentsByStatusData] = useState<AppointmentStatusDistribution[]>([])
+  const [chartKey, setChartKey] = useState<string>(Date.now().toString())
 
   useEffect(() => {
     const fetchData = async () => {
@@ -76,11 +76,13 @@ export function AdminDashboard() {
         const userRolesResponse = await getUserRolesDistribution()
         if (userRolesResponse.isSuccess) {
           setUserRolesData(userRolesResponse.data)
+          setChartKey(Date.now().toString())
         }
 
         const appointmentsByStatusResponse = await getAppointmentsByStatus()
         if (appointmentsByStatusResponse.isSuccess) {
           setAppointmentsByStatusData(appointmentsByStatusResponse.data)
+          setChartKey(Date.now().toString())
         }
       } catch (error) {
         console.error("Error fetching dashboard data:", error)
@@ -148,8 +150,8 @@ export function AdminDashboard() {
 
       {/* Coverage and Demographics Section */}
       <div className="grid gap-6 mb-8 md:grid-cols-2">
-        <AppointmentsByStatusChart data={appointmentsByStatusData} />
-        <UserRoleChart data={userRolesData} />
+        <AppointmentsByStatusChart data={appointmentsByStatusData} chartKey={chartKey}/>
+        <UserRoleChart data={userRolesData} chartKey={chartKey}/>
       </div>
 
       {/* Trends Section */}

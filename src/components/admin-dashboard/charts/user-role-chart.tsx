@@ -11,9 +11,10 @@ export interface UserRoleDistribution {
 
 interface UserRoleChartProps {
   data: UserRoleDistribution[]
+  chartKey: string;
 }
 
-export function UserRoleChart({ data }: UserRoleChartProps) {
+export function UserRoleChart({ data, chartKey }: UserRoleChartProps) {
   return (
     <Card>
       <CardHeader>
@@ -22,7 +23,7 @@ export function UserRoleChart({ data }: UserRoleChartProps) {
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" key={chartKey}>
             <PieChart>
               <Pie
                 data={data}
