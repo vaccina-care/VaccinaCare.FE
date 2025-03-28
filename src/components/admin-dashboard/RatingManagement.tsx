@@ -3,7 +3,6 @@
 import { useState, useCallback, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import {
   Search,
   Eye,
@@ -162,7 +161,7 @@ export function RatingManagement() {
             </div>
             <p className="text-sm text-green-600 dark:text-green-300 flex items-center mt-1">
               <ArrowUpRight className="h-3 w-3 mr-1" />
-              <span>Total ({recentRatings.length} ratings)</span> {/* Sửa vì không có createdAt */}
+              <span>Total ({recentRatings.length} ratings)</span>
             </p>
           </CardContent>
         </Card>
@@ -269,7 +268,6 @@ export function RatingManagement() {
                       </Avatar>
                       <div>
                         <div className="font-medium">Anonymous</div>
-                        {/* <div className="text-sm text-muted-foreground">Appointment: {rating.appointmentId}</div> */}
                       </div>
                     </div>
                     <div className="flex">{renderStars(rating.rating)}</div>
@@ -280,7 +278,7 @@ export function RatingManagement() {
                   <div className="flex justify-between items-center mt-4">
                     <div className="text-xs text-muted-foreground flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      {formatDate(new Date().toISOString())} {/* Mặc định ngày hiện tại vì không có createdAt */}
+                      {formatDate(new Date().toISOString())}
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => handleViewRating(rating)} className="h-8 w-8">
                       <Eye className="h-4 w-4" />
@@ -344,7 +342,6 @@ export function RatingManagement() {
                 <div className="space-y-1">
                   <h3 className="text-xl font-semibold">Anonymous</h3>
                   <div className="flex">{renderStars(selectedRating.rating)}</div>
-                  {/* <div className="text-sm text-muted-foreground">Appointment ID: {selectedRating.appointmentId}</div> */}
                 </div>
               </div>
 

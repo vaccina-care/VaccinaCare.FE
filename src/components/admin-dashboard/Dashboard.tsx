@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, CalendarDays, Syringe, AlertTriangle } from "lucide-react"
+import { Users, CalendarDays, Syringe, AlertTriangle, DollarSign } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Progress } from "@/components/ui/progress"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -8,6 +8,8 @@ import { AppointmentChart } from "./charts/appointment-chart"
 import { RevenueChart } from "./charts/revenue-chart"
 import { VaccinationAgeChart } from "./charts/age-group-chart"
 import { ReactionsChart } from "./charts/reaction-chart"
+import { useEffect, useState } from "react"
+import { getTotalAppointments, getTotalChildren, getTotalPaymentAmount, getTotalVaccines } from "@/api/admin/dashboard"
 
 // Sample staff performance data
 const staffPerformance = [
@@ -41,6 +43,41 @@ const staffPerformance = [
 ]
 
 export function AdminDashboard() {
+  const [totalChildren, setTotalChildren] = useState<number | null>(null)
+  const [totalVaccines, setTotalVaccines] = useState<number | null>(null)
+  const [totalAppointments, setTotalAppointments] = useState<number | null>(null)
+  const [totalPaymentAmount, setTotalPaymentAmount] = useState<number | null>(null)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const childrenResponse = await getTotalChildren()
+        if (childrenResponse.isSuccess) {
+          setTotalChildren(childrenResponse.data)
+        }
+
+        const vaccinesResponse = await getTotalVaccines()
+        if (vaccinesResponse.isSuccess) {
+          setTotalVaccines(vaccinesResponse.data)
+        }
+
+        const appointmentsResponse = await getTotalAppointments()
+        if (appointmentsResponse.isSuccess) {
+          setTotalAppointments(appointmentsResponse.data)
+        }
+
+        const paymentResponse = await getTotalPaymentAmount()
+        if (paymentResponse.isSuccess) {
+          setTotalPaymentAmount(paymentResponse.data)
+        }
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error)
+      }
+    }
+
+    fetchData()
+  }, [])
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-semibold">Dashboard</h1>
@@ -49,42 +86,50 @@ export function AdminDashboard() {
       <div className="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Patients</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Children</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12,345</div>
-            <p className="text-xs text-muted-foreground">+10% from last month</p>
+            <div className="text-2xl font-bold">
+              {totalChildren !== null ? totalChildren.toLocaleString() : "Loading..."}
+            </div>
+            <p className="text-xs text-muted-foreground">All children profile from system</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Vaccines Administered</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Vaccines</CardTitle>
             <Syringe className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8,721</div>
-            <p className="text-xs text-muted-foreground">+15.3% from last month</p>
+            <div className="text-2xl font-bold">
+              {totalVaccines !== null ? totalVaccines.toLocaleString() : "Loading..."}
+            </div>
+            <p className="text-xs text-muted-foreground">All vaccine available</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Upcoming Appointments</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Appointments</CardTitle>
             <CalendarDays className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">342</div>
-            <p className="text-xs text-muted-foreground">Next 7 days</p>
+            <div className="text-2xl font-bold">
+              {totalAppointments !== null ? totalAppointments.toLocaleString() : "Loading..."}
+            </div>
+            <p className="text-xs text-muted-foreground">All appointments</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Adverse Reactions</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Total Payment Amount</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">This month (0.14% rate)</p>
+            <div className="text-2xl font-bold">
+              {totalPaymentAmount !== null ? `${totalPaymentAmount.toLocaleString()}` : "Loading..."}
+            </div>
+            <p className="text-xs text-muted-foreground">All time</p>
           </CardContent>
         </Card>
       </div>
@@ -104,56 +149,56 @@ export function AdminDashboard() {
 
       {/* Staff Section */}
       <Card className="mt-8">
-      <CardHeader>
-        <CardTitle>Staff Performance</CardTitle>
-        <CardDescription>Weekly performance metrics for top staff members</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
-          {staffPerformance.map((staff) => (
-            <div key={staff.name} className="space-y-2">
-              <div className="flex items-center gap-4">
-                <Avatar>
-                  <AvatarImage src={staff.avatar} alt={staff.name} />
-                  <AvatarFallback>
-                    {staff.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h4 className="font-medium">{staff.name}</h4>
-                  <p className="text-sm text-muted-foreground">{staff.role}</p>
+        <CardHeader>
+          <CardTitle>Staff Performance</CardTitle>
+          <CardDescription>Weekly performance metrics for top staff members</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            {staffPerformance.map((staff) => (
+              <div key={staff.name} className="space-y-2">
+                <div className="flex items-center gap-4">
+                  <Avatar>
+                    <AvatarImage src={staff.avatar} alt={staff.name} />
+                    <AvatarFallback>
+                      {staff.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h4 className="font-medium">{staff.name}</h4>
+                    <p className="text-sm text-muted-foreground">{staff.role}</p>
+                  </div>
+                  <div className="ml-auto text-right">
+                    <p className="text-sm font-medium">
+                      {staff.appointmentsCompleted}/{staff.appointmentsTarget} Appointments
+                    </p>
+                    <p className="text-xs text-muted-foreground">{staff.vaccinesAdministered} Vaccines Administered</p>
+                  </div>
                 </div>
-                <div className="ml-auto text-right">
-                  <p className="text-sm font-medium">
-                    {staff.appointmentsCompleted}/{staff.appointmentsTarget} Appointments
-                  </p>
-                  <p className="text-xs text-muted-foreground">{staff.vaccinesAdministered} Vaccines Administered</p>
-                </div>
-              </div>
 
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span>Appointments Target</span>
-                  <span>{Math.round((staff.appointmentsCompleted / staff.appointmentsTarget) * 100)}%</span>
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span>Appointments Target</span>
+                    <span>{Math.round((staff.appointmentsCompleted / staff.appointmentsTarget) * 100)}%</span>
+                  </div>
+                  <Progress value={(staff.appointmentsCompleted / staff.appointmentsTarget) * 100} className="h-1" />
                 </div>
-                <Progress value={(staff.appointmentsCompleted / staff.appointmentsTarget) * 100} className="h-1" />
-              </div>
 
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span>Patient Satisfaction</span>
-                  <span>{staff.patientSatisfaction}%</span>
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span>Patient Satisfaction</span>
+                    <span>{staff.patientSatisfaction}%</span>
+                  </div>
+                  <Progress value={staff.patientSatisfaction} className="h-1" indicatorClassName="bg-green-500" />
                 </div>
-                <Progress value={staff.patientSatisfaction} className="h-1" indicatorClassName="bg-green-500" />
               </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Recent Vaccinations Table */}
       <Card className="mt-8">
