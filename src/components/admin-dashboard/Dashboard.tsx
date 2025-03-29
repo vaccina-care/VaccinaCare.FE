@@ -4,11 +4,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Progress } from "@/components/ui/progress"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { UserRoleChart, UserRoleDistribution } from "./charts/user-role-chart"
-import { AppointmentChart } from "./charts/appointment-chart"
+import { AppointmentByMonth, AppointmentChart } from "./charts/appointment-chart"
 import { RevenueChart } from "./charts/revenue-chart"
 import { ReactionsChart } from "./charts/reaction-chart"
 import { useEffect, useState } from "react"
-import { getAppointmentsByStatus, getTotalAppointments, getTotalChildren, getTotalPaymentAmount, getTotalVaccines, getUserRolesDistribution } from "@/api/admin/dashboard"
+import { getAppointmentsByMonthAndStatus, getAppointmentsByStatus, getTotalAppointments, getTotalChildren, getTotalPaymentAmount, getTotalVaccines, getUserRolesDistribution } from "@/api/admin/dashboard"
 import { AppointmentsByStatusChart, AppointmentStatusDistribution } from "./charts/appointments-by-status-chart"
 import { VaccinationAgeChart } from "./charts/age-group-chart"
 import { VaccineMostBookedChart } from "./charts/vaccine-most-booked-chart"
@@ -51,6 +51,7 @@ export function AdminDashboard() {
   const [totalPaymentAmount, setTotalPaymentAmount] = useState<number | null>(null)
   const [userRolesData, setUserRolesData] = useState<UserRoleDistribution[]>([])
   const [appointmentsByStatusData, setAppointmentsByStatusData] = useState<AppointmentStatusDistribution[]>([])
+  const [appointmentsByMonthData, setAppointmentsByMonthData] = useState<AppointmentByMonth[]>([])
   const [chartKey, setChartKey] = useState<string>(Date.now().toString())
 
   useEffect(() => {
@@ -84,6 +85,12 @@ export function AdminDashboard() {
         const appointmentsByStatusResponse = await getAppointmentsByStatus()
         if (appointmentsByStatusResponse.isSuccess) {
           setAppointmentsByStatusData(appointmentsByStatusResponse.data)
+          setChartKey(Date.now().toString())
+        }
+
+        const appointmentsByMonthResponse = await getAppointmentsByMonthAndStatus()
+        if (appointmentsByMonthResponse.isSuccess) {
+          setAppointmentsByMonthData(appointmentsByMonthResponse.data)
           setChartKey(Date.now().toString())
         }
       } catch (error) {
@@ -162,7 +169,7 @@ export function AdminDashboard() {
       <div className="grid gap-6 mb-8 md:grid-cols-1">
         <ReactionsChart />
         <RevenueChart />
-        <AppointmentChart />
+        <AppointmentChart data={appointmentsByMonthData} chartKey={chartKey}/>
       </div>
 
       {/* Staff Section */}

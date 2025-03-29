@@ -2,6 +2,12 @@ import axiosInstance from "@/api/axiosInstance"
 import type { ApiResponse } from "@/api/apiResponse"
 import { AppointmentStatusDistribution } from "@/components/admin-dashboard/charts/appointments-by-status-chart"
 import { UserRoleDistribution } from "@/components/admin-dashboard/charts/user-role-chart"
+import { AppointmentByMonth } from "@/components/admin-dashboard/charts/appointment-chart"
+
+interface Appointment {
+    appointmentDate: string;
+    status: "Pending" | "Completed" | "Cancelled" | "Confirmed";
+}
 
 // tổng số trẻ em
 export const getTotalChildren = async (): Promise<ApiResponse<number>> => {
@@ -154,6 +160,90 @@ export const getAppointmentsByStatus = async (): Promise<ApiResponse<Appointment
         };
     } catch (error) {
         console.error("Error fetching appointments by status:", error);
+        throw error;
+    }
+}
+
+export const getAppointmentsByMonthAndStatus = async (): Promise<ApiResponse<AppointmentByMonth[]>> => {
+    try {
+        let allAppointments: Appointment[] = [];
+        let pageNumber = 1;
+        const pageSize = 50;
+        let totalCount = 0;
+
+        // Lấy dữ liệu từ trang đầu tiên để biết totalCount
+        const firstResponse = await axiosInstance.get("/dashboard/appointments/all", {
+            params: { PageSize: pageSize, PageNumber: pageNumber }
+        });
+        totalCount = firstResponse.data.data.totalCount;
+        allAppointments = firstResponse.data.data.appointments;
+
+        console.log(`Page ${pageNumber} - Fetched ${allAppointments.length} appointments`);
+
+        // Lặp qua các trang còn lại để lấy toàn bộ dữ liệu
+        while (allAppointments.length < totalCount) {
+            pageNumber++;
+
+            const remainingCount = totalCount - allAppointments.length;
+            if (remainingCount <= 0) {
+                break;
+            }
+
+            const response = await axiosInstance.get("/dashboard/appointments/all", {
+                params: { PageSize: Math.min(pageSize, remainingCount), PageNumber: pageNumber }
+            });
+            const appointments = response.data.data.appointments;
+
+            console.log(`Page ${pageNumber} - Fetched ${appointments.length} appointments`);
+
+            if (appointments.length === 0) {
+                break;
+            }
+
+            const appointmentsToAdd = appointments.slice(0, remainingCount);
+            allAppointments = [...allAppointments, ...appointmentsToAdd];
+        }
+
+        console.log("Total Appointments Fetched:", allAppointments.length);
+
+        // Khởi tạo dữ liệu cho 12 tháng
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const monthlyData: { [key: string]: { Pending: number; Completed: number; Cancelled: number } } = {};
+
+        months.forEach((month) => {
+            monthlyData[month] = { Pending: 0, Completed: 0, Cancelled: 0 };
+        });
+
+        // Phân loại cuộc hẹn theo tháng và trạng thái
+        allAppointments.forEach((appointment: Appointment) => {
+            const date = new Date(appointment.appointmentDate);
+            const monthIndex = date.getMonth(); // 0-11 (Jan-Dec)
+            const month = months[monthIndex];
+            const status = appointment.status;
+
+            // Type guard để đảm bảo status là key hợp lệ
+            if (status === "Pending" || status === "Completed" || status === "Cancelled") {
+                monthlyData[month][status] = (monthlyData[month][status] || 0) + 1;
+            }
+        });
+
+        // Chuyển đổi dữ liệu thành định dạng cho biểu đồ
+        const data: AppointmentByMonth[] = months.map((month) => ({
+            month,
+            Pending: monthlyData[month].Pending,
+            Completed: monthlyData[month].Completed,
+            Cancelled: monthlyData[month].Cancelled,
+        }));
+
+        console.log("Monthly Appointments Data:", data);
+
+        return {
+            isSuccess: true,
+            message: "Appointments by month and status retrieved successfully",
+            data
+        };
+    } catch (error) {
+        console.error("Error fetching appointments by month and status:", error);
         throw error;
     }
 }
