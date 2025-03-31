@@ -8,10 +8,10 @@ import { AppointmentByMonth, AppointmentChart } from "./charts/appointment-chart
 import { RevenueChart } from "./charts/revenue-chart"
 import { ReactionsChart } from "./charts/reaction-chart"
 import { useEffect, useState } from "react"
-import { getAppointmentsByMonthAndStatus, getAppointmentsByStatus, getTotalAppointments, getTotalChildren, getTotalPaymentAmount, getTotalVaccines, getUserRolesDistribution } from "@/api/admin/dashboard"
+import { getAppointmentsByMonthAndStatus, getAppointmentsByStatus, getTop5MostBookedVaccines, getTotalAppointments, getTotalChildren, getTotalPaymentAmount, getTotalVaccines, getUserRolesDistribution } from "@/api/admin/dashboard"
 import { AppointmentsByStatusChart, AppointmentStatusDistribution } from "./charts/appointments-by-status-chart"
 import { VaccinationAgeChart } from "./charts/age-group-chart"
-import { VaccineMostBookedChart } from "./charts/vaccine-most-booked-chart"
+import { VaccineBookingDto, VaccineMostBookedChart } from "./charts/vaccine-most-booked-chart"
 
 // Sample staff performance data
 const staffPerformance = [
@@ -52,6 +52,7 @@ export function AdminDashboard() {
   const [userRolesData, setUserRolesData] = useState<UserRoleDistribution[]>([])
   const [appointmentsByStatusData, setAppointmentsByStatusData] = useState<AppointmentStatusDistribution[]>([])
   const [appointmentsByMonthData, setAppointmentsByMonthData] = useState<AppointmentByMonth[]>([])
+  const [top5Vaccines, setTop5Vaccines] = useState<VaccineBookingDto[]>([]);
   const [chartKey, setChartKey] = useState<string>(Date.now().toString())
 
   useEffect(() => {
@@ -92,6 +93,11 @@ export function AdminDashboard() {
         if (appointmentsByMonthResponse.isSuccess) {
           setAppointmentsByMonthData(appointmentsByMonthResponse.data)
           setChartKey(Date.now().toString())
+        }
+
+        const top5VaccinesResponse = await getTop5MostBookedVaccines();
+        if (top5VaccinesResponse.isSuccess) {
+          setTop5Vaccines(top5VaccinesResponse.data);
         }
       } catch (error) {
         console.error("Error fetching dashboard data:", error)
@@ -162,7 +168,7 @@ export function AdminDashboard() {
         <AppointmentsByStatusChart data={appointmentsByStatusData} chartKey={chartKey}/>
         <UserRoleChart data={userRolesData} chartKey={chartKey}/>
         <VaccinationAgeChart/>
-        <VaccineMostBookedChart/>
+        <VaccineMostBookedChart data={top5Vaccines}/>
       </div>
 
       {/* Trends Section */}

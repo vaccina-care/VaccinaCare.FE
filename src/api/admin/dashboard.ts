@@ -3,6 +3,7 @@ import type { ApiResponse } from "@/api/apiResponse"
 import { AppointmentStatusDistribution } from "@/components/admin-dashboard/charts/appointments-by-status-chart"
 import { UserRoleDistribution } from "@/components/admin-dashboard/charts/user-role-chart"
 import { AppointmentByMonth } from "@/components/admin-dashboard/charts/appointment-chart"
+import { VaccineBookingDto } from "@/components/admin-dashboard/charts/vaccine-most-booked-chart"
 
 interface Appointment {
     appointmentDate: string;
@@ -62,6 +63,16 @@ export const getTotalPaymentAmount = async (): Promise<ApiResponse<number>> => {
         throw error
     }
 }
+
+export const getTop5MostBookedVaccines = async (): Promise<ApiResponse<VaccineBookingDto[]>> => {
+    try {
+        const response = await axiosInstance.get("/dashboard/vaccines/top5-booked");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching top 5 most booked vaccines:", error);
+        throw error;
+    }
+};
 
 export const getUserRolesDistribution = async (): Promise<ApiResponse<UserRoleDistribution[]>> => {
     try {
@@ -171,7 +182,6 @@ export const getAppointmentsByMonthAndStatus = async (): Promise<ApiResponse<App
         const pageSize = 50;
         let totalCount = 0;
 
-        // Lấy dữ liệu từ trang đầu tiên để biết totalCount
         const firstResponse = await axiosInstance.get("/dashboard/appointments/all", {
             params: { PageSize: pageSize, PageNumber: pageNumber }
         });
@@ -180,7 +190,6 @@ export const getAppointmentsByMonthAndStatus = async (): Promise<ApiResponse<App
 
         console.log(`Page ${pageNumber} - Fetched ${allAppointments.length} appointments`);
 
-        // Lặp qua các trang còn lại để lấy toàn bộ dữ liệu
         while (allAppointments.length < totalCount) {
             pageNumber++;
 
@@ -206,7 +215,6 @@ export const getAppointmentsByMonthAndStatus = async (): Promise<ApiResponse<App
 
         console.log("Total Appointments Fetched:", allAppointments.length);
 
-        // Khởi tạo dữ liệu cho 12 tháng
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const monthlyData: { [key: string]: { Pending: number; Completed: number; Cancelled: number } } = {};
 
@@ -214,20 +222,17 @@ export const getAppointmentsByMonthAndStatus = async (): Promise<ApiResponse<App
             monthlyData[month] = { Pending: 0, Completed: 0, Cancelled: 0 };
         });
 
-        // Phân loại cuộc hẹn theo tháng và trạng thái
         allAppointments.forEach((appointment: Appointment) => {
             const date = new Date(appointment.appointmentDate);
             const monthIndex = date.getMonth(); // 0-11 (Jan-Dec)
             const month = months[monthIndex];
             const status = appointment.status;
 
-            // Type guard để đảm bảo status là key hợp lệ
             if (status === "Pending" || status === "Completed" || status === "Cancelled") {
                 monthlyData[month][status] = (monthlyData[month][status] || 0) + 1;
             }
         });
 
-        // Chuyển đổi dữ liệu thành định dạng cho biểu đồ
         const data: AppointmentByMonth[] = months.map((month) => ({
             month,
             Pending: monthlyData[month].Pending,
