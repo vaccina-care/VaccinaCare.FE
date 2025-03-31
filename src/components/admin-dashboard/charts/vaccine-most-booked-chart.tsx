@@ -13,19 +13,14 @@ export interface VaccineMostBookedChartProps {
 }
 
 export function VaccineMostBookedChart({ data }: VaccineMostBookedChartProps) {
-  const chartData = data
-    .slice(0, 5)
-    .map((item) => ({
-      name: item.vaccineName,
-      bookings: item.bookingCount,
-    }));
+  const chartData = data.slice(0, 5).map((item) => ({
+    name: item.vaccineName,
+    bookings: item.bookingCount,
+  }));
 
   const maxBookings = Math.max(...chartData.map((item) => item.bookings), 0);
   const tickInterval = 5;
-  const ticks = Array.from(
-    { length: Math.ceil(maxBookings / tickInterval) + 1 },
-    (_, i) => i * tickInterval
-  );
+  const ticks = Array.from({ length: Math.ceil(maxBookings / tickInterval) + 1 }, (_, i) => i * tickInterval);
 
   return (
     <Card>
@@ -44,22 +39,22 @@ export function VaccineMostBookedChart({ data }: VaccineMostBookedChartProps) {
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis
                 type="number"
-                tick={{ fill: "var(--foreground)" }}
+                tick={{ className: "fill-foreground" }}
                 ticks={ticks}
                 domain={[0, ticks[ticks.length - 1] + 5]}
               />
               <YAxis
                 dataKey="name"
                 type="category"
-                tick={{ fill: "var(--foreground)" }}
+                tick={{ className: "fill-foreground" }} 
                 width={120}
               />
               <Tooltip
                 contentStyle={{
                   backgroundColor: "var(--background)",
                   borderColor: "var(--border)",
-                  borderRadius: "4px", 
-                  color: "var(--foreground)", 
+                  borderRadius: "4px",
+                  color: "var(--foreground)",
                 }}
                 labelStyle={{
                   color: "var(--foreground)",

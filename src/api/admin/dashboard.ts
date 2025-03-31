@@ -67,7 +67,11 @@ export const getTotalPaymentAmount = async (): Promise<ApiResponse<number>> => {
 export const getTop5MostBookedVaccines = async (): Promise<ApiResponse<VaccineBookingDto[]>> => {
     try {
         const response = await axiosInstance.get("/dashboard/vaccines/top5-booked");
-        return response.data;
+        return{
+            isSuccess: response.data.isSuccess,
+            message: response.data.message,
+            data: response.data.data
+        } 
     } catch (error) {
         console.error("Error fetching top 5 most booked vaccines:", error);
         throw error;
