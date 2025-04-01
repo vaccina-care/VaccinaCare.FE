@@ -256,3 +256,54 @@ export const getAppointmentsByMonthAndStatus = async (): Promise<ApiResponse<App
         throw error;
     }
 }
+
+
+export const getPaymentAmountByDateRange = async (
+    startDate?: string, // e.g., "2025-01-01"
+    endDate?: string   // e.g., "2025-12-31"
+  ): Promise<ApiResponse<number>> => {
+    try {
+      const response = await axiosInstance.get("/dashboard/payments/amount", {
+        params: {
+          startDate: startDate || undefined,
+          endDate: endDate || undefined,
+        },
+      });
+      return {
+        isSuccess: response.data.isSuccess,
+        message: response.data.message,
+        data: response.data.data.totalAmount, // Adjust if field name differs
+      };
+    } catch (error) {
+      console.error("Error fetching payment amount by date range:", error);
+      return {
+        isSuccess: false,
+        message: "Failed to fetch payment amount",
+        data: 0,
+      };
+    }
+  };
+  
+  // Fetch monthly revenue for the current year
+  export const getMonthlyRevenue = async (): Promise<ApiResponse<{ month: string; revenue: number }[]>> => {
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const currentYear = new Date().getFullYear(); // e.g., 2025
+    const revenueData: { month: string; revenue: number }[] = [];
+  
+    for (let i = 0; i < months.length; i++) {
+      const startDate = `${currentYear}-${String(i + 1).padStart(2, "0")}-01`; // e.g., "2025-01-01"
+      const endDate = `${currentYear}-${String(i + 1).padStart(2, "0")}-${new Date(currentYear, i + 1, 0).getDate()}`; // Last day of month
+  
+      const response = await getPaymentAmountByDateRange(startDate, endDate);
+      revenueData.push({
+        month: months[i],
+        revenue: response.isSuccess ? response.data : 0, // Default to 0 if fetch fails
+      });
+    }
+  
+    return {
+      isSuccess: true,
+      message: "Monthly revenue retrieved successfully",
+      data: revenueData,
+    };
+  };

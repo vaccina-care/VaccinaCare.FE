@@ -1,41 +1,59 @@
-"use client"
+// src/components/admin-dashboard/charts/revenue-chart.tsx
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-
-const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-
-const data = months.map((month, index) => {
-  const baseRevenue = 8000 + index * 800 
-  const revenue = Math.floor(baseRevenue + (Math.random() * 2000 - 1000)) 
-
-  const expenses = Math.floor(revenue * (0.4 + Math.random() * 0.15))
-  const profit = revenue - expenses
-
-  return {
-    month,
-    revenue,
-    expenses,
-    profit,
-  }
-})
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import { useEffect, useState } from "react";
+import { getMonthlyRevenue } from "@/api/admin/dashboard";
 
 export function RevenueChart() {
+  const [revenueData, setRevenueData] = useState<{ month: string; revenue: number }[]>([]);
+
+  useEffect(() => {
+    const fetchRevenueData = async () => {
+      try {
+        const response = await getMonthlyRevenue();
+        if (response.isSuccess) {
+          setRevenueData(response.data);
+        } else {
+          console.error("Failed to fetch revenue data:", response.message);
+          setRevenueData([]);
+        }
+      } catch (error) {
+        console.error("Error fetching revenue data:", error);
+        setRevenueData([]);
+      }
+    };
+
+    fetchRevenueData();
+  }, []);
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Monthly Financial Performance</CardTitle>
-        <CardDescription>Revenue, expenses, and profit over the past year</CardDescription>
+        <CardTitle>Monthly Revenue</CardTitle>
+        <CardDescription>Total revenue over the past year</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data}>
+            <AreaChart data={revenueData}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis dataKey="month" tick={{ fill: "var(--foreground)" }} />
-              <YAxis tickFormatter={(value) => `$${value.toLocaleString()}`} tick={{ fill: "var(--foreground)" }} />
+              <YAxis
+                tickFormatter={(value) => `$${value.toLocaleString()}`}
+                tick={{ fill: "var(--foreground)" }}
+              />
               <Tooltip
-                formatter={(value) => [`$${(value as number).toLocaleString()}`, ""]}
+                formatter={(value) => [`$${(value as number).toLocaleString()}`, "Revenue"]}
                 contentStyle={{
                   backgroundColor: "var(--background)",
                   borderColor: "var(--border)",
@@ -44,36 +62,17 @@ export function RevenueChart() {
                 labelStyle={{ color: "var(--foreground)" }}
                 itemStyle={{ color: "var(--foreground)" }}
               />
-              <Legend formatter={(value) => <span className="text-foreground">{value}</span>} />
               <Area
                 type="monotone"
                 dataKey="revenue"
                 name="Revenue"
-                stackId="1"
-                stroke="#3b82f6" 
+                stroke="#3b82f6"
                 fill="rgba(59, 130, 246, 0.2)"
-              />
-              <Area
-                type="monotone"
-                dataKey="expenses"
-                name="Expenses"
-                stackId="2"
-                stroke="#f43f5e" 
-                fill="rgba(244, 63, 94, 0.2)"
-              />
-              <Area
-                type="monotone"
-                dataKey="profit"
-                name="Profit"
-                stackId="3"
-                stroke="#10b981" 
-                fill="rgba(16, 185, 129, 0.2)"
               />
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
-
