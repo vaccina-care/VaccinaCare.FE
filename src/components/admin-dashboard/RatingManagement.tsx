@@ -2,9 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
-  Search,
   Eye,
   ChevronLeft,
   ChevronRight,
@@ -20,17 +18,16 @@ import {
 import { useDebounce } from "@/hooks/use-debounce"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Progress } from "@/components/ui/progress"
 import { RatingDistributionChart } from "@/components/admin-dashboard/charts/rating-distribution-chart"
-import { RatingTrendChart } from "@/components/admin-dashboard/charts/rating-trend-chart"
 import { getAllFeedbacks, GetFeedbacksParams, FeedbackBase } from "@/api/admin/feedback"
 
 export function RatingManagement() {
   const [ratings, setRatings] = useState<FeedbackBase[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm] = useState("")
   const [page, setPage] = useState(1)
   const [pageSize] = useState(10)
   const [selectedRating, setSelectedRating] = useState<FeedbackBase | null>(null)
@@ -217,16 +214,6 @@ export function RatingManagement() {
           <CardTitle>All Ratings</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search by comment..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 w-full"
-            />
-          </div>
-
           <div className="space-y-4">
             {isLoading ? (
               Array.from({ length: 5 }).map((_, index) => (
