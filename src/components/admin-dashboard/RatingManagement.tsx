@@ -48,7 +48,7 @@ export function RatingManagement() {
       }
 
       const response = await getAllFeedbacks(params)
-      
+
       if (response.isSuccess) {
         setRatings(response.data.feedbacks)
         setTotalCount(response.data.totalCount)
@@ -64,10 +64,10 @@ export function RatingManagement() {
     fetchRatings()
   }, [fetchRatings])
 
-  const averageRating = ratings.length > 0 
-    ? ratings.reduce((acc, curr) => acc + curr.rating, 0) / ratings.length 
+  const averageRating = ratings.length > 0
+    ? ratings.reduce((acc, curr) => acc + curr.rating, 0) / ratings.length
     : 0
-    
+
   const fiveStarCount = ratings.filter((r) => r.rating === 5).length
   const fiveStarPercentage = ratings.length > 0 ? (fiveStarCount / ratings.length) * 100 : 0
   const oneStarCount = ratings.filter((r) => r.rating === 1).length
@@ -126,7 +126,7 @@ export function RatingManagement() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 ">
         <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/40 dark:to-blue-900/20 border-blue-200 dark:border-blue-800">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg font-medium flex items-center justify-between">
@@ -199,24 +199,17 @@ export function RatingManagement() {
         </Card>
       </div>
 
-      <div className="grid gap-6 mb-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Rating Distribution</CardTitle>
-          </CardHeader>
-          <CardContent className="h-[300px]">
-            <RatingDistributionChart data={ratingDistribution} />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Rating Trends</CardTitle>
-          </CardHeader>
-          <CardContent className="h-[300px]">
-            <RatingTrendChart />
-          </CardContent>
-        </Card>
+      <div className="flex justify-center w-[100%]">
+        <div className="w-[60%]">
+          <Card>
+            <CardHeader>
+              <CardTitle>Rating Distribution</CardTitle>
+            </CardHeader>
+            <CardContent className="h-[300px]">
+              <RatingDistributionChart data={ratingDistribution} />
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       <Card className="shadow-md">
@@ -355,7 +348,7 @@ export function RatingManagement() {
                   <label className="text-muted-foreground">Date Submitted</label>
                   <div className="flex items-center gap-2">
                     <CalendarDays className="h-4 w-4 text-muted-foreground" />
-                    <span>{formatDate(new Date().toISOString())}</span> 
+                    <span>{formatDate(new Date().toISOString())}</span>
                   </div>
                 </div>
               </div>
