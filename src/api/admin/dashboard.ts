@@ -67,11 +67,11 @@ export const getTotalPaymentAmount = async (): Promise<ApiResponse<number>> => {
 export const getTop5MostBookedVaccines = async (): Promise<ApiResponse<VaccineBookingDto[]>> => {
     try {
         const response = await axiosInstance.get("/dashboard/vaccines/top5-booked");
-        return{
+        return {
             isSuccess: response.data.isSuccess,
             message: response.data.message,
             data: response.data.data
-        } 
+        }
     } catch (error) {
         console.error("Error fetching top 5 most booked vaccines:", error);
         throw error;
@@ -81,7 +81,7 @@ export const getTop5MostBookedVaccines = async (): Promise<ApiResponse<VaccineBo
 export const getUserRolesDistribution = async (): Promise<ApiResponse<UserRoleDistribution[]>> => {
     try {
         const response = await axiosInstance.get("/admin/users", {
-            params: { pageSize: 1000 } 
+            params: { pageSize: 1000 }
         })
         const users = response.data.data.users
         const roleCount = users.reduce((acc: any, user: any) => {
@@ -89,9 +89,9 @@ export const getUserRolesDistribution = async (): Promise<ApiResponse<UserRoleDi
             return acc
         }, {})
         const colors = {
-            Customer: "#3b82f6", 
-            Staff: "#10b981", 
-            Admin: "#f43f5e" 
+            Customer: "#3b82f6",
+            Staff: "#10b981",
+            Admin: "#f43f5e"
         }
         const data = Object.entries(roleCount).map(([name, value]) => ({
             name,
@@ -114,7 +114,7 @@ export const getAppointmentsByStatus = async (): Promise<ApiResponse<Appointment
     try {
         let allAppointments: any[] = [];
         let pageNumber = 1;
-        const pageSize = 50; 
+        const pageSize = 50;
         let totalCount = 0;
 
         const firstResponse = await axiosInstance.get("/dashboard/appointments/all", {
@@ -122,8 +122,6 @@ export const getAppointmentsByStatus = async (): Promise<ApiResponse<Appointment
         });
         totalCount = firstResponse.data.data.totalCount;
         allAppointments = firstResponse.data.data.appointments;
-
-        console.log(`Page ${pageNumber} - Fetched ${allAppointments.length} appointments`);
 
         while (allAppointments.length < totalCount) {
             pageNumber++;
@@ -138,8 +136,6 @@ export const getAppointmentsByStatus = async (): Promise<ApiResponse<Appointment
             });
             const appointments = response.data.data.appointments;
 
-            console.log(`Page ${pageNumber} - Fetched ${appointments.length} appointments`);
-
             if (appointments.length === 0) {
                 break;
             }
@@ -147,8 +143,6 @@ export const getAppointmentsByStatus = async (): Promise<ApiResponse<Appointment
             const appointmentsToAdd = appointments.slice(0, remainingCount);
             allAppointments = [...allAppointments, ...appointmentsToAdd];
         }
-
-        console.log("Total Appointments Fetched:", allAppointments.length);
 
         const statusCount = allAppointments.reduce((acc: any, appointment: any) => {
             const status = appointment.status;
@@ -158,10 +152,10 @@ export const getAppointmentsByStatus = async (): Promise<ApiResponse<Appointment
         console.log("Status Count:", statusCount);
 
         const colors = {
-            Pending: "#f59e0b", 
-            Confirmed: "#3b82f6", 
-            Completed: "#10b981", 
-            Cancelled: "#f43f5e" 
+            Pending: "#f59e0b",
+            Confirmed: "#3b82f6",
+            Completed: "#10b981",
+            Cancelled: "#f43f5e"
         };
         const data = Object.entries(statusCount).map(([name, value]) => ({
             name,
@@ -192,8 +186,6 @@ export const getAppointmentsByMonthAndStatus = async (): Promise<ApiResponse<App
         totalCount = firstResponse.data.data.totalCount;
         allAppointments = firstResponse.data.data.appointments;
 
-        console.log(`Page ${pageNumber} - Fetched ${allAppointments.length} appointments`);
-
         while (allAppointments.length < totalCount) {
             pageNumber++;
 
@@ -207,8 +199,6 @@ export const getAppointmentsByMonthAndStatus = async (): Promise<ApiResponse<App
             });
             const appointments = response.data.data.appointments;
 
-            console.log(`Page ${pageNumber} - Fetched ${appointments.length} appointments`);
-
             if (appointments.length === 0) {
                 break;
             }
@@ -216,8 +206,6 @@ export const getAppointmentsByMonthAndStatus = async (): Promise<ApiResponse<App
             const appointmentsToAdd = appointments.slice(0, remainingCount);
             allAppointments = [...allAppointments, ...appointmentsToAdd];
         }
-
-        console.log("Total Appointments Fetched:", allAppointments.length);
 
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const monthlyData: { [key: string]: { Pending: number; Completed: number; Cancelled: number } } = {};
@@ -257,53 +245,52 @@ export const getAppointmentsByMonthAndStatus = async (): Promise<ApiResponse<App
     }
 }
 
-
+// Fetch monthly revenue for the current year
 export const getPaymentAmountByDateRange = async (
-    startDate?: string, // e.g., "2025-01-01"
-    endDate?: string   // e.g., "2025-12-31"
-  ): Promise<ApiResponse<number>> => {
+    startDate?: string,
+    endDate?: string
+): Promise<ApiResponse<number>> => {
     try {
-      const response = await axiosInstance.get("/dashboard/payments/amount", {
-        params: {
-          startDate: startDate || undefined,
-          endDate: endDate || undefined,
-        },
-      });
-      return {
-        isSuccess: response.data.isSuccess,
-        message: response.data.message,
-        data: response.data.data.totalAmount, // Adjust if field name differs
-      };
+        const response = await axiosInstance.get("/dashboard/payments/amount", {
+            params: {
+                startDate: startDate || undefined,
+                endDate: endDate || undefined,
+            },
+        });
+        return {
+            isSuccess: response.data.isSuccess,
+            message: response.data.message,
+            data: response.data.data.totalAmount,
+        };
     } catch (error) {
-      console.error("Error fetching payment amount by date range:", error);
-      return {
-        isSuccess: false,
-        message: "Failed to fetch payment amount",
-        data: 0,
-      };
+        console.error("Error fetching payment amount by date range:", error);
+        return {
+            isSuccess: false,
+            message: "Failed to fetch payment amount",
+            data: 0,
+        };
     }
-  };
-  
-  // Fetch monthly revenue for the current year
-  export const getMonthlyRevenue = async (): Promise<ApiResponse<{ month: string; revenue: number }[]>> => {
+};
+
+export const getMonthlyRevenue = async (): Promise<ApiResponse<{ month: string; revenue: number }[]>> => {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const currentYear = new Date().getFullYear(); // e.g., 2025
+    const currentYear = new Date().getFullYear();
     const revenueData: { month: string; revenue: number }[] = [];
-  
+
     for (let i = 0; i < months.length; i++) {
-      const startDate = `${currentYear}-${String(i + 1).padStart(2, "0")}-01`; // e.g., "2025-01-01"
-      const endDate = `${currentYear}-${String(i + 1).padStart(2, "0")}-${new Date(currentYear, i + 1, 0).getDate()}`; // Last day of month
-  
-      const response = await getPaymentAmountByDateRange(startDate, endDate);
-      revenueData.push({
-        month: months[i],
-        revenue: response.isSuccess ? response.data : 0, // Default to 0 if fetch fails
-      });
+        const startDate = `${currentYear}-${String(i + 1).padStart(2, "0")}-01`;
+        const endDate = `${currentYear}-${String(i + 1).padStart(2, "0")}-${new Date(currentYear, i + 1, 0).getDate()}`;
+
+        const response = await getPaymentAmountByDateRange(startDate, endDate);
+        revenueData.push({
+            month: months[i],
+            revenue: response.isSuccess ? response.data : 0,
+        });
     }
-  
+
     return {
-      isSuccess: true,
-      message: "Monthly revenue retrieved successfully",
-      data: revenueData,
+        isSuccess: true,
+        message: "Monthly revenue retrieved successfully",
+        data: revenueData,
     };
-  };
+};

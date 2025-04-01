@@ -26,7 +26,7 @@ export function VaccineMostBookedChart({ data }: VaccineMostBookedChartProps) {
     <Card>
       <CardHeader>
         <CardTitle>Top 5 Most Booked Vaccines</CardTitle>
-        <CardDescription>Number of bookings per vaccine (Top 5)</CardDescription>
+        <CardDescription>Number of bookings per vaccine</CardDescription>
       </CardHeader>
       <CardContent className="h-[350px]">
         {chartData.length > 0 ? (

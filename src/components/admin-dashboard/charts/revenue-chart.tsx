@@ -1,4 +1,3 @@
-// src/components/admin-dashboard/charts/revenue-chart.tsx
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +35,16 @@ export function RevenueChart() {
     fetchRevenueData();
   }, []);
 
+  const maxRevenue = revenueData.length > 0 
+    ? Math.max(...revenueData.map((d) => d.revenue)) 
+    : 1000; 
+
+  const formatYAxis = (value: number) => {
+    if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
+    if (value >= 1000) return `$${(value / 1000).toFixed(1)}K`;
+    return `$${value}`;
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -49,8 +58,11 @@ export function RevenueChart() {
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis dataKey="month" tick={{ fill: "var(--foreground)" }} />
               <YAxis
-                tickFormatter={(value) => `$${value.toLocaleString()}`}
+                tickFormatter={formatYAxis}
                 tick={{ fill: "var(--foreground)" }}
+                width={80}
+                domain={[0, maxRevenue * 1.1]} 
+                tickCount={6} 
               />
               <Tooltip
                 formatter={(value) => [`$${(value as number).toLocaleString()}`, "Revenue"]}
