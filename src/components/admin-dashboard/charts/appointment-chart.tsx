@@ -1,26 +1,22 @@
-
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 
-const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+// Interface cho dữ liệu biểu đồ
+export interface AppointmentByMonth {
+  month: string;
+  Pending: number;
+  Completed: number;
+  Cancelled: number;
+}
 
-const data = months.map((month) => {
-  const completed = Math.floor(Math.random() * 80) + 20
-  const cancelled = Math.floor(Math.random() * 20)
-  const rescheduled = Math.floor(Math.random() * 30)
+interface AppointmentChartProps {
+  data: AppointmentByMonth[];
+  chartKey: string;
+}
 
-  return {
-    month,
-    completed,
-    cancelled,
-    rescheduled,
-    total: completed + cancelled + rescheduled,
-  }
-})
-
-export function AppointmentChart() {
+export function AppointmentChart({ data, chartKey }: AppointmentChartProps) {
   return (
     <Card>
       <CardHeader>
@@ -29,7 +25,7 @@ export function AppointmentChart() {
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" key={chartKey}>
             <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis dataKey="month" tick={{ fill: "var(--foreground)" }} />
@@ -44,9 +40,9 @@ export function AppointmentChart() {
                 itemStyle={{ color: "var(--foreground)" }}
               />
               <Legend formatter={(value) => <span className="text-foreground">{value}</span>} />
-              <Bar dataKey="completed" name="Completed" fill="#10b981" />
-              <Bar dataKey="cancelled" name="Cancelled" fill="#f43f5e" />
-              <Bar dataKey="rescheduled" name="Rescheduled" fill="#f59e0b" />
+              <Bar dataKey="Completed" name="Completed" fill="#10b981" />
+              <Bar dataKey="Cancelled" name="Cancelled" fill="#f43f5e" />
+              <Bar dataKey="Pending" name="Pending" fill="#f59e0b" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -54,4 +50,3 @@ export function AppointmentChart() {
     </Card>
   )
 }
-

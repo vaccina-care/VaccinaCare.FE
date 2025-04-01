@@ -3,13 +3,18 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts"
 
-const data = [
-  { name: "Admin", value: 5, color: "#3b82f6" },
-  { name: "Staff", value: 25, color: "#10b981" },
-  { name: "Customer", value: 120, color: "#f43f5e" },
-]
+export interface UserRoleDistribution {
+  name: string
+  value: number
+  color: string
+}
 
-export function UserRoleChart() {
+interface UserRoleChartProps {
+  data: UserRoleDistribution[]
+  chartKey: string;
+}
+
+export function UserRoleChart({ data, chartKey }: UserRoleChartProps) {
   return (
     <Card>
       <CardHeader>
@@ -18,7 +23,7 @@ export function UserRoleChart() {
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" key={chartKey}>
             <PieChart>
               <Pie
                 data={data}
@@ -29,14 +34,14 @@ export function UserRoleChart() {
                 fill="#8884d8"
                 dataKey="value"
                 nameKey="name"
-                label={({ name, value }) => `${name}: ${value}%`}
+                label={({ name, value }) => `${name}: ${value}`}
               >
                 {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value, name) => [`${value} Users (${(((value as number) / 150) * 100).toFixed(0)}%)`, name]}
+                formatter={(value, name) => [`${value} Users`, name]}
                 contentStyle={{
                   backgroundColor: "var(--background)",
                   borderColor: "var(--border)",
