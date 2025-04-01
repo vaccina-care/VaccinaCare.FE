@@ -6,9 +6,10 @@ import { UserBase } from "@/api/admin/adminUser"
 
 interface UserRoleInfoProps {
   users: UserBase[]
+  totalCount: number 
 }
 
-export function UserRoleInfo({ users }: UserRoleInfoProps) {
+export function UserRoleInfo({ users, totalCount }: UserRoleInfoProps) {
   const adminCount = users.filter(user => user.roleName === "Admin").length
   const staffCount = users.filter(user => user.roleName === "Staff").length
   const customerCount = users.filter(user => user.roleName === "Customer").length
@@ -23,10 +24,10 @@ export function UserRoleInfo({ users }: UserRoleInfoProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold text-purple-700 dark:text-purple-400">{users.length}</div>
+          <div className="text-3xl font-bold text-purple-700 dark:text-purple-400">{totalCount}</div>
           <p className="text-sm text-purple-600 dark:text-purple-300 flex items-center mt-1">
             <ArrowUpRight className="h-3 w-3 mr-1" />
-            +10% from last month
+            All users from system
           </p>
         </CardContent>
       </Card>
@@ -41,7 +42,7 @@ export function UserRoleInfo({ users }: UserRoleInfoProps) {
         <CardContent>
           <div className="text-3xl font-bold text-red-700 dark:text-red-400">{adminCount}</div>
           <p className="text-sm text-red-600 dark:text-red-300 mt-1">
-            {users.length > 0 ? ((adminCount / users.length) * 100).toFixed(1) : 0}% of total users
+            {totalCount > 0 ? ((adminCount / totalCount) * 100).toFixed(1) : 0}% of total users
           </p>
         </CardContent>
       </Card>
@@ -56,7 +57,7 @@ export function UserRoleInfo({ users }: UserRoleInfoProps) {
         <CardContent>
           <div className="text-3xl font-bold text-green-700 dark:text-green-400">{staffCount}</div>
           <p className="text-sm text-green-600 dark:text-green-300 mt-1">
-            {users.length > 0 ? ((staffCount / users.length) * 100).toFixed(1) : 0}% of total users
+            {totalCount > 0 ? ((staffCount / totalCount) * 100).toFixed(1) : 0}% of total users
           </p>
         </CardContent>
       </Card>
@@ -71,7 +72,7 @@ export function UserRoleInfo({ users }: UserRoleInfoProps) {
         <CardContent>
           <div className="text-3xl font-bold text-blue-700 dark:text-blue-400">{customerCount}</div>
           <p className="text-sm text-blue-600 dark:text-blue-300 mt-1">
-            {users.length > 0 ? ((customerCount / users.length) * 100).toFixed(1) : 0}% of total users
+            {totalCount > 0 ? ((customerCount / totalCount) * 100).toFixed(1) : 0}% of total users
           </p>
         </CardContent>
       </Card>

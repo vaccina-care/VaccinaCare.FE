@@ -354,7 +354,7 @@ export function UsersManagement() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div>
-          <UserRoleInfo users={users} />
+          <UserRoleInfo users={users} totalCount={totalCount} />
         </div>
 
         <Card className="shadow-md">
@@ -362,7 +362,7 @@ export function UsersManagement() {
             <CardTitle>User Distribution</CardTitle>
           </CardHeader>
           <div className="h-[200px]">
-            <UserRoleChartImp data={chartData} chartKey={chartKey}/>
+            <UserRoleChartImp data={chartData} chartKey={chartKey} />
           </div>
         </Card>
       </div>
