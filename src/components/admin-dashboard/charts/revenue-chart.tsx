@@ -40,9 +40,9 @@ export function RevenueChart() {
     : 1000; 
 
   const formatYAxis = (value: number) => {
-    if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
-    if (value >= 1000) return `$${(value / 1000).toFixed(1)}K`;
-    return `$${value}`;
+    if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+    if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
+    return `${value}`;
   };
 
   return (
@@ -65,7 +65,7 @@ export function RevenueChart() {
                 tickCount={6} 
               />
               <Tooltip
-                formatter={(value) => [`$${(value as number).toLocaleString()}`, "Revenue"]}
+                formatter={(value) => [`${(value as number).toLocaleString()}VND`, "Revenue"]}
                 contentStyle={{
                   backgroundColor: "var(--background)",
                   borderColor: "var(--border)",
